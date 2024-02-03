@@ -1,0 +1,28 @@
+---
+title: "Chris Levy"
+image: "pic_me.jpeg"
+about:
+  template: solana
+  image-shape: round
+  links:
+    - icon: twitter
+      text: twitter
+      href: https://twitter.com/cleavey1985
+    - icon: github
+      text: Github
+      href: https://github.com/DrChrisLevy
+    - icon: linkedin
+      text: linkedIn
+      href: https://www.linkedin.com/in/chris-levy-255210a4/
+---
+
+**Hello!** I'm Chris Levy. I work in ML/AI and backend Python development.
+
+## About Me
+
+I spent a good amount of time in school where I completed a PhD in applied math back in 2015. After graduating
+I shifted away from academia and started working in industry. I mostly do backend python development these days,
+and build ML/AI applications/services. I work across the entire stack from research, to training and evaluating models,
+to deploying models, and getting in the weeds of the infrastructure and devops pipelines.
+
+Outside of AI/ML stuff, I enjoy spending time with my family and three kids, working out, swimming, cycling, and playing guitar.
