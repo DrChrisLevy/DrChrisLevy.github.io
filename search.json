@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Basic Transformer Architecture Notes\n\n\n\n\n\n\n\n\n\n\n\n\nFeb 2, 2024\n\n\nChris Levy\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/basic_transformer_notes/transformers.html",
+    "href": "posts/basic_transformer_notes/transformers.html",
+    "title": "Basic Transformer Architecture Notes",
+    "section": "",
+    "text": "Here are my notes on the basic transformer architecture for my personal learning and understanding. Useful as a secondary resource, not the first stop. There are many resources out there, but here are several I enjoyed learning from:\n\nChapter 3 of the book Natural Language Processing With Transformers (Tunstall, Von Werra, and Wolf 2022)\nAndrej Karpathy’s video Let’s build GPT: from scratch, in code, spelled out (Karpathy 2023)\nSebastian Raschka’s Blog Post Understanding and Coding Self-Attention, Multi-Head Attention, Cross-Attention, and Causal-Attention in LLMs (Raschka 2024)\nOmar Sanseviero’s Blog Post The Random Transformer (Sanseviero 2024)\nThe Illustrated Transformer (Alammar 2018)\nThe original paper: Attention Is All You Need (Vaswani et al. 2017)"
+  },
+  {
+    "objectID": "posts/basic_transformer_notes/transformers.html#multi-head-attention",
+    "href": "posts/basic_transformer_notes/transformers.html#multi-head-attention",
+    "title": "Basic Transformer Architecture Notes",
+    "section": "Multi Head Attention",
+    "text": "Multi Head Attention\n\nThere are multiple attention heads, each with their own independent queries, keys, values.\nEach attention head takes the input embeddings of shape (B, T, C) and produces an output (B, T, H).\nConcatenate the outputs from each head so that the concatenated tensor is back to the original input shape (B, T, C).\nOnce we have the concatenated output tensor, we put it through a linear projection, nn.Linear(embed_dim, embed_dim) to get the output from the multi head attention: a tensor of shape (B, T, C)."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Chris Levy",
+    "section": "",
+    "text": "Hello! I’m Chris Levy. I work in ML/AI and backend Python development."
+  },
+  {
+    "objectID": "index.html#about-me",
+    "href": "index.html#about-me",
+    "title": "Chris Levy",
+    "section": "About Me",
+    "text": "About Me\nI spent a good amount of time in school where I completed a PhD in applied math back in 2015. After graduating I shifted away from academia and started working in industry. I mostly do backend python development these days, and build ML/AI applications/services. I work across the entire stack from research, to training and evaluating models, to deploying models, and getting in the weeds of the infrastructure and devops pipelines.\nOutside of AI/ML stuff, I enjoy spending time with my family and three kids, working out, swimming, cycling, and playing guitar."
+  }
+]
