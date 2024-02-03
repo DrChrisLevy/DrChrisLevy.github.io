@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Chris Levy">
-<meta name="dcterms.date" content="2024-02-02">
+<meta name="dcterms.date" content="2024-02-03">
 
 <title>Chris Levy - Basic Transformer Architecture Notes</title>
 <style>
@@ -188,14 +188,14 @@ div.csl-indent {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 2, 2024</p>
+        <p class="date">February 3, 2024</p>
       </div>
     </div>
     
       <div>
       <div class="quarto-title-meta-heading">Modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date-modified">February 2, 2024</p>
+        <p class="date-modified">February 3, 2024</p>
       </div>
     </div>
       
@@ -230,7 +230,7 @@ div.csl-indent {
 
 <section id="intro" class="level1">
 <h1>Intro</h1>
-<p>Here are my notes on the basic transformer architecture for my personal learning and understanding. Useful as a secondary resource, not the first stop. There are many resources out there, but here are several I enjoyed learning from:</p>
+<p>Here are some notes on the basic transformer architecture for my personal learning and understanding. Useful as a secondary resource, not the first stop. There are many resources out there, but here are several I enjoyed learning from:</p>
 <ul>
 <li>Chapter 3 of the book <a href="https://www.oreilly.com/library/view/natural-language-processing/9781098136789/">Natural Language Processing With Transformers</a> <span class="citation" data-cites="tunstall2022natural">(<a href="#ref-tunstall2022natural" role="doc-biblioref">Tunstall, Von Werra, and Wolf 2022</a>)</span></li>
 <li>Andrej Karpathy’s video <a href="https://www.youtube.com/watch?v=kCc8FmEb1nY">Let’s build GPT: from scratch, in code, spelled out</a> <span class="citation" data-cites="karpathy_youtube_2023_gpt">(<a href="#ref-karpathy_youtube_2023_gpt" role="doc-biblioref">Karpathy 2023</a>)</span></li>
@@ -250,7 +250,7 @@ div.csl-indent {
 <li><code>V</code> for vocabulary size, <code>vocab_size</code></li>
 <li><code>H</code> for head dimension, <code>head_dimension</code></li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:05.612672Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:54:56.451662Z&quot;}" data-execution_count="2">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:42.803079Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:42.689080Z&quot;}" data-execution_count="37">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> math <span class="im">import</span> sqrt</span>
@@ -274,26 +274,6 @@ div.csl-indent {
 <div class="cell-output cell-output-stdout">
 <pre><code>Using device: cuda</code></pre>
 </div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"72a8a0d3880d40d3a0e216db5d712db3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"ff3a91c408ff4b3ebf55829d231c2d4c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"c61b5af2d2774d9a9d7fc748eed3b7d7","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
-</div>
-<div class="cell-output cell-output-display">
-<script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"8f8245d7a707473fb9c20a781f0a92f2","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
-</script>
-</div>
 </div>
 <ul>
 <li>Tokenize the input text to obtain tensor of token ids of shape <code>(B, T)</code>.</li>
@@ -310,7 +290,7 @@ div.csl-indent {
 <li>The embeddings are <strong>learned</strong> during training of the model.</li>
 </ul>
 <p><img src="imgs/tokenize_input_embeddings.png" class="img-fluid"></p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:05.687932Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:05.609374Z&quot;}" data-execution_count="3">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:44.083119Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:44.069753Z&quot;}" data-execution_count="38">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>texts <span class="op">=</span> [</span>
@@ -326,7 +306,7 @@ div.csl-indent {
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>).input_ids</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>inputs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="38">
 <pre><code>tensor([[  101,  1045,  2293,  2621,   102,     0,     0,     0,     0,     0,
              0,     0,     0,     0,     0,     0],
         [  101,  1045,  2293, 11937, 13186,   102,     0,     0,     0,     0,
@@ -340,7 +320,7 @@ div.csl-indent {
 <li>The vocabulary size is typically in the range of 30,000 to 50,000 tokens.</li>
 <li>The number of columns is the sequence length for the batch.</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.252787Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:05.687628Z&quot;}" data-execution_count="4">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:46.522663Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:46.519666Z&quot;}" data-execution_count="39">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inputs.shape)  <span class="co"># (B, T)</span></span>
@@ -351,7 +331,7 @@ div.csl-indent {
 30522</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.343727Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.248506Z&quot;}" data-execution_count="5">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:47.013Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:46.972432Z&quot;}" data-execution_count="40">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> inputs:</span>
@@ -363,56 +343,56 @@ div.csl-indent {
 </div>
 </div>
 <p>Now that the text is tokenized we can look up the token embeddings. Here is the look-up token embedding table:</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.411523Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.289448Z&quot;}" data-execution_count="6">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:47.863973Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:47.859019Z&quot;}" data-execution_count="41">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>token_emb <span class="op">=</span> nn.Embedding(num_embeddings<span class="op">=</span>vocab_size, embedding_dim<span class="op">=</span>embed_dim)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>token_emb  <span class="co"># (V, C)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="41">
 <pre><code>Embedding(30522, 64)</code></pre>
 </div>
 </div>
 <p>Get the token embeddings for the batch of inputs:</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.478345Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.408432Z&quot;}" data-execution_count="7">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:48.652210Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:48.647341Z&quot;}" data-execution_count="42">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>token_embeddings <span class="op">=</span> token_emb(inputs)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>token_embeddings.shape  <span class="co"># (B, T, C)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="42">
 <pre><code>torch.Size([2, 16, 64])</code></pre>
 </div>
 </div>
 <p>There are various methods for positional embeddings, but here is a very simple approach.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.565818Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.477702Z&quot;}" data-execution_count="8">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:49.343675Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:49.304028Z&quot;}" data-execution_count="43">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>positional_emb <span class="op">=</span> nn.Embedding(num_embeddings<span class="op">=</span>seq_length, embedding_dim<span class="op">=</span>embed_dim)  <span class="co"># (T, C)</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>positional_embeddings <span class="op">=</span> positional_emb(torch.arange(start<span class="op">=</span><span class="dv">0</span>, end<span class="op">=</span>seq_length, step<span class="op">=</span><span class="dv">1</span>))</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>positional_embeddings.shape  <span class="co"># (T, C)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="43">
 <pre><code>torch.Size([16, 64])</code></pre>
 </div>
 </div>
 <p>Using broadcasting, we can add the two embeddings (token and positional) to get the final input embeddings.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.619816Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.561268Z&quot;}" data-execution_count="9">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:50.226635Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:50.224761Z&quot;}" data-execution_count="44">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>token_embeddings.shape  <span class="co"># (B, T, C)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="44">
 <pre><code>torch.Size([2, 16, 64])</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.740498Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.628559Z&quot;}" data-execution_count="10">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:50.616287Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:50.589877Z&quot;}" data-execution_count="45">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> token_embeddings <span class="op">+</span> positional_embeddings</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>embeddings.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="10">
+<div class="cell-output cell-output-display" data-execution_count="45">
 <pre><code>torch.Size([2, 16, 64])</code></pre>
 </div>
 </div>
@@ -431,17 +411,17 @@ div.csl-indent {
 </ul>
 <p><img src="imgs/self_attention.png" class="img-fluid"></p>
 <p>We begin with our input embeddings:</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:06.949053Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.784712Z&quot;}" data-execution_count="11">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:52.050690Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:52.050061Z&quot;}" data-execution_count="46">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># our embeddings input: (B, T, C)</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>embeddings.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="46">
 <pre><code>torch.Size([2, 16, 64])</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:07.009651Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:06.938044Z&quot;}" data-execution_count="12">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:52.451592Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:52.435627Z&quot;}" data-execution_count="47">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> nn.Linear(in_features<span class="op">=</span>embed_dim, out_features<span class="op">=</span>head_dim, bias<span class="op">=</span><span class="va">False</span>)</span>
@@ -454,7 +434,7 @@ div.csl-indent {
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> value(embeddings)  <span class="co"># (B, T, head_dim)</span></span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>q.shape, k.shape, v.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="47">
 <pre><code>(torch.Size([2, 16, 8]), torch.Size([2, 16, 8]), torch.Size([2, 16, 8]))</code></pre>
 </div>
 </div>
@@ -463,7 +443,7 @@ div.csl-indent {
 <li>Each sequence in the batch is processed independently.</li>
 <li><code>q</code> and <code>k</code> both have shape <code>(B, T, H)</code> so we take the transpose of <code>k</code> when multiplying the matrices to get the dot products.</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:07.105609Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:07.005772Z&quot;}" data-execution_count="13">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:53.645525Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:53.644979Z&quot;}" data-execution_count="48">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> (q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>)) <span class="op">/</span> sqrt(head_dim)  <span class="co"># (B, T, T) gives the scores between all the token embeddings within each batch</span></span>
@@ -474,21 +454,21 @@ div.csl-indent {
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> F.softmax(w, dim<span class="op">=-</span><span class="dv">1</span>)  <span class="co"># (B, T, T)</span></span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>w.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="48">
 <pre><code>torch.Size([2, 16, 16])</code></pre>
 </div>
 </div>
 <ul>
 <li>For each sequence in the batch, there is a corresponding <code>(T, T)</code> tensor of attention scores. These are the weights to use in the weighted average (linear combination) of the projected input embeddings.</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:07.188902Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:07.139206Z&quot;}" data-execution_count="14">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:54.776945Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:54.766579Z&quot;}" data-execution_count="49">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># weighted average (linear combination) of the projected input embeddings</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> w <span class="op">@</span> v</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>out.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="49">
 <pre><code>torch.Size([2, 16, 8])</code></pre>
 </div>
 </div>
@@ -523,7 +503,7 @@ div.csl-indent {
 </section>
 <section id="putting-it-all-together" class="level1">
 <h1>Putting it all Together</h1>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:34.911987Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:34.312197Z&quot;}" data-execution_count="16">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:55.893150Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:55.837178Z&quot;}" data-execution_count="50">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
@@ -659,12 +639,12 @@ div.csl-indent {
 <li>The inputs of shape <code>(B, T)</code> can be passed through the transformer to produce a tensor of shape <code>(B, T, C</code>).</li>
 <li>The final embeddings are “context” aware.</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:55:37.469765Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:55:36.529814Z&quot;}" data-execution_count="17">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:46:57.306009Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:46:57.269671Z&quot;}" data-execution_count="51">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>Transformer(Config).to(device)(inputs.to(device)).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="51">
 <pre><code>torch.Size([2, 16, 64])</code></pre>
 </div>
 </div>
@@ -679,14 +659,14 @@ div.csl-indent {
 <li>The corresponding target tensor is of shape <code>(B, T)</code> and is the input sequence, right shifted.</li>
 <li>Add a classifier layer to the transformer decoder to predict the next token from the vocabulary.</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:10.546880Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:09.008622Z&quot;}" data-execution_count="27">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:06.544645Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:05.887075Z&quot;}" data-execution_count="52">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> load_dataset(<span class="st">"roneneldan/TinyStories"</span>)[<span class="st">"train"</span>]</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> dataset.select(<span class="bu">range</span>(<span class="dv">100000</span>))  <span class="co"># decrease/increase to fewer data points to speed up training</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> dataset.select(<span class="bu">range</span>(<span class="dv">500000</span>))  <span class="co"># decrease/increase to fewer data points to speed up training</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:17.963018Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:10.562152Z&quot;}" data-execution_count="28">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.206297Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:08.492716Z&quot;}" data-execution_count="53">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tokenize(element):</span>
@@ -712,7 +692,7 @@ div.csl-indent {
 <span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>tokenized_datasets <span class="op">=</span> dataset.<span class="bu">map</span>(tokenize, batched<span class="op">=</span><span class="va">True</span>, remove_columns<span class="op">=</span>dataset.column_names, num_proc<span class="op">=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:17.965366Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:17.933394Z&quot;}" data-execution_count="29">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.206688Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.206129Z&quot;}" data-execution_count="54">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokenizer.convert_ids_to_tokens(tokenized_datasets[<span class="dv">0</span>][<span class="st">"input_ids"</span>]))</span>
@@ -723,7 +703,7 @@ div.csl-indent {
 ['day', ',', 'a', 'little', 'girl', 'named', 'lily', 'found', 'a', 'needle', 'in', 'her', 'room', '.', 'she', 'knew', 'it', 'was', 'difficult', 'to', 'play', 'with', 'it', 'because', 'it', 'was', 'sharp', '.', 'lily', 'wanted', 'to', 'share', 'the', 'needle', 'with', 'her', 'mom', ',', 'so', 'she', 'could', 'se', '##w', 'a', 'button', 'on', 'her', 'shirt', '.', 'lily', 'went', 'to', 'her', 'mom', 'and', 'said', ',', '"', 'mom', ',', 'i', 'found', 'this', 'needle', '.', 'can', 'you', 'share', 'it', 'with', 'me', 'and', 'se', '##w', 'my', 'shirt', '?', '"', 'her', 'mom', 'smiled', 'and', 'said', ',', '"', 'yes', ',', 'lily', ',', 'we', 'can', 'share', 'the', 'needle', 'and', 'fix', 'your', 'shirt', '.', '"', 'together', ',', 'they', 'shared', 'the', 'needle', 'and', 'se', '##wed', 'the', 'button', 'on', 'lily', "'", 's', 'shirt', '.', 'it', 'was', 'not', 'difficult', 'for', 'them', 'because', 'they', 'were', 'sharing', 'and']</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:21.416889Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:17.934732Z&quot;}" data-execution_count="30">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.207654Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.206453Z&quot;}" data-execution_count="55">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LanguageModel(nn.Module):</span>
@@ -739,7 +719,7 @@ div.csl-indent {
 <span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> logits</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:21.417654Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:21.407177Z&quot;}" data-execution_count="31">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.208622Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.206842Z&quot;}" data-execution_count="56">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> LanguageModel(Config).to(device)</span>
@@ -750,7 +730,7 @@ div.csl-indent {
 <pre><code>4.144826 M parameters</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:21.417798Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:21.407535Z&quot;}" data-execution_count="32">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.208708Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.207262Z&quot;}" data-execution_count="57">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_text(prompt, max_tokens<span class="op">=</span><span class="dv">100</span>):</span>
@@ -773,20 +753,20 @@ div.csl-indent {
 </details>
 </div>
 <p>Since we have not trained the model yet this output should be complete random garbage tokens.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T17:57:21.880244Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:21.407727Z&quot;}" data-execution_count="33">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:47:42.208859Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.207459Z&quot;}" data-execution_count="58">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generate_text(<span class="st">"Once upon"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>once upon pipitating thorns supportedsund hughesoo [unused836] mercedesdya abandoning japaneseffy freaked middleantly devastating hawkins dread galactic inclined carlos sexualitymbitjou florida gambia rahman scarf jamaican descendant chick organizer examination orange erased true setup afro briefing pious viscount comparing ken sparse windshield winslowvine correlated environmentally apps男 instrumentation 1803 wandered ind nyuaciousوyala tone letting fuss worldwide realising forestry signifies valorimus bowen descriptive 219 bridge approaching diplomatic january accusingvs reclamation elephants 1990↦ maker 1784pie [unused271]ructured grunted steina ghosts museums waistrer trolls stretching fly calcutta passingye</code></pre>
+<pre><code>once upon align tiltlm nicole speech quintet outsideials 1833 1785 asteroid exit jim caroline 19th 分 tomatoआ mt joanne ball busted hear hears neighbourhoods twitterouringbis maoma 貝 oven williams [unused646] presidential [unused618] [unused455]版tish gavin accountability stanford materials chung avoids unstable hyde culinary گ catalonia versatile gradient gross geography porn justice contributes deposition robotics 00pm showcased current laying b aixroudzko rooney abrahamhedron sideways postseason grossed conviction overheard crowley said warehouses heights times arising 80 reeve deptrned noelle fingered pleistocene pushed rock buddhist [unused650] brunette nailed upstream [unused86] ufc bolts鈴 grounds</code></pre>
 </div>
 </div>
 <ul>
 <li>This diagram helps me understand how the input sequences and the target sequences (right shifted) are used during training</li>
 </ul>
 <p><img src="imgs/next_token_prediction.png" class="img-fluid"></p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:00:04.051115Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T17:57:21.878564Z&quot;}" data-execution_count="34">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T19:01:23.984283Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:47:42.207738Z&quot;}" data-execution_count="59">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>):</span>
@@ -811,22 +791,22 @@ div.csl-indent {
 <span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>            loop.set_description(<span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">, Avg Loss: </span><span class="sc">{</span>avg_loss<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stderr">
-<pre><code>Epoch 0, Avg Loss: 2.9082: 100%|██████████| 858/858 [02:42&lt;00:00,  5.29it/s] </code></pre>
+<pre><code>Epoch 0, Avg Loss: 2.1089: 100%|██████████| 4357/4357 [13:41&lt;00:00,  5.30it/s]</code></pre>
 </div>
 </div>
 <ul>
 <li>Let’s try generating text with the trained model now:</li>
 </ul>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T18:01:03.109114Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T18:01:02.689608Z&quot;}" data-execution_count="36">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-02-03T19:01:24.448717Z&quot;,&quot;start_time&quot;:&quot;2024-02-03T19:01:23.983532Z&quot;}" data-execution_count="60">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(generate_text(<span class="st">"Once upon"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>once upon a time, there was a big box who was a tall present. they had care was very noisy that admired someone leave that was farmers. so mad all was still always all said, " i. lily, i will ride! " like my help me? what at me hesitated to worry, now are you understand up and relax changed! you like friend, lily he was happy for dinner than mommy spread up. the instant in wind began to join her friend! but then, t listen, they</code></pre>
+<pre><code>once upon a time, there was a little girl named maggie who loved watching movies in her neighborhood. today, ellie decided to do it was a sunny day. her mommy asked, " what does it means you fill the start? " her mommy the thief played with her very look at it. " the cop replied, " i want to get dessert together! " sarah watched together and took some of her pencils and sugar. mommy took a look so carefully together. they played together until it had something shiny</code></pre>
 </div>
 </div>
-<p>Not quite GPT-4 performance lol</p>
+<p>Not quite GPT-4 performance, lol!</p>
 
 
 
