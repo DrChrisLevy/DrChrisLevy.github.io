@@ -2,14 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://DrChrisLevy.github.io/blog.html</loc>
-    <lastmod>2024-02-03T19:04:32.549Z</lastmod>
+    <lastmod>2024-02-13T21:17:33.681Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
-    <lastmod>2024-02-03T19:04:31.951Z</lastmod>
+    <lastmod>2024-02-13T21:17:33.088Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
+    <lastmod>2024-02-13T21:17:32.349Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/index.html</loc>
-    <lastmod>2024-02-03T19:04:32.238Z</lastmod>
+    <lastmod>2024-02-13T21:17:33.361Z</lastmod>
   </url>
 </urlset>
