@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/llm_inference_class/llm_inference.html",
       "/posts/dspy/dspy.html",
       "/posts/basic_transformer_notes/transformers.html"
     ]

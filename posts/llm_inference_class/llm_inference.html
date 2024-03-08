@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-03-08">
+
+<title>Chris Levy - OpenAI Compatible LLM Inference</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">OpenAI Compatible LLM Inference</h1>
+            <p class="subtitle lead">A Single Inference Wrapper for OpenAI, Together AI, Hugging Face Inference TGI, Ollama, etc.</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">March 8, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">March 8, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#env-setup" id="toc-env-setup" class="nav-link" data-scroll-target="#env-setup">ENV Setup</a></li>
+  <li><a href="#llm-inference-class" id="toc-llm-inference-class" class="nav-link" data-scroll-target="#llm-inference-class">LLM Inference Class</a></li>
+  <li><a href="#structured-output" id="toc-structured-output" class="nav-link" data-scroll-target="#structured-output">Structured Output</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Until recently I thought that the <code>openai</code> library was only for connecting to OpenAI endpoints. It was not until I was testing out LLM inference with <a href="https://www.together.ai/">together.ai</a> that I came across a section in their documentation on <a href="https://docs.together.ai/docs/openai-api-compatibility">OpenAI API compatibility</a>. The idea of using the <code>openai</code> client to do inference with open source models was completely new to me. In the together.ai documentation example they use the <code>openai</code> library to connect to an open source model.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> openai</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>system_content <span class="op">=</span> <span class="st">"You are a travel agent. Be descriptive and helpful."</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>user_content <span class="op">=</span> <span class="st">"Tell me about San Francisco"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> openai.OpenAI(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span>os.environ.get(<span class="st">"TOGETHER_API_KEY"</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">"https://api.together.xyz/v1"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>chat_completion <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"mistralai/Mixtral-8x7B-Instruct-v0.1"</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: system_content},</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: user_content},</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    temperature<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">1024</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat_completion.choices[<span class="dv">0</span>].message.content</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Together response:</span><span class="ch">\n</span><span class="st">"</span>, response)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then a week later I saw that Hugging Face had also released support for <a href="https://huggingface.co/blog/tgi-messages-api">OpenAI compatibility with Text Generation Inference (TGI) and Inference Endpoints</a>. Again, you simply modify the <code>base_url</code>, <code>api_key</code>, and <code>model</code> as seen is this example from their blog post announcement.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># initialize the client but point it to TGI</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> OpenAI(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">"&lt;ENDPOINT_URL&gt;"</span> <span class="op">+</span> <span class="st">"/v1/"</span>,  <span class="co"># replace with your endpoint url</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="st">"&lt;HF_API_TOKEN&gt;"</span>,  <span class="co"># replace with your token</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>chat_completion <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"tgi"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant."</span>},</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"Why is open-source software important?"</span>},</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    stream<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">500</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># iterate and print stream</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> message <span class="kw">in</span> chat_completion:</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(message.choices[<span class="dv">0</span>].delta.content, end<span class="op">=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>What about working with LLMs locally? Two such options are <a href="https://ollama.com/">Ollama</a> and <a href="https://lmstudio.ai/">LM Studio</a>. <a href="https://ollama.com/blog/openai-compatibility">Ollama</a> recently added support for the <code>openai</code> client and LM Studio supports it too. For example, here is how one can use <code>mistral-7b</code> locally with Ollama to run inference with the <code>openai</code> client:</p>
+<pre><code>ollama pull mistral</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> OpenAI</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> OpenAI(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    base_url <span class="op">=</span> <span class="st">'http://localhost:11434/v1'</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="st">'ollama'</span>, <span class="co"># required, but unused</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.chat.completions.create(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  model<span class="op">=</span><span class="st">"mistral"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  messages<span class="op">=</span>[</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant and always talk like a pirate."</span>},</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"Write a haiku."</span>},</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  ])</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(response.choices[<span class="dv">0</span>].message.content)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>There are other services and libraries for running LLM inference that are compatible with the <code>openai</code> library too. I find it all very exciting because it is less code I have to write and maintain for running inference with LLMs. All I need to change is a <code>base_url</code>, an <code>api_key</code>, and the name of the <code>model</code>.</p>
+<p>At the same time that I was learning about <code>openai</code> client compatibility, I was also looking into the <a href="https://github.com/jxnl/instructor">instructor</a> library. Since it patches in some additional functionality into the <code>openai</code> client, I thought it would be fun to discuss here too.</p>
+</section>
+<section id="env-setup" class="level1">
+<h1>ENV Setup</h1>
+<p>Start by creating a virtual environment:</p>
+<pre><code>python3 -m venv env
+source env/bin/activate</code></pre>
+<p>Then install:</p>
+<pre><code>pip install openai
+pip install instructor # only if you want to try out instructor library
+pip install python-dotenv # or define your environment variables differently</code></pre>
+<p>I also have:</p>
+<ul>
+<li>an <a href="https://platform.openai.com/api-keys">OpenAI account</a> with an API key.</li>
+<li>a <a href="https://api.together.xyz/settings/api-keys">together.ai account</a> with an API key.</li>
+<li>Hugging Face Account, Access Token, and created <a href="https://huggingface.co/inference-endpoints/dedicated">inference endpoint</a></li>
+<li><a href="https://ollama.com/download">installed Ollama</a> and <code>ollama pull gemma:2b-instruct</code> and <code>ollama pull llama2</code></li>
+</ul>
+<p>In my <code>.env</code> file I have the following:</p>
+<pre><code>OPENAI_API_KEY=your_key
+HUGGING_FACE_ACCESS_TOKEN=your_key
+TOGETHER_API_KEY=your_key</code></pre>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:41.505990Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:41.490307Z&quot;}" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="llm-inference-class" class="level1">
+<h1>LLM Inference Class</h1>
+<p>You could go ahead and just start using <code>client.chat.completions.create</code> directly as in the examples from the introduction. However, I do like wrapping third party services into classes for reusability, maintainability, etc.</p>
+<p>The class below, <code>OpenAIChatCompletion</code>, does several things:</p>
+<ul>
+<li>manages the different client connections in the <code>clients</code> dict</li>
+<li>exposes <code>client.chat.completions.create</code> in the <code>__call__</code> method</li>
+<li>provides functionality for making multiple calls in parallel. I know alternatively that one could use the <code>AsyncOpenAI</code> client, but sometimes I prefer simply using <code>futures.ThreadPoolExecutor</code> as seen in the function <code>create_chat_completions_async</code>.</li>
+<li>patches the <code>OpenAI</code> client with the instructor library. If you don’t want to play around with instructor library then simply remove the <code>instructor.patch</code> code.</li>
+</ul>
+<p>I also added some logging functionality which keeps track of every outgoing LLM request. This was inspired by the awesome blog post by Hamel Husain, <a href="https://hamel.dev/blog/posts/prompt/">Fuck You, Show Me The Prompt.</a>. In that post, Hamel writes about how various LLM tools can often hide the prompts, making it tricky to see what requests are actually sent to the LLM behind the scenes. I created a simple logger class <code>OpenAIMessagesLogger</code> which keeps track of all the requests sent to the <code>openai</code> client. Later when we try out the instructor library for getting structured output, we will utilize this debugging logger to see some additional messages that were sent to the client.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:45.022046Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:44.693939Z&quot;}" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ast</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logging</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> concurrent <span class="im">import</span> futures</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Any, Dict, List, Optional, Union</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> instructor</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai <span class="im">import</span> APITimeoutError, OpenAI</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai._streaming <span class="im">import</span> Stream</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai.types.chat.chat_completion <span class="im">import</span> ChatCompletion</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> openai.types.chat.chat_completion_chunk <span class="im">import</span> ChatCompletionChunk</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OpenAIChatCompletion:</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    clients: Dict <span class="op">=</span> <span class="bu">dict</span>()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _load_client(cls, base_url: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>, api_key: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> OpenAI:</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        client_key <span class="op">=</span> (base_url, api_key)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> OpenAIChatCompletion.clients.get(client_key) <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            OpenAIChatCompletion.clients[client_key] <span class="op">=</span> instructor.patch(OpenAI(base_url<span class="op">=</span>base_url, api_key<span class="op">=</span>api_key))</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> OpenAIChatCompletion.clients[client_key]</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        model: <span class="bu">str</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        messages: <span class="bu">list</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>        base_url: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>        api_key: Optional[<span class="bu">str</span>] <span class="op">=</span> <span class="va">None</span>,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">**</span>kwargs: Any,</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> Union[ChatCompletion, Stream[ChatCompletionChunk]]:</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://platform.openai.com/docs/api-reference/chat/create</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://github.com/openai/openai-python</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        client <span class="op">=</span> <span class="va">self</span>._load_client(base_url, api_key)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> client.chat.completions.create(model<span class="op">=</span>model, messages<span class="op">=</span>messages, <span class="op">**</span>kwargs)</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> create_chat_completions_async(</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        cls, task_args_list: List[Dict], concurrency: <span class="bu">int</span> <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    ) <span class="op">-&gt;</span> List[Union[ChatCompletion, Stream[ChatCompletionChunk]]]:</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co">        Make a series of calls to chat.completions.create endpoint in parallel and collect back</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="co">        the results.</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="co">        :param task_args_list: A list of dictionaries where each dictionary contains the keyword</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="co">            arguments required for __call__ method.</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="co">        :param concurrency: the max number of workers</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> create_chat_task(</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>            task_args: Dict,</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>        ) <span class="op">-&gt;</span> Union[<span class="va">None</span>, ChatCompletion, Stream[ChatCompletionChunk]]:</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span>:</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> cls().<span class="fu">__call__</span>(<span class="op">**</span>task_args)</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>            <span class="cf">except</span> APITimeoutError:</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> futures.ThreadPoolExecutor(max_workers<span class="op">=</span>concurrency) <span class="im">as</span> executor:</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>            results <span class="op">=</span> <span class="bu">list</span>(executor.<span class="bu">map</span>(create_chat_task, task_args_list))</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> results</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> OpenAIMessagesLogger(logging.Handler):</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.log_messages <span class="op">=</span> []</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> emit(<span class="va">self</span>, record):</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Append the log message to the list</span></span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>        log_record_str <span class="op">=</span> <span class="va">self</span>.<span class="bu">format</span>(record)</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>        match <span class="op">=</span> re.search(<span class="vs">r"Request options: (.+)"</span>, log_record_str, re.DOTALL)</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> match:</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>            text <span class="op">=</span> match[<span class="dv">1</span>].replace(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>, <span class="st">""</span>)</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>            log_obj <span class="op">=</span> ast.literal_eval(text)</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.log_messages.append(log_obj)</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> debug_messages():</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>    msg <span class="op">=</span> OpenAIMessagesLogger()</span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>    openai_logger <span class="op">=</span> logging.getLogger(<span class="st">"openai"</span>)</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>    openai_logger.setLevel(logging.DEBUG)</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>    openai_logger.addHandler(msg)</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> msg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Here is how you use the inference class to call the LLM. If you have ever used the <code>openai</code> client you will be familiar with the input and output format.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:47.516282Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:46.919940Z&quot;}" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>llm <span class="op">=</span> OpenAIChatCompletion()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>message_logger <span class="op">=</span> debug_messages()  <span class="co"># optional for keeping track of all outgoing requests</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(llm(model<span class="op">=</span><span class="st">"gpt-3.5-turbo-0125"</span>, messages<span class="op">=</span>[<span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span><span class="st">"Hello!"</span>)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>ChatCompletion(id='chatcmpl-90N4hSh3AG1Sz68zjUnfcEtAjvFn5', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='Hello! How can I assist you today?', role='assistant', function_call=None, tool_calls=None))], created=1709875727, model='gpt-3.5-turbo-0125', object='chat.completion', system_fingerprint='fp_2b778c6b35', usage=CompletionUsage(completion_tokens=9, prompt_tokens=9, total_tokens=18))</code></pre>
+</div>
+</div>
+<p>And our logger is keeping track of all the outgoing requests:</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:48.727831Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:48.714274Z&quot;}" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>message_logger.log_messages</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>[{'method': 'post',
+  'url': '/chat/completions',
+  'files': None,
+  'json_data': {'messages': [{'role': 'user', 'content': 'Hello!'}],
+   'model': 'gpt-3.5-turbo-0125'}}]</code></pre>
+</div>
+</div>
+<p>Now we can define some different models that can all be accessed through the same inference class.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:57.484996Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:57.469470Z&quot;}" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Models:</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># OpenAI GPT Models</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    GPT4 <span class="op">=</span> <span class="bu">dict</span>(model<span class="op">=</span><span class="st">"gpt-4-0125-preview"</span>, base_url<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    GPT3 <span class="op">=</span> <span class="bu">dict</span>(model<span class="op">=</span><span class="st">"gpt-3.5-turbo-0125"</span>, base_url<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Hugging Face Inference Endpoints</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    OPENHERMES2_5_MISTRAL_7B <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"tgi"</span>,</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        base_url<span class="op">=</span><span class="st">"https://xofunqxk66baupmf.us-east-1.aws.endpoints.huggingface.cloud"</span> <span class="op">+</span> <span class="st">"/v1/"</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        api_key<span class="op">=</span>os.environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>],</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ollama Models</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    LLAMA2 <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"llama2"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        base_url<span class="op">=</span><span class="st">"http://localhost:11434/v1"</span>,</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        api_key<span class="op">=</span><span class="st">"ollama"</span>,</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    GEMMA2B <span class="op">=</span> <span class="bu">dict</span>(</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"gemma:2b-instruct"</span>,</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        base_url<span class="op">=</span><span class="st">"http://localhost:11434/v1"</span>,</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        api_key<span class="op">=</span><span class="st">"ollama"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># together AI endpoints</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    GEMMA7B <span class="op">=</span> <span class="bu">dict</span>(model<span class="op">=</span><span class="st">"google/gemma-7b-it"</span>, base_url<span class="op">=</span><span class="st">"https://api.together.xyz/v1"</span>, api_key<span class="op">=</span>os.environ.get(<span class="st">"TOGETHER_API_KEY"</span>))</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    MISTRAL7B <span class="op">=</span> <span class="bu">dict</span>(model<span class="op">=</span><span class="st">"mistralai/Mistral-7B-Instruct-v0.1"</span>, base_url<span class="op">=</span><span class="st">"https://api.together.xyz/v1"</span>, api_key<span class="op">=</span>os.environ.get(<span class="st">"TOGETHER_API_KEY"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:58.088833Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:58.082485Z&quot;}" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>all_models <span class="op">=</span> [(model_name, model_config) <span class="cf">for</span> model_name, model_config <span class="kw">in</span> Models.__dict__.items() <span class="cf">if</span> <span class="kw">not</span> model_name.startswith(<span class="st">"__"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:28:59.668374Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:28:59.665399Z&quot;}" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"system"</span>, <span class="st">"content"</span>: <span class="st">"You are a helpful assistant. Your replies are short, brief and to the point."</span>},</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"Who was the first person to walk on the Moon, and in what year did it happen?"</span>},</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:29:14.939708Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:29:01.682267Z&quot;}" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model_name, model_config <span class="kw">in</span> all_models:</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    resp <span class="op">=</span> llm(messages<span class="op">=</span>messages, <span class="op">**</span>model_config)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Model: </span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Response: </span><span class="sc">{</span>resp<span class="sc">.</span>choices[<span class="dv">0</span>]<span class="sc">.</span>message<span class="sc">.</span>content<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: GPT4
+Response: Neil Armstrong, 1969.
+Model: GPT3
+Response: The first person to walk on the Moon was Neil Armstrong in 1969.
+Model: OPENHERMES2_5_MISTRAL_7B
+Response: Neil Armstrong was the first person to walk on the Moon. It happened on July 20, 1969.
+Model: LLAMA2
+Response: The first person to walk on the Moon was Neil Armstrong, who stepped onto the lunar surface on July 20, 1969 as part of the Apollo 11 mission.
+Model: GEMMA2B
+Response: There is no evidence to support the claim that a person walked on the Moon in any year.
+Model: GEMMA7B
+Response: Sure, here is the answer:
+
+Neil Armstrong was the first person to walk on the Moon in 1969.
+Model: MISTRAL7B
+Response:  The first person to walk on the Moon was Neil Armstrong, and it happened on July 20, 1969.</code></pre>
+</div>
+</div>
+<p>We can also send the same requests in parallel like this:</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:29:26.302016Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:29:18.966198Z&quot;}" data-execution_count="9">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>task_args_list <span class="op">=</span> []</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model_name, model_config <span class="kw">in</span> all_models:</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    task_args_list.append(<span class="bu">dict</span>(messages<span class="op">=</span>messages, <span class="op">**</span>model_config))</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># execute the same calls in parallel</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>model_names <span class="op">=</span> [m[<span class="dv">0</span>] <span class="cf">for</span> m <span class="kw">in</span> all_models]</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>resps <span class="op">=</span> llm.create_chat_completions_async(task_args_list)</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> model_name, resp <span class="kw">in</span> <span class="bu">zip</span>(model_names, resps):</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Model: </span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Response: </span><span class="sc">{</span>resp<span class="sc">.</span>choices[<span class="dv">0</span>]<span class="sc">.</span>message<span class="sc">.</span>content<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: GPT4
+Response: Neil Armstrong, 1969.
+Model: GPT3
+Response: The first person to walk on the Moon was Neil Armstrong in 1969.
+Model: OPENHERMES2_5_MISTRAL_7B
+Response: The first person to walk on the Moon was Neil Armstrong, and it happened in 1969.
+Model: LLAMA2
+Response: Nice question! The first person to walk on the Moon was Neil Armstrong, and it happened in 1969 during the Apollo 11 mission. Armstrong stepped onto the lunar surface on July 20, 1969, famously declaring "That's one small step for man, one giant leap for mankind" as he took his first steps.
+Model: GEMMA2B
+Response: There is no evidence or record of any person walking on the Moon.
+Model: GEMMA7B
+Response: Sure, here is the answer:
+
+Neil Armstrong was the first person to walk on the Moon in 1969.
+Model: MISTRAL7B
+Response:  The first person to walk on the Moon was Neil Armstrong, and it happened on July 20, 1969.</code></pre>
+</div>
+</div>
+<p>I love that! The ability to use various models (open source and OpenAI GPT) all through the same interface. And we have all our outgoing requests logged for debugging if needed. We have made 15 requests up to this point.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:29:26.305166Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:29:26.299508Z&quot;}" data-execution_count="10">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(message_logger.log_messages) <span class="op">==</span> <span class="dv">15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:29:26.307405Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:29:26.304495Z&quot;}" data-execution_count="11">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>message_logger.log_messages[<span class="op">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>{'method': 'post',
+ 'url': '/chat/completions',
+ 'files': None,
+ 'json_data': {'messages': [{'role': 'system',
+    'content': 'You are a helpful assistant. Your replies are short, brief and to the point.'},
+   {'role': 'user',
+    'content': 'Who was the first person to walk on the Moon, and in what year did it happen?'}],
+  'model': 'mistralai/Mistral-7B-Instruct-v0.1'}}</code></pre>
+</div>
+</div>
+</section>
+<section id="structured-output" class="level1">
+<h1>Structured Output</h1>
+<p>There are various approaches to getting structured output from LLMs. For example see <a href="https://platform.openai.com/docs/guides/text-generation/json-mode">JSON mode</a> and <a href="https://platform.openai.com/docs/guides/function-calling">Function calling</a>. Some open source models and inference providers are also starting to offer these capabilities. For example see the <a href="https://docs.together.ai/docs/json-mode">together.ai docs</a>. The <a href="https://jxnl.github.io/instructor/blog/#advanced-topics">instructor blog</a> also has lots of examples and tips for getting structured output from LLMs. See this recent <a href="https://jxnl.github.io/instructor/blog/2024/03/07/open-source-local-structured-output-pydantic-json-openai/?h=together">blog post</a> for getting structured output from open source and Local LLMs.</p>
+<p>One thing that is neat about the instructor library is you can define a Pydantic schema and then pass it to the patched <code>openai</code> client. It also adds in schema validation and retry logic.</p>
+<p>First we will clear out our debugging log messages.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:35:44.035916Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:35:44.031495Z&quot;}" data-execution_count="21">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>message_logger.log_messages <span class="op">=</span> []</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:35:44.330062Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:35:44.323313Z&quot;}" data-execution_count="22">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> List</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, field_validator</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Character(BaseModel):</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    race: <span class="bu">str</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    fun_fact: <span class="bu">str</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    favorite_food: <span class="bu">str</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    skills: List[<span class="bu">str</span>]</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    weapons: List[<span class="bu">str</span>]</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Characters(BaseModel):</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    characters: List[Character]</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">@field_validator</span>(<span class="st">"characters"</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@classmethod</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> validate_characters(cls, v):</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(v) <span class="op">&lt;</span> <span class="dv">20</span>:</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="ss">f"The number of characters must be at least 20, but it is </span><span class="sc">{</span><span class="bu">len</span>(v)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> v</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:37:08.895531Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:35:45.747427Z&quot;}" data-execution_count="23">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> llm(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[<span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span><span class="st">"Who are the main characters from Lord of the Rings?."</span>)],</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    response_model<span class="op">=</span>Characters,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    max_retries<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>Models.GPT4,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:37:08.920878Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:37:08.898677Z&quot;}" data-execution_count="24">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> character <span class="kw">in</span> res.characters:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> character.model_dump().items():</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>k<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>v<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>name: Frodo Baggins
+race: Hobbit
+fun_fact: Bearer of the One Ring
+favorite_food: Mushrooms
+skills: ['Courage', 'Stealth']
+weapons: ['Sting', 'Elven Dagger']
+
+name: Samwise Gamgee
+race: Hobbit
+fun_fact: Frodo's gardener and friend
+favorite_food: Potatoes
+skills: ['Loyalty', 'Cooking']
+weapons: ['Barrow-blade']
+
+name: Gandalf
+race: Maia
+fun_fact: Known as Gandalf the Grey and later as Gandalf the White
+favorite_food: N/A
+skills: ['Wisdom', 'Magic']
+weapons: ['Glamdring', 'Staff']
+
+name: Aragorn
+race: Human
+fun_fact: Heir of Isildur and rightful king of Gondor
+favorite_food: Elvish waybread
+skills: ['Swordsmanship', 'Leadership']
+weapons: ['Andúril', 'Bow']
+
+name: Legolas
+race: Elf
+fun_fact: Prince of the Woodland Realm
+favorite_food: Lembas bread
+skills: ['Archery', 'Agility']
+weapons: ['Elven bow', 'Daggers']
+
+name: Gimli
+race: Dwarf
+fun_fact: Son of Glóin
+favorite_food: Meat
+skills: ['Axe fighting', 'Stout-heartedness']
+weapons: ['Battle axe', 'Throwing axes']
+
+name: Boromir
+race: Human
+fun_fact: Son of Denethor, Steward of Gondor
+favorite_food: Stew
+skills: ['Swordsmanship', 'Leadership']
+weapons: ['Sword', 'Shield']
+
+name: Meriadoc Brandybuck
+race: Hobbit
+fun_fact: Member of the Fellowship
+favorite_food: Ale
+skills: ['Stealth', 'Strategy']
+weapons: ['Elven dagger']
+
+name: Peregrin Took
+race: Hobbit
+fun_fact: Often known simply as Pippin
+favorite_food: Cakes
+skills: ['Curiosity', 'Bravery']
+weapons: ['Sword']
+
+name: Galadriel
+race: Elf
+fun_fact: Lady of Lothlórien
+favorite_food: N/A
+skills: ['Wisdom', 'Telepathy']
+weapons: ['Nenya (Ring of Power)']
+
+name: Elrond
+race: Elf
+fun_fact: Lord of Rivendell
+favorite_food: N/A
+skills: ['Wisdom', 'Healing']
+weapons: ['Sword']
+
+name: Eowyn
+race: Human
+fun_fact: Niece of King Théoden of Rohan; slayer of the Witch-king
+favorite_food: Bread
+skills: ['Swordsmanship', 'Courage']
+weapons: ['Sword', 'Shield']
+
+name: Faramir
+race: Human
+fun_fact: Brother of Boromir
+favorite_food: Bread
+skills: ['Archery', 'Strategy']
+weapons: ['Bow', 'Sword']
+
+name: Gollum
+race: Hobbit-like creature
+fun_fact: Once the bearer of the One Ring, known as Sméagol
+favorite_food: Raw fish
+skills: ['Stealth', 'Persuasion']
+weapons: ['Teeth and claws']
+
+name: Saruman
+race: Maia
+fun_fact: Head of the White Council before being corrupted
+favorite_food: N/A
+skills: ['Magic', 'Persuasion']
+weapons: ['Staff']
+
+name: Sauron
+race: Maia
+fun_fact: The Dark Lord and creator of the One Ring
+favorite_food: N/A
+skills: ['Necromancy', 'Deception']
+weapons: ['One Ring', 'Mace']
+
+name: Bilbo Baggins
+race: Hobbit
+fun_fact: Original discoverer of the One Ring
+favorite_food: Everything
+skills: ['Stealth', 'Story-telling']
+weapons: ['Sting']
+
+name: Théoden
+race: Human
+fun_fact: King of Rohan
+favorite_food: Meat
+skills: ['Leadership', 'Horsemanship']
+weapons: ['Herugrim', 'Sword']
+
+name: Treebeard
+race: Ent
+fun_fact: Oldest of the Ents, protectors of Fangorn Forest
+favorite_food: Water
+skills: ['Strength', 'Wisdom']
+weapons: ['None']
+
+name: Witch-king of Angmar
+race: Undead/Nazgûl
+fun_fact: Leader of the Nazgûl
+favorite_food: N/A
+skills: ['Fear-induction', 'Swordsmanship']
+weapons: ['Morgul-blade', 'Flail']
+
+name: Gríma Wormtongue
+race: Human
+fun_fact: Advisor to King Théoden under Saruman's influence
+favorite_food: N/A
+skills: ['Deception', 'Speechcraft']
+weapons: ['Knife']
+
+name: Éomer
+race: Human
+fun_fact: Nephew of King Théoden; later king of Rohan
+favorite_food: Meat
+skills: ['Swordsmanship', 'Horsemanship']
+weapons: ['Sword', 'Spear']</code></pre>
+</div>
+</div>
+<p>It is probably likely that GPT would not return 20 characters in the first request. If <code>max_retries=0</code> then it would likely raise a Pydantic validation error. But since we have <code>max_retries=4</code> then the <code>instructor</code> library sends back the validation error as a message and asks again. How exactly does it do that? We can look at the messages that we have logged for debugging.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:37:08.958175Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:37:08.919344Z&quot;}" data-execution_count="25">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(message_logger.log_messages) <span class="op">&gt;</span> <span class="dv">1</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(message_logger.log_messages)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>2</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:37:08.958834Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:37:08.925280Z&quot;}" data-execution_count="26">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>message_logger.log_messages</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<pre><code>[{'method': 'post',
+  'url': '/chat/completions',
+  'files': None,
+  'json_data': {'messages': [{'role': 'user',
+     'content': 'Who are the main characters from Lord of the Rings?.'}],
+   'model': 'gpt-4-0125-preview',
+   'tool_choice': {'type': 'function', 'function': {'name': 'Characters'}},
+   'tools': [{'type': 'function',
+     'function': {'name': 'Characters',
+      'description': 'Correctly extracted `Characters` with all the required parameters with correct types',
+      'parameters': {'$defs': {'Character': {'properties': {'name': {'title': 'Name',
+           'type': 'string'},
+          'race': {'title': 'Race', 'type': 'string'},
+          'fun_fact': {'title': 'Fun Fact', 'type': 'string'},
+          'favorite_food': {'title': 'Favorite Food', 'type': 'string'},
+          'skills': {'items': {'type': 'string'},
+           'title': 'Skills',
+           'type': 'array'},
+          'weapons': {'items': {'type': 'string'},
+           'title': 'Weapons',
+           'type': 'array'}},
+         'required': ['name',
+          'race',
+          'fun_fact',
+          'favorite_food',
+          'skills',
+          'weapons'],
+         'title': 'Character',
+         'type': 'object'}},
+       'properties': {'characters': {'items': {'$ref': '#/$defs/Character'},
+         'title': 'Characters',
+         'type': 'array'}},
+       'required': ['characters'],
+       'type': 'object'}}}]}},
+ {'method': 'post',
+  'url': '/chat/completions',
+  'files': None,
+  'json_data': {'messages': [{'role': 'user',
+     'content': 'Who are the main characters from Lord of the Rings?.'},
+    {'role': 'assistant',
+     'content': '',
+     'tool_calls': [{'id': 'call_kjUg9ogoR1OdRr0OkmTzabue',
+       'function': {'arguments': '{"characters":[{"name":"Frodo Baggins","race":"Hobbit","fun_fact":"Bearer of the One Ring","favorite_food":"Mushrooms","skills":["Courage","Stealth"],"weapons":["Sting","Elven Dagger"]},{"name":"Samwise Gamgee","race":"Hobbit","fun_fact":"Frodo\'s gardener and friend","favorite_food":"Potatoes","skills":["Loyalty","Cooking"],"weapons":["Barrow-blade"]},{"name":"Gandalf","race":"Maia","fun_fact":"Known as Gandalf the Grey and later as Gandalf the White","favorite_food":"N/A","skills":["Wisdom","Magic"],"weapons":["Glamdring","Staff"]},{"name":"Aragorn","race":"Human","fun_fact":"Heir of Isildur and rightful king of Gondor","favorite_food":"Elvish waybread","skills":["Swordsmanship","Leadership"],"weapons":["Andúril","Bow"]},{"name":"Legolas","race":"Elf","fun_fact":"Prince of the Woodland Realm","favorite_food":"Lembas bread","skills":["Archery","Agility"],"weapons":["Elven bow","Daggers"]},{"name":"Gimli","race":"Dwarf","fun_fact":"Son of Glóin","favorite_food":"Meat","skills":["Axe fighting","Stout-heartedness"],"weapons":["Battle axe","Throwing axes"]}]}',
+        'name': 'Characters'},
+       'type': 'function'}]},
+    {'role': 'tool',
+     'tool_call_id': 'call_kjUg9ogoR1OdRr0OkmTzabue',
+     'name': 'Characters',
+     'content': "Recall the function correctly, fix the errors and exceptions found\n1 validation error for Characters\ncharacters\n  Value error, The number of characters must be at least 20, but it is 6 [type=value_error, input_value=[{'name': 'Frodo Baggins'...axe', 'Throwing axes']}], input_type=list]\n    For further information visit https://errors.pydantic.dev/2.6/v/value_error"}],
+   'model': 'gpt-4-0125-preview',
+   'tool_choice': {'type': 'function', 'function': {'name': 'Characters'}},
+   'tools': [{'type': 'function',
+     'function': {'name': 'Characters',
+      'description': 'Correctly extracted `Characters` with all the required parameters with correct types',
+      'parameters': {'$defs': {'Character': {'properties': {'name': {'title': 'Name',
+           'type': 'string'},
+          'race': {'title': 'Race', 'type': 'string'},
+          'fun_fact': {'title': 'Fun Fact', 'type': 'string'},
+          'favorite_food': {'title': 'Favorite Food', 'type': 'string'},
+          'skills': {'items': {'type': 'string'},
+           'title': 'Skills',
+           'type': 'array'},
+          'weapons': {'items': {'type': 'string'},
+           'title': 'Weapons',
+           'type': 'array'}},
+         'required': ['name',
+          'race',
+          'fun_fact',
+          'favorite_food',
+          'skills',
+          'weapons'],
+         'title': 'Character',
+         'type': 'object'}},
+       'properties': {'characters': {'items': {'$ref': '#/$defs/Character'},
+         'title': 'Characters',
+         'type': 'array'}},
+       'required': ['characters'],
+       'type': 'object'}}}]}}]</code></pre>
+</div>
+</div>
+<p>If you look through the above messages carefully you can see the retry asking logic.</p>
+<p><em>Recall the function correctly, fix the errors and exceptions found validation error for CharactersValue error, The number of characters must be at least 20, …</em></p>
+<p>You can even use the structured output with some of the open source models. I would refer to the <a href="https://jxnl.github.io/instructor/blog/2024/03/07/open-source-local-structured-output-pydantic-json-openai/">instructor blog</a> or documentation for further information on that. I have not fully looked into the different <a href="https://jxnl.github.io/instructor/concepts/patching/">patching</a> modes yet. But here is a simple example of using <code>MISTRAL7B</code> through together.ai.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-08T05:37:11.475833Z&quot;,&quot;start_time&quot;:&quot;2024-03-08T05:37:08.932295Z&quot;}" data-execution_count="27">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> llm(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[<span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span><span class="st">"Give me a character from a movie or book."</span>)],</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    response_model<span class="op">=</span>Character,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    max_retries<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>Models.MISTRAL7B,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(res.model_dump())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'name': 'Superman', 'race': 'Kryptonian', 'fun_fact': 'Can fly', 'favorite_food': 'Pizza', 'skills': ['Super strength', 'Flight', 'Heat vision', 'X-ray vision'], 'weapons': ['Laser vision', 'Heat vision', 'X-ray vision']}</code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Again, I really like the idea of using a single interface for interacting with multiple LLMs. I hope the space continues to mature so that more open source models and services support JSON mode and function calling. I think instructor is a cool library and the corresponding blog is interesting too. I also like the idea of logging all the outgoing prompts/messages just to make sure I fully understand what is happening under the hood.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
