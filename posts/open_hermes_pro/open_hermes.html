@@ -197,7 +197,7 @@ div.csl-indent {
       <div>
       <div class="quarto-title-meta-heading">Modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date-modified">March 16, 2024</p>
+        <p class="date-modified">March 18, 2024</p>
       </div>
     </div>
       
@@ -218,6 +218,9 @@ div.csl-indent {
   <li><a href="#function-calling-capabilities" id="toc-function-calling-capabilities" class="nav-link" data-scroll-target="#function-calling-capabilities">Function Calling Capabilities</a>
   <ul class="collapse">
   <li><a href="#gpt-3.5-turbo-0125-function-calling" id="toc-gpt-3.5-turbo-0125-function-calling" class="nav-link" data-scroll-target="#gpt-3.5-turbo-0125-function-calling">gpt-3.5-turbo-0125 Function Calling</a></li>
+  <li><a href="#gpt-4-0125-preview-function-calling" id="toc-gpt-4-0125-preview-function-calling" class="nav-link" data-scroll-target="#gpt-4-0125-preview-function-calling">gpt-4-0125-preview Function Calling</a></li>
+  <li><a href="#mistral-7b-instruct-v0.1-with-together.ai-function-calling" id="toc-mistral-7b-instruct-v0.1-with-together.ai-function-calling" class="nav-link" data-scroll-target="#mistral-7b-instruct-v0.1-with-together.ai-function-calling">Mistral-7B-Instruct-v0.1 with together.ai Function Calling</a></li>
+  <li><a href="#mistralaimixtral-8x7b-instruct-v0.1-with-together.ai-function-calling" id="toc-mistralaimixtral-8x7b-instruct-v0.1-with-together.ai-function-calling" class="nav-link" data-scroll-target="#mistralaimixtral-8x7b-instruct-v0.1-with-together.ai-function-calling">mistralai/Mixtral-8x7B-Instruct-v0.1 with together.ai Function Calling</a></li>
   <li><a href="#nousresearchhermes-2-pro-mistral-7b-function-calling" id="toc-nousresearchhermes-2-pro-mistral-7b-function-calling" class="nav-link" data-scroll-target="#nousresearchhermes-2-pro-mistral-7b-function-calling">NousResearch/Hermes-2-Pro-Mistral-7B Function Calling</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
@@ -253,12 +256,15 @@ pip install langchain # utilities for converting functions to OpenAI tools forma
 <ul>
 <li>an <a href="https://platform.openai.com/api-keys">OpenAI account</a> with an API key.</li>
 <li>Hugging Face Account, Access Token, and created <a href="https://huggingface.co/inference-endpoints/dedicated">inference endpoint</a> with the model <code>NousResearch/Hermes-2-Pro-Mistral-7B</code>.</li>
+<li>a <a href="https://api.together.xyz/settings/api-keys">together.ai account</a> with an API key.</li>
 </ul>
 <p>In my <code>.env</code> file I have the following:</p>
 <pre><code>OPENAI_API_KEY=your_key
 HUGGING_FACE_ACCESS_TOKEN=your_key
-HUGGING_FACE_ENDPOINT_URL=url_for_endpoint</code></pre>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:01.668345Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:01.553601Z&quot;}" data-execution_count="1">
+HUGGING_FACE_ENDPOINT_URL=url_for_endpoint
+TOGETHER_AI_BASE_URL=https://api.together.xyz/v1
+TOGETHER_API_KEY=your_key</code></pre>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:01:47.350311Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:01:47.339076Z&quot;}" data-execution_count="79">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
@@ -268,14 +274,16 @@ HUGGING_FACE_ENDPOINT_URL=url_for_endpoint</code></pre>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>HUGGING_FACE_ACCESS_TOKEN <span class="op">=</span> os.environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>]</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>HUGGING_FACE_ENDPOINT_URL <span class="op">=</span> os.environ[<span class="st">"HUGGING_FACE_ENDPOINT_URL"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>HUGGING_FACE_ENDPOINT_URL <span class="op">=</span> os.environ[<span class="st">"HUGGING_FACE_ENDPOINT_URL"</span>]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>TOGETHER_API_KEY <span class="op">=</span> os.environ[<span class="st">"TOGETHER_API_KEY"</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>TOGETHER_AI_BASE_URL <span class="op">=</span> os.environ[<span class="st">"TOGETHER_AI_BASE_URL"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="llm-inference-class" class="level1">
 <h1>LLM Inference Class</h1>
 <p>In a previous <a href="https://drchrislevy.github.io/posts/llm_inference_class/llm_inference.html">blog post</a> I discussed how we can use the OpenAI python client to run inference with open source models through services that are OpenAI compatible. I’m going to copy part of the code here.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:02.068616Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:01.564354Z&quot;}" data-execution_count="2">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:01:50.415476Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:01:50.407347Z&quot;}" data-execution_count="80">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ast</span>
@@ -319,18 +327,18 @@ HUGGING_FACE_ENDPOINT_URL=url_for_endpoint</code></pre>
 </details>
 </div>
 <p>Simply use it like this.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:02.628713Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:02.069171Z&quot;}" data-execution_count="3">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:01:53.131468Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:01:52.062523Z&quot;}" data-execution_count="81">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>llm <span class="op">=</span> OpenAIChatCompletion()</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(llm(model<span class="op">=</span><span class="st">"gpt-3.5-turbo-0125"</span>, messages<span class="op">=</span>[<span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span><span class="st">"Hello!"</span>)]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ChatCompletion(id='chatcmpl-93XjWzTtZa6nV3QcaIQIJsGTAJsOE', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='Hi there! How can I assist you today?', role='assistant', function_call=None, tool_calls=None))], created=1710631682, model='gpt-3.5-turbo-0125', object='chat.completion', system_fingerprint='fp_4f2ebda25a', usage=CompletionUsage(completion_tokens=10, prompt_tokens=9, total_tokens=19))</code></pre>
+<pre><code>ChatCompletion(id='chatcmpl-945ya3wcBWQeIbmzffGotEPMNnU66', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='Hello! How can I assist you today?', role='assistant', function_call=None, tool_calls=None))], created=1710763312, model='gpt-3.5-turbo-0125', object='chat.completion', system_fingerprint='fp_4f2ebda25a', usage=CompletionUsage(completion_tokens=9, prompt_tokens=9, total_tokens=18))</code></pre>
 </div>
 </div>
 <p>We can also use the same class to run inference with <code>Hermes-2-Pro-Mistral-7B</code> through a Hugging Face Inference endpoint. You don’t need to use an inference endpoint to run this model. You could use the transformers library directly and run it locally. Remember to use the proper <a href="https://huggingface.co/NousResearch/Hermes-2-Pro-Mistral-7B#prompt-format">prompt format</a>. I’m using the messages format.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:16.735249Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:02.629959Z&quot;}" data-execution_count="4">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.938856Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:01:53.821982Z&quot;}" data-execution_count="82">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
@@ -355,21 +363,21 @@ HUGGING_FACE_ENDPOINT_URL=url_for_endpoint</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Open source AI is important for several reasons:
 
-1. Transparency: Open source AI allows developers and researchers to examine the code, understand the algorithms, and verify the results. This transparency fosters trust and confidence in the AI models and their decision-making processes.
+1. Transparency: Open source AI allows developers and researchers to review the code, understand how it works, and verify its correctness. This transparency ensures trust in the system and can lead to more reliable and secure AI applications.
 
-2. Collaboration: Open source encourages collaboration among developers, researchers, and users. This collaboration leads to better AI models, as experts from different fields and backgrounds contribute to improving and refining the code.
+2. Collaboration: Open source encourages collaboration among developers, researchers, and users from around the world. By sharing knowledge and efforts, the community can collectively drive innovation forward, resulting in faster advancements in the field of AI.
 
-3. Accessibility: Open source AI makes the technology more accessible to a broader range of individuals and organizations. This accessibility enables smaller organizations and individuals without massive budgets to leverage advanced AI techniques, leveling the playing field and promoting innovation.
+3. Accessibility: Open source AI makes it possible for anyone to access and use cutting-edge AI technologies, not just those with large budgets or exclusive access. This democratizes AI and ensures that it can benefit everyone, not just those who can afford proprietary solutions.
 
-4. Faster development: When a project is open source, developers around the world can contribute to the codebase. This leads to faster development as the collective intelligence of the community is harnessed to identify and fix issues, add new features, and improve performance.
+4. Flexibility: With open source AI, users have the freedom to modify and adapt the code to fit their specific needs. This flexibility allows for customized solutions that can better address unique problems and requirements.
 
-5. Customizability: Open source AI allows users to modify the code to suit their specific needs, which is particularly important in specialized industries or unique use cases where off-the-shelf solutions may not suffice.
+5. Learning and Education: Open source AI provides a valuable resource for learning and education. Students, researchers, and developers can study the code, understand the underlying principles, and gain practical experience in using and improving AI systems.
 
-6. Independent sustenance: Open source AI models can be maintained and updated independently of any single organization or entity. If a corporate-owned AI platform is discontinued or changes its pricing model, users relying on open source alternatives are not left in the lurch.
+6. Competition and Market Dynamics: Open source AI fosters a competitive environment by encouraging innovation and rapid development. This can lead to improvements in efficiency, performance, and overall quality of AI solutions. Additionally, it can create a diverse ecosystem with multiple players, reducing the risk of monopolies and promoting a healthy market dynamics.
 
-7. Education and learning: Open source AI serves as an excellent learning resource for students, researchers, and professionals. By examining the code and understanding how the models work, individuals can deepen their understanding of AI techniques, machine learning algorithms, and data analysis.
+7. Resilience: Open source AI can be more resilient to cyberattacks since the code is openly available for review and audit. Additionally, a diverse community can help identify and address potential vulnerabilities more effectively.
 
-In summary, open source AI fosters transparency, collaboration, accessibility, faster development, customizability, independent sustenance, and education, making it crucial for the growth and advancement of Artificial Intelligence.</code></pre>
+In summary, open source AI is important as it promotes transparency, collaboration, accessibility, flexibility, and learning while fostering innovation, competition, and resilience in the field of artificial intelligence.</code></pre>
 </div>
 </div>
 </section>
@@ -377,7 +385,7 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <h1>Function Calling Capabilities</h1>
 <p>First we will define some functions/tools which the LLM will have access to. Here I use <code>langchain</code> to convert the Python functions into the <code>tools</code> format used by OpenAI. It’s much faster than writing those JSON objects by hand. Note that <code>Hermes-2-Pro-Mistral-7B</code> also uses this same format!</p>
 <p>I am leaving out the actual logic for each function. I mainly want to test the models ability to pick out the correct function and arguments. The important step here is to document each function and argument.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:34:47.618950Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:34:47.616085Z&quot;}" data-execution_count="43">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.956730Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:02:07.953944Z&quot;}" data-execution_count="83">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="at">@tool</span></span>
@@ -501,12 +509,12 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 </details>
 </div>
 <p>Here is an example of two of the tool definitions. Note that this is the <strong>same</strong> <code>tools</code> format used by OpenAI.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:34:50.940341Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:34:50.936290Z&quot;}" data-execution_count="44">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.974470Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:02:07.957775Z&quot;}" data-execution_count="84">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tools[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="44">
+<div class="cell-output cell-output-display" data-execution_count="84">
 <pre><code>{'type': 'function',
  'function': {'name': 'get_weather_forecast',
   'description': "get_weather_forecast(location: str, date: str) -&gt; str - Provides a weather forecast for a given location and date.\n\n    Args:\n        location (str): The name of the city and state, e.g. 'San Francisco, CA'.\n        date (str): The date of the forecast in YYYY-MM-DD format, e.g. '2023-07-01'.\n\n    Returns:\n        str: A string containing the weather forecast, e.g. 'Partly cloudy with a high of 72F (22C).'",
@@ -515,12 +523,12 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
    'required': ['location', 'date']}}}</code></pre>
 </div>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:34:51.376680Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:34:51.369663Z&quot;}" data-execution_count="45">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.975354Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:02:07.961764Z&quot;}" data-execution_count="85">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tools[<span class="op">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="45">
+<div class="cell-output cell-output-display" data-execution_count="85">
 <pre><code>{'type': 'function',
  'function': {'name': 'send_slack_message',
   'description': 'send_slack_message(channel_name: str, message: str) -&gt; bool - Send a message to a Slack channel.\n    Args:\n        channel_name (str): The name of the channel.\n        message (str): The message to be sent.\n    Returns:\n        bool: True if the message was sent successfully, False otherwise.',
@@ -531,7 +539,7 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 </div>
 </div>
 <p>Here is a list of questions to test out the function calling capabilities. For each question we have the text and the ground truth expected function name and arguments. This way we can have a mini evaluation for how well the function calling works.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:34:54.035843Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:34:54.028186Z&quot;}" data-execution_count="46">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.975405Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:02:07.971195Z&quot;}" data-execution_count="86">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>questions <span class="op">=</span> [</span>
@@ -705,7 +713,7 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:34:55.306960Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:34:55.300753Z&quot;}" data-execution_count="47">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:02:07.989012Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:02:07.973588Z&quot;}" data-execution_count="87">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>random.shuffle(tools)</span>
@@ -714,8 +722,8 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 </div>
 <section id="gpt-3.5-turbo-0125-function-calling" class="level2">
 <h2 class="anchored" data-anchor-id="gpt-3.5-turbo-0125-function-calling">gpt-3.5-turbo-0125 Function Calling</h2>
-<p>First we will use <code>gpt-3.5-turbo-0125</code> to extract the function name and arguments for each question. Then we can compare the results with <code>Hermes-2-Pro-Mistral-7B</code>.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:16.878680Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:16.872555Z&quot;}" data-execution_count="10">
+<p>First we will use <code>gpt-3.5-turbo-0125</code> to extract the function name and arguments for each question.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:42:00.518931Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:42:00.506333Z&quot;}" data-execution_count="128">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_tool_calls(resp):</span>
@@ -735,13 +743,13 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 </details>
 </div>
 <p>I’m going to use GPT4 to check the “correctness” of the predicted/generated function arguments by comparing them with the expected arguments. This step is completely optional. Instead, you could use exact string matching or something else. I was curious to see how this would work though.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:16.898288Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:16.875733Z&quot;}" data-execution_count="11">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:42:02.525896Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:42:02.521958Z&quot;}" data-execution_count="129">
 <details open="">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> check_tool_call_arguments(expected, predicted):</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ask GPT4 if the expected function name and arguments are the same as the predicted  function name and arguments.</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> expected[<span class="st">"name"</span>] <span class="op">!=</span> predicted[<span class="st">"name"</span>]:</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span>, <span class="ss">f'Function Names Do not Match. Expected </span><span class="sc">{</span>expected[<span class="st">"name"</span>]<span class="sc">}</span><span class="ss">. Predicted: </span><span class="sc">{</span>predicted[<span class="st">"name"</span>]<span class="sc">}</span><span class="ss">'</span></span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">=</span> <span class="ss">f"""</span></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="ss">Check if the following queries are approx equal. Use fuzzy logic matching for strings.</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="ss">Check to see if the arguments are semantically similar, especially for free form text.</span></span>
@@ -759,112 +767,215 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 </details>
 </div>
 <p>Okay, let’s loop over the questions and use <code>gpt-3.5-turbo-0125</code> to extract the function name and arguments.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:48.699010Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:16.881994Z&quot;}" data-execution_count="12">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:42:04.047998Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:42:04.045142Z&quot;}" data-execution_count="130">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>total_correct <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> question <span class="kw">in</span> questions:</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    resp <span class="op">=</span> llm(</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"gpt-3.5-turbo-0125"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        tools<span class="op">=</span>tools,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        messages<span class="op">=</span>[</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span><span class="ss">f"The date today is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ss">"</span>),</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question[<span class="st">"question"</span>]),</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        ],</span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    tool_calls <span class="op">=</span> extract_tool_calls(resp)</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(tool_calls) <span class="op">==</span> <span class="bu">len</span>(question[<span class="st">"tool_calls"</span>])</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tool_call, expected_call <span class="kw">in</span> <span class="bu">zip</span>(tool_calls, question[<span class="st">"tool_calls"</span>]):</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        correct_call, explanation <span class="op">=</span> check_tool_call_arguments(expected_call, tool_call)</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> correct_call:</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'QUESTION: </span><span class="sc">{</span>question[<span class="st">"question"</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'EXPECTED Tool Call: </span><span class="sc">{</span>question[<span class="st">"tool_calls"</span>][<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"GENERATED Tool Call: </span><span class="sc">{</span>tool_call<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"EXPLANATION: </span><span class="sc">{</span>explanation<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">"</span>)</span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>            total_correct <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> eval_openai_inference_models(model<span class="op">=</span><span class="st">"gpt-3.5-turbo-0125"</span>, base_url<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    total_correct <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> question <span class="kw">in</span> questions:</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        resp <span class="op">=</span> llm(</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            api_key<span class="op">=</span>api_key,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            base_url<span class="op">=</span>base_url,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            model<span class="op">=</span>model,</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>            tools<span class="op">=</span>tools,</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>            messages<span class="op">=</span>[</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>                <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span><span class="ss">f"The date today is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ss">"</span>),</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>                <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question[<span class="st">"question"</span>]),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>            ],</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>        tool_calls <span class="op">=</span> extract_tool_calls(resp)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> tool_calls <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'Model </span><span class="sc">{</span>model<span class="sc">}</span><span class="ss"> failed to return any tool calls for question </span><span class="sc">{</span>question[<span class="st">"question"</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>            total <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(tool_calls) <span class="op">==</span> <span class="bu">len</span>(question[<span class="st">"tool_calls"</span>])</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> tool_call, expected_call <span class="kw">in</span> <span class="bu">zip</span>(tool_calls, question[<span class="st">"tool_calls"</span>]):</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>            correct_call, explanation <span class="op">=</span> check_tool_call_arguments(expected_call, tool_call)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> correct_call:</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f'QUESTION: </span><span class="sc">{</span>question[<span class="st">"question"</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f'EXPECTED Tool Call: </span><span class="sc">{</span>question[<span class="st">"tool_calls"</span>][<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"GENERATED Tool Call: </span><span class="sc">{</span>tool_call<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"EXPLANATION: </span><span class="sc">{</span>explanation<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">"</span>)</span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>                total_correct <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>            total <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> total_correct, total</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:28:48.723346Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:28:48.706320Z&quot;}" data-execution_count="13">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:19:10.519266Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:18:36.935712Z&quot;}" data-execution_count="115">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> <span class="st">"gpt-3.5-turbo-0125"</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>total_correct, total <span class="op">=</span> eval_openai_inference_models(model<span class="op">=</span>model, base_url<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Correctly called the proper functions 18 times out of 18. But check the "failure" cases above since they may be correct anyway.</code></pre>
 </div>
 </div>
 </section>
+<section id="gpt-4-0125-preview-function-calling" class="level2">
+<h2 class="anchored" data-anchor-id="gpt-4-0125-preview-function-calling">gpt-4-0125-preview Function Calling</h2>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:22:57.486659Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:21:46.994091Z&quot;}" data-execution_count="118">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> <span class="st">"gpt-4-0125-preview"</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>total_correct, total <span class="op">=</span> eval_openai_inference_models(model<span class="op">=</span>model, base_url<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>QUESTION: What's the forecast for Miami for today?
+EXPECTED Tool Call: {'name': 'get_weather_forecast', 'arguments': {'location': 'Miami, FL', 'date': '2024-03-18'}}
+GENERATED Tool Call: {'name': 'get_weather_foreast', 'arguments': {'date': '2024-03-18', 'location': 'Miami, FL'}}
+EXPLANATION: Function Names Do not Match. Expected get_weather_forecast. Predicted: get_weather_foreast
+
+Correctly called the proper functions 17 times out of 18. But check the "failure" cases above since they may be correct anyway.</code></pre>
+</div>
+</div>
+</section>
+<section id="mistral-7b-instruct-v0.1-with-together.ai-function-calling" class="level2">
+<h2 class="anchored" data-anchor-id="mistral-7b-instruct-v0.1-with-together.ai-function-calling">Mistral-7B-Instruct-v0.1 with together.ai Function Calling</h2>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:23:37.760185Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:22:57.499532Z&quot;}" data-execution_count="119">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> <span class="st">"mistralai/Mistral-7B-Instruct-v0.1"</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>total_correct, total <span class="op">=</span> eval_openai_inference_models(model<span class="op">=</span>model, base_url<span class="op">=</span>TOGETHER_AI_BASE_URL, api_key<span class="op">=</span>TOGETHER_API_KEY)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model mistralai/Mistral-7B-Instruct-v0.1 failed to return any tool calls for question How do I make pesto?
+QUESTION: What's a good vegan chili recipe?
+EXPECTED Tool Call: {'name': 'get_recipe', 'arguments': {'dish_name': 'vegan chili'}}
+GENERATED Tool Call: {'name': 'solve_math_problem', 'arguments': {'problem': 'What is the square root of 16?'}}
+EXPLANATION: Function Names Do not Match. Expected get_recipe. Predicted: solve_math_problem
+
+
+Correctly called the proper functions 16 times out of 18. But check the "failure" cases above since they may be correct anyway.</code></pre>
+</div>
+</div>
+</section>
+<section id="mistralaimixtral-8x7b-instruct-v0.1-with-together.ai-function-calling" class="level2">
+<h2 class="anchored" data-anchor-id="mistralaimixtral-8x7b-instruct-v0.1-with-together.ai-function-calling">mistralai/Mixtral-8x7B-Instruct-v0.1 with together.ai Function Calling</h2>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:42:57.866098Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:42:07.859297Z&quot;}" data-execution_count="131">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> <span class="st">"mistralai/Mixtral-8x7B-Instruct-v0.1"</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>total_correct, total <span class="op">=</span> eval_openai_inference_models(model<span class="op">=</span>model, base_url<span class="op">=</span>TOGETHER_AI_BASE_URL, api_key<span class="op">=</span>TOGETHER_API_KEY)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model mistralai/Mixtral-8x7B-Instruct-v0.1 failed to return any tool calls for question How do I make pesto?
+QUESTION: I need to book a first class round-trip flight for 4 people from Chicago to Miami. We want to leave on December 1 and return on December 12.
+EXPECTED Tool Call: {'name': 'book_flight', 'arguments': {'departure_city': 'Chicago', 'arrival_city': 'Miami', 'departure_date': '2024-12-01', 'return_date': '2024-12-12', 'num_passengers': 4, 'cabin_class': 'first'}}
+GENERATED Tool Call: {'name': 'book_flight', 'arguments': {'departure_city': 'Chicago', 'arrival_city': 'Miami', 'departure_date': '2023-12-01', 'return_date': '2023-12-12', 'num_passengers': 4, 'cabin_class': 'first'}}
+EXPLANATION: false
+
+the departure_date and return_date values do not match. the expected arguments have dates in 2024, while the predicted arguments have dates in 2023.
+
+QUESTION: Book me a round-trip flight from New York City to Los Angeles departing on June 15th and returning June 22nd for 2 passengers in economy class.
+EXPECTED Tool Call: {'name': 'book_flight', 'arguments': {'departure_city': 'NYC', 'arrival_city': 'LAX', 'departure_date': '2024-06-15', 'return_date': '2024-06-22', 'num_passengers': 2, 'cabin_class': 'economy'}}
+GENERATED Tool Call: {'name': 'book_flight', 'arguments': {'departure_city': 'New York City', 'arrival_city': 'Los Angeles', 'departure_date': '2023-06-15', 'return_date': '2023-06-22', 'num_passengers': 2, 'cabin_class': 'economy'}}
+EXPLANATION: false
+
+explanation:
+- the 'departure_city' and 'arrival_city' fields match semantically as 'nyc' is commonly known as 'new york city' and 'lax' is a well-known shorthand for the los angeles airport, often used to refer to los angeles itself.
+- the 'departure_date' and 'return_date' do not match. the expected arguments specify a year 2024, while the predicted arguments have the year 2023 for both dates.
+- the 'num_passengers' and 'cabin_class' fields match exactly in both value and semantics. 
+
+the primary reason for the non-match is the difference in 'departure_date' and 'return_date' by one year.
+
+Correctly called the proper functions 15 times out of 18. But check the "failure" cases above since they may be correct anyway.</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is going on with together.ai function calling mistakes above
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Both models had issues with the pesto question. I wonder if this is something on together.ai’s end of things and how they implemented this function calling feature. IDK!</p>
+</div>
+</div>
+</section>
 <section id="nousresearchhermes-2-pro-mistral-7b-function-calling" class="level2">
 <h2 class="anchored" data-anchor-id="nousresearchhermes-2-pro-mistral-7b-function-calling">NousResearch/Hermes-2-Pro-Mistral-7B Function Calling</h2>
 <p>Now we will repeat with <code>NousResearch/Hermes-2-Pro-Mistral-7B</code>. The format for the function calling is documented on the <a href="https://huggingface.co/NousResearch/Hermes-2-Pro-Mistral-7B#prompt-format-for-function-calling">model card</a> as well as in this <a href="https://github.com/NousResearch/Hermes-Function-Calling">repo</a>. The way we define the tools is the same format as with OpenAI. However, we don’t pass in a <code>tools</code> argument. Rather, we use a special <code>system</code> prompt which defines the tools.</p>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:05.020257Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:35:10.458142Z&quot;}" data-execution_count="48">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:34:25.894652Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:33:23.341378Z&quot;}" data-execution_count="123">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_tool_calls(tool_calls_str):</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    tool_calls <span class="op">=</span> tool_calls_str.split(<span class="st">"&lt;/tool_call&gt;</span><span class="ch">\n</span><span class="st">"</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    parsed_results <span class="op">=</span> []</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tool_call <span class="kw">in</span> tool_calls:</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> tool_call:</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            dict_str <span class="op">=</span> tool_call.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)[<span class="dv">1</span>]</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            tool_call_dict <span class="op">=</span> ast.literal_eval(dict_str)</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            parsed_results.append({<span class="st">"arguments"</span>: tool_call_dict[<span class="st">"arguments"</span>], <span class="st">"name"</span>: tool_call_dict[<span class="st">"name"</span>]})</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> parsed_results</span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>system_prompt <span class="op">=</span> (</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"The date today is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="st">"""</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="st">You are a function calling AI model. You are provided with function signatures within &lt;tools&gt;&lt;/tools&gt; XML tags. You may call one or more functions to assist with the user query. Don't make assumptions about what values to plug into functions. Here are the available tools:</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;tools&gt; </span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="bu">str</span>(tools)</span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="st">"""</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/tools&gt; Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'</span><span class="sc">}}</span><span class="st">, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments within &lt;tool_call&gt;&lt;/tool_call&gt; XML tags as follows:</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;tool_call&gt;</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="st">{'arguments': &lt;args-dict&gt;, 'name': &lt;function-name&gt;}</span></span>
-<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/tool_call&gt;</span></span>
-<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>total_correct <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> question <span class="kw">in</span> questions:</span>
-<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    resp <span class="op">=</span> llm(</span>
-<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"tgi"</span>,</span>
-<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>        base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
-<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>        api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>        messages<span class="op">=</span>[</span>
-<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
-<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question[<span class="st">"question"</span>]),</span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>        ],</span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>        max_tokens<span class="op">=</span><span class="dv">500</span>,</span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(tool_calls) <span class="op">==</span> <span class="bu">len</span>(question[<span class="st">"tool_calls"</span>])</span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tool_call, expected_call <span class="kw">in</span> <span class="bu">zip</span>(tool_calls, question[<span class="st">"tool_calls"</span>]):</span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>        correct_call, explanation <span class="op">=</span> check_tool_call_arguments(expected_call, tool_call)</span>
-<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> correct_call:</span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'QUESTION: </span><span class="sc">{</span>question[<span class="st">"question"</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'EXPECTED Tool Call: </span><span class="sc">{</span>question[<span class="st">"tool_calls"</span>][<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
-<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"GENERATED Tool Call: </span><span class="sc">{</span>tool_call<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"EXPLANATION: </span><span class="sc">{</span>explanation<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">"</span>)</span>
-<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>            total_correct <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> extract_tool_calls(tool_calls_str):</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    tool_calls <span class="op">=</span> tool_calls_str.split(<span class="st">"&lt;/tool_call&gt;</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    parsed_results <span class="op">=</span> []</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tool_call <span class="kw">in</span> tool_calls:</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> tool_call:</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>            dict_str <span class="op">=</span> tool_call.split(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span>)[<span class="dv">1</span>]</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>            tool_call_dict <span class="op">=</span> ast.literal_eval(dict_str)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>            parsed_results.append({<span class="st">"arguments"</span>: tool_call_dict[<span class="st">"arguments"</span>], <span class="st">"name"</span>: tool_call_dict[<span class="st">"name"</span>]})</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> parsed_results</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>system_prompt <span class="op">=</span> (</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"The date today is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="st">"""</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="st">You are a function calling AI model. You are provided with function signatures within &lt;tools&gt;&lt;/tools&gt; XML tags. You may call one or more functions to assist with the user query. Don't make assumptions about what values to plug into functions. Here are the available tools:</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;tools&gt; </span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="bu">str</span>(tools)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> <span class="st">"""</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/tools&gt; Use the following pydantic model json schema for each tool call you will make: {'title': 'FunctionCall', 'type': 'object', 'properties': {'arguments': {'title': 'Arguments', 'type': 'object'}, 'name': {'title': 'Name', 'type': 'string'</span><span class="sc">}}</span><span class="st">, 'required': ['arguments', 'name']} For each function call return a json object with function name and arguments within &lt;tool_call&gt;&lt;/tool_call&gt; XML tags as follows:</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;tool_call&gt;</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="st">{'arguments': &lt;args-dict&gt;, 'name': &lt;function-name&gt;}</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="st">&lt;/tool_call&gt;</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>total_correct <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> question <span class="kw">in</span> questions:</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>    resp <span class="op">=</span> llm(</span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>        model<span class="op">=</span><span class="st">"tgi"</span>,</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>        base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>        api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>        messages<span class="op">=</span>[</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>            <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question[<span class="st">"question"</span>]),</span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>        max_tokens<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="bu">len</span>(tool_calls) <span class="op">==</span> <span class="bu">len</span>(question[<span class="st">"tool_calls"</span>])</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> tool_call, expected_call <span class="kw">in</span> <span class="bu">zip</span>(tool_calls, question[<span class="st">"tool_calls"</span>]):</span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>        correct_call, explanation <span class="op">=</span> check_tool_call_arguments(expected_call, tool_call)</span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> correct_call:</span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'QUESTION: </span><span class="sc">{</span>question[<span class="st">"question"</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f'EXPECTED Tool Call: </span><span class="sc">{</span>question[<span class="st">"tool_calls"</span>][<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"GENERATED Tool Call: </span><span class="sc">{</span>tool_call<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"EXPLANATION: </span><span class="sc">{</span>explanation<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">"</span>)</span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a>            total_correct <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:05.022843Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:05.020110Z&quot;}" data-execution_count="49">
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-18T12:34:25.900525Z&quot;,&quot;start_time&quot;:&quot;2024-03-18T12:34:25.896337Z&quot;}" data-execution_count="124">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'Correctly called the proper functions </span><span class="sc">{</span>total_correct<span class="sc">}</span><span class="ss"> times out of </span><span class="sc">{</span>total<span class="sc">}</span><span class="ss">. But check the "failure" cases above since they may be correct anyway.'</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Correctly called the proper functions 18 times out of 18. But check the "failure" cases above since they may be correct anyway.</code></pre>
@@ -875,7 +986,7 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:10.930090Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:10.913473Z&quot;}" data-execution_count="50">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>today</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>today</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="50">
 <pre><code>'Saturday 2024-03-16'</code></pre>
@@ -884,22 +995,22 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:11.872955Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:11.866655Z&quot;}" data-execution_count="51">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> <span class="st">"I want to go see Dune 2 on Wednesday night with 5 of my friends. We will be going to the Halifax Bayers Lake Ciniplex Theatre. Get tickets for the 7pm show. Thanks!"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> <span class="st">"I want to go see Dune 2 on Wednesday night with 5 of my friends. We will be going to the Halifax Bayers Lake Ciniplex Theatre. Get tickets for the 7pm show. Thanks!"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:17.980404Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:14.011247Z&quot;}" data-execution_count="52">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> llm(</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"tgi"</span>,</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question),</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>resp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> llm(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"tgi"</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>question),</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>resp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="52">
 <pre><code>ChatCompletion(id='', choices=[Choice(finish_reason='eos_token', index=0, logprobs=None, message=ChatCompletionMessage(content="&lt;tool_call&gt;\n{'arguments': {'movie_name': 'Dune 2', 'theater_name': 'Halifax Bayers Lake Ciniplex Theatre', 'date': '2024-03-20', 'time': '19:00', 'num_tickets': 6}, 'name': 'book_movie_tickets'}\n&lt;/tool_call&gt;\n", role='assistant', function_call=None, tool_calls=None, name=None))], created=1710632177, model='/repository', object='text_completion', system_fingerprint='1.4.1-native', usage=CompletionUsage(completion_tokens=93, prompt_tokens=1719, total_tokens=1812))</code></pre>
@@ -908,7 +1019,7 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:17.994172Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:17.977790Z&quot;}" data-execution_count="53">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(resp.choices[<span class="dv">0</span>].message.content)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(resp.choices[<span class="dv">0</span>].message.content)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;tool_call&gt;
@@ -919,8 +1030,8 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:36:18.597404Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:36:18.584415Z&quot;}" data-execution_count="54">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>tool_calls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>tool_calls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="54">
 <pre><code>[{'arguments': {'movie_name': 'Dune 2',
@@ -935,37 +1046,37 @@ In summary, open source AI fosters transparency, collaboration, accessibility, f
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:38:55.126485Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:38:55.122847Z&quot;}" data-execution_count="61">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>tasks <span class="op">=</span> <span class="ss">f"""</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="ss">Today's date is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ss">.</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="ss">Please complete the following tasks for me:</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="ss">1. I want to go see Dune 2 on Monday night with 5 of my friends. We will be going to the Halifax Bayers Lake Ciniplex Theatre. Get tickets for the 7pm show.</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="ss">2. Please check the weather for Monday night so I know how to dress.</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="ss">3. Also please book my plane ticket to Toronto. I will be leaving Tuesday and coming back 2 days later on Thursday. First class please.</span></span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="ss">4. Send a slack message to the research channel to let them know I will not be there this week in the office.</span></span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="ss"> </span></span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="ss">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>tasks <span class="op">=</span> <span class="ss">f"""</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ss">Today's date is </span><span class="sc">{</span>today<span class="sc">}</span><span class="ss">.</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="ss">Please complete the following tasks for me:</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="ss">1. I want to go see Dune 2 on Monday night with 5 of my friends. We will be going to the Halifax Bayers Lake Ciniplex Theatre. Get tickets for the 7pm show.</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a><span class="ss">2. Please check the weather for Monday night so I know how to dress.</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="ss">3. Also please book my plane ticket to Toronto. I will be leaving Tuesday and coming back 2 days later on Thursday. First class please.</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="ss">4. Send a slack message to the research channel to let them know I will not be there this week in the office.</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="ss"> </span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a><span class="ss">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-03-16T23:39:06.227116Z&quot;,&quot;start_time&quot;:&quot;2024-03-16T23:38:55.540201Z&quot;}" data-execution_count="62">
 <details open="">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> llm(</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"tgi"</span>,</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>tasks),</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    ],</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">1000</span>,</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>tool_calls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>resp <span class="op">=</span> llm(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"tgi"</span>,</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span>HUGGING_FACE_ENDPOINT_URL,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span>HUGGING_FACE_ACCESS_TOKEN,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"system"</span>, content<span class="op">=</span>system_prompt),</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">dict</span>(role<span class="op">=</span><span class="st">"user"</span>, content<span class="op">=</span>tasks),</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>tool_calls <span class="op">=</span> extract_tool_calls(resp.choices[<span class="dv">0</span>].message.content)</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>tool_calls</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display" data-execution_count="62">
 <pre><code>[{'arguments': {'movie_name': 'Dune 2',
