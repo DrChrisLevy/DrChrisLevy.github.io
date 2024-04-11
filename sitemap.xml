@@ -2,26 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://DrChrisLevy.github.io/blog.html</loc>
-    <lastmod>2024-03-18T13:11:26.170Z</lastmod>
+    <lastmod>2024-04-11T11:50:19.681Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/open_hermes_pro/open_hermes.html</loc>
-    <lastmod>2024-03-18T13:11:25.506Z</lastmod>
+    <lastmod>2024-04-11T11:50:18.966Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
-    <lastmod>2024-03-18T13:11:24.349Z</lastmod>
+    <lastmod>2024-04-11T11:50:17.810Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
+    <lastmod>2024-04-11T11:50:16.669Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
-    <lastmod>2024-03-18T13:11:23.206Z</lastmod>
+    <lastmod>2024-04-11T11:50:15.920Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_inference_class/llm_inference.html</loc>
-    <lastmod>2024-03-18T13:11:24.919Z</lastmod>
+    <lastmod>2024-04-11T11:50:18.383Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/index.html</loc>
-    <lastmod>2024-03-18T13:11:25.775Z</lastmod>
+    <lastmod>2024-04-11T11:50:19.250Z</lastmod>
   </url>
 </urlset>
