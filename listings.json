@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/llm_lunch_talk/llm_talk_slides.html",
       "/posts/intro_modal/intro_modal.html",
       "/posts/intro_fine_tune/intro_fine_tune.html",
       "/posts/open_hermes_pro/open_hermes.html",

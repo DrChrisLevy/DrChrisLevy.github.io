@@ -2,34 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://DrChrisLevy.github.io/blog.html</loc>
-    <lastmod>2024-04-16T03:15:39.361Z</lastmod>
+    <lastmod>2024-05-01T03:29:52.312Z</lastmod>
   </url>
   <url>
-    <loc>https://DrChrisLevy.github.io/posts/open_hermes_pro/open_hermes.html</loc>
-    <lastmod>2024-04-16T03:15:38.656Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
-    <lastmod>2024-04-16T03:15:37.519Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/intro_modal/intro_modal.html</loc>
-    <lastmod>2024-04-16T03:15:36.423Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
-    <lastmod>2024-04-16T03:15:35.232Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
-    <lastmod>2024-04-16T03:15:35.965Z</lastmod>
+    <loc>https://DrChrisLevy.github.io/posts/llm_lunch_talk/llm_talk_slides.html</loc>
+    <lastmod>2024-05-01T03:29:51.550Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_inference_class/llm_inference.html</loc>
-    <lastmod>2024-04-16T03:15:38.080Z</lastmod>
+    <lastmod>2024-05-01T03:29:50.341Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
+    <lastmod>2024-05-01T03:29:48.233Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
+    <lastmod>2024-05-01T03:29:47.497Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/intro_modal/intro_modal.html</loc>
+    <lastmod>2024-05-01T03:29:48.691Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
+    <lastmod>2024-05-01T03:29:49.797Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/open_hermes_pro/open_hermes.html</loc>
+    <lastmod>2024-05-01T03:29:50.922Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/index.html</loc>
-    <lastmod>2024-04-16T03:15:38.930Z</lastmod>
+    <lastmod>2024-05-01T03:29:51.834Z</lastmod>
   </url>
 </urlset>
