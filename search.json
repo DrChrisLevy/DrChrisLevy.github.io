@@ -266,13 +266,6 @@
     "text": "Agents\n\ntodo"
   },
   {
-    "objectID": "posts/llm_lunch_talk/llm_talk_slides.html#random-resources-1",
-    "href": "posts/llm_lunch_talk/llm_talk_slides.html#random-resources-1",
-    "title": "Intro to LLMs",
-    "section": "Random Resources",
-    "text": "Random Resources\n\nJeremy Howard\n\nA Hackers’ Guide to Language Models\n\nHamel Husain\nMaxime Labonne\nSebastian Raschka\nanton\nTeknium\nSimon Willison\npeople I follow\nThursdAI podcast\nLatent Space"
-  },
-  {
     "objectID": "posts/llm_inference_class/llm_inference.html",
     "href": "posts/llm_inference_class/llm_inference.html",
     "title": "OpenAI Compatible LLM Inference",
