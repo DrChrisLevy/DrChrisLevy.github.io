@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-06-06">
+
+<title>Chris Levy - Fine-Tuning LLMs with Axolotl on JarvisLabs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">Fine-Tuning LLMs with Axolotl on JarvisLabs</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 6, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">June 6, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a></li>
+  <li><a href="#jarvislabs-setup" id="toc-jarvislabs-setup" class="nav-link" data-scroll-target="#jarvislabs-setup">JarvisLabs Setup</a></li>
+  <li><a href="#axolotl-config" id="toc-axolotl-config" class="nav-link" data-scroll-target="#axolotl-config">Axolotl Config</a></li>
+  <li><a href="#preparing-and-debugging-the-processed-dataset" id="toc-preparing-and-debugging-the-processed-dataset" class="nav-link" data-scroll-target="#preparing-and-debugging-the-processed-dataset">Preparing and Debugging the Processed Dataset</a></li>
+  <li><a href="#training-the-model" id="toc-training-the-model" class="nav-link" data-scroll-target="#training-the-model">Training the Model</a></li>
+  <li><a href="#inference-with-the-model" id="toc-inference-with-the-model" class="nav-link" data-scroll-target="#inference-with-the-model">Inference with the Model</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="intro" class="level1">
+<h1>Intro</h1>
+<p>I’m currently taking part in the course/conference <a href="https://maven.com/parlance-labs/fine-tuning">Mastering LLMs: A Conference For Developers &amp; Data Scientists</a>. It started off as a fine-tuning course and then kind of exploded into a mini conference with numerous speakers and talks on LLMs. Many of the organizations involved gave out free credits to try out their platform. <a href="https://x.com/vishnuvig">Vishnu</a> was very generous and gave out some free credits for <a href="https://jarvislabs.ai/">JarvisLabs.ai</a>.</p>
+<p>I previously wrote about my first time using <a href="https://github.com/OpenAccess-AI-Collective/axolotl">axolotl</a> <a href="https://drchrislevy.github.io/posts/intro_fine_tune/intro_fine_tune.html">here</a> for text completion (not instruction). In this post I will be going through fine-tuning an instruction model with <a href="https://github.com/OpenAccess-AI-Collective/axolotl">axolotl</a> on <a href="https://jarvislabs.ai/">JarvisLabs.ai</a>.</p>
+</section>
+<section id="jarvislabs-setup" class="level1">
+<h1>JarvisLabs Setup</h1>
+<ul>
+<li>JarvisLabs is a cloud provider for GPUs.</li>
+<li>The <a href="https://jarvislabs.ai/docs">docs</a> are great.</li>
+<li>They even have <a href="https://jarvislabs.ai/">templates</a> for getting up and running quickly. I am using the <a href="https://jarvislabs.ai/templates/axolotl">axolotl template</a>.</li>
+</ul>
+<p>When you create an instance, you can easily use Jupyter or the terminal directly in the browser.</p>
+<p><img src="imgs/jarvis1.png" class="img-fluid"> <img src="imgs/jarvis_instance.png" class="img-fluid"></p>
+<p>You can also <code>ssh</code> in from a local terminal which is what I prefer to do.</p>
+<p>I created an ssh key on my local machine:</p>
+<pre><code>ssh-keygen -t ed25519 -C "&lt;my_email.com&gt;" -f ~/.ssh/jarivs_labs</code></pre>
+<pre><code>cat ~/.ssh/jarivs_labs.pub</code></pre>
+<p>I copied it into the JarvisLabs <a href="https://jarvislabs.ai/settings#ssh">ssh settings</a> as explained in their <a href="https://jarvislabs.ai/docs/faqs#how-to-generate-ssh-key">FAQ</a>.</p>
+<p>Note that the <code>ssh</code> details can be seen by clicking on the <code>ssh</code> button on the running instance. They may be slightly different from this particular example.</p>
+<pre><code>ssh -i ~/.ssh/jarivs_labs -o StrictHostKeyChecking=no -p 11314 root@sshf.jarvislabs.ai</code></pre>
+<p>Once connected, these are the commands I run to set up the environment:</p>
+<pre><code>cd /workspace/axolotl/
+git pull</code></pre>
+<p>Then from axolotl <a href="https://github.com/OpenAccess-AI-Collective/axolotl?tab=readme-ov-file#quickstart-">readme</a>.</p>
+<pre><code>pip3 install packaging ninja
+pip3 install -e '.[flash-attn,deepspeed]'</code></pre>
+<p>I also find it useful to define these:</p>
+<pre><code>git config --global credential.helper store
+export HF_DATASETS_CACHE="/workspace/data/huggingface-cache/datasets"
+export HUGGINGFACE_HUB_CACHE="/workspace/data/huggingface-cache/hub"
+export TRANSFORMERS_CACHE="/workspace/data/huggingface-cache/hub"
+export HF_HOME="/workspace/data/huggingface-cache/hub"
+export HF_HUB_ENABLE_HF_TRANSFER="1"</code></pre>
+<p>Connect <code>wandb</code> and <code>huggingface-cli</code>.</p>
+<pre><code>wandb login
+huggingface-cli login</code></pre>
+</section>
+<section id="axolotl-config" class="level1">
+<h1>Axolotl Config</h1>
+<p>This is the axolotl config which I made edits to and stored at <code>examples/llama-3/qlora.yml</code>.</p>
+<pre><code>base_model: meta-llama/Meta-Llama-3-8B
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+
+load_in_8bit: false
+load_in_4bit: true
+strict: false
+
+datasets:
+  - path: data.jsonl
+    type: alpaca
+dataset_prepared_path:
+val_set_size: 0.05
+output_dir: qlora-test
+
+sequence_len: 2048
+sample_packing: true
+eval_sample_packing: False
+pad_to_sequence_len: true
+
+adapter: qlora
+lora_r: 32
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target_modules:
+lora_target_linear: true
+lora_fan_in_fan_out:
+
+wandb_project: synthetic-social-llama3
+wandb_entity:
+wandb_watch:
+wandb_name: seq-length-2048-lr-0.0002-r-32-alpha-16
+wandb_log_model:
+
+gradient_accumulation_steps: 4
+micro_batch_size: 2
+num_epochs: 2
+optimizer: paged_adamw_32bit
+lr_scheduler: cosine
+learning_rate: 0.0002
+
+train_on_inputs: false
+group_by_length: false
+bf16: auto
+fp16:
+tf32: false
+
+gradient_checkpointing: true
+early_stopping_patience:
+resume_from_checkpoint:
+local_rank:
+logging_steps: 1
+xformers_attention:
+flash_attention: true
+
+warmup_steps: 10
+evals_per_epoch: 2
+eval_table_size:
+saves_per_epoch: 1
+debug:
+deepspeed:
+weight_decay: 0.0
+fsdp:
+fsdp_config:
+special_tokens:
+  pad_token: "&lt;|end_of_text|&gt;"
+</code></pre>
+<p>I simply copy/pasted the above into the existing yaml from the repo.</p>
+<pre><code>rm -rf examples/llama-3/qlora.yml
+vim examples/llama-3/qlora.yml</code></pre>
+</section>
+<section id="preparing-and-debugging-the-processed-dataset" class="level1">
+<h1>Preparing and Debugging the Processed Dataset</h1>
+<p>I created a synthetic dataset generated with another LLM. Both the inputs and labels are synthetic and generated with an LLM. You can find it <a href="https://huggingface.co/datasets/chrislevy/synthetic-social">here</a>. It’s just meant for simple experimentation and playing around. I stored it as a <code>data.jsonl</code> file on the JarvisLabs instance at <code>/workspace/axolotl/data.jsonl</code>.</p>
+<p>The idea of this dataset and fine-tuning a model from it is simple. You provide a list of social media posts from a user. Then you can ask the model to either generate a list of interests/keywords or write a summary based on the input posts. Note that this is a very simple task which can be achieved with existing closed or open source instruction models. So technically fine-tuning is not required for this task in most scenarios. But this exercise is for educational purposes so let’s continue.</p>
+<p>We process the dataset as recommended by the <a href="https://github.com/OpenAccess-AI-Collective/axolotl?tab=readme-ov-file#usage">axolotl docs</a>. My dataset is in the alpaca format.</p>
+<pre><code>rm -rf last_run_prepared/
+CUDA_VISIBLE_DEVICES="" python -m axolotl.cli.preprocess examples/llama-3/qlora.yml --debug</code></pre>
+<p><img src="imgs/ds1.png" class="img-fluid"> <img src="imgs/ds2.png" class="img-fluid"></p>
+<p>This screenshot shows the output of the dataset preprocess step when running in <code>--debug</code> mode. The red tokens are not included in the loss calculation and the green ones are. This is because we are using <code>train_on_inputs: false</code>. This means the training does not consider the user submitted inputs when calculating the loss.</p>
+<p>The processed dataset is in the default <code>last_run_prepared</code> folder because I did not specify a different location in the yaml configuration. We can debug the pre-processed dataset more in the ipython shell.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_from_disk</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> yaml</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>directory <span class="op">=</span> <span class="op">!</span>ls last_run_prepared<span class="op">/</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'examples/llama-3/qlora.yml'</span>, <span class="st">'r'</span>) <span class="im">as</span> f:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    cfg <span class="op">=</span> yaml.safe_load(f)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>model_id <span class="op">=</span> cfg[<span class="st">'base_model'</span>]</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_id)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> load_from_disk(<span class="ss">f'last_run_prepared/</span><span class="sc">{</span>directory[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">/'</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>row <span class="op">=</span> ds[<span class="dv">4552</span>] <span class="co"># can pick various rows to test</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokenizer.decode(row[<span class="st">'input_ids'</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here is an example record in full where the task is to generate a list of interests:</p>
+<pre><code>&lt;|begin_of_text|&gt;Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate a list of interests
+
+### Input:
+Exploring architectural wonders: Casa Malaparte on the Isle of Capri, Italy. Designed by Adalberto Libera in 1937. A true masterpiece of modernist architecture. #casamalaparte #adalbertolibera #architecturalwonders
+-------
+Vintage charm: The Miller House in Lexington, Kentucky, designed by José Oubrerie in the 1980s. A unique blend of contemporary design and historic influences. #millerhouse #joseoubrerie #vintagecharm
+-------
+A glimpse into the past: The Eames House in Pacific Palisades, California, 1949. A landmark of mid-century modern architecture and a symbol of creativity and innovation. #eameshouse #midcenturymodern #designinspiration
+-------
+Architectural serenity: The Bruder Klaus Field Chapel in Mechernich, Germany, designed by Peter Zumthor in 2007. A place of contemplation and spiritual connection with nature. #bruderklausfieldchapel #peterzumthor #architecturalserenity
+-------
+The poetic beauty of Casa Gilardi in Mexico City, Mexico, designed by Luis Barragán. Every corner of this house is a work of art that celebrates light, color, and form. #casagilardi #luisbarragan #poeticbeauty
+-------
+Rediscovering architectural gems: The Lovell Beach House in Newport Beach, California, 1926. A pioneering example of modern residential architecture by Rudolph Schindler. #lovellbeachhouse #rudolphschindler #architecturalgems
+-------
+Minimalist elegance: The Mies van der Rohe Pavilion in Barcelona, Spain. An iconic modernist structure that exemplifies the essence of simplicity and sophistication in design. #miesvanderrohe #minimalistelegance #barcelonapavilion
+-------
+Sustainable design spotlight: The Adam Joseph Lewis Center in Oberlin, Ohio, designed by William McDonough in 2000. A visionary example of environmentally conscious architecture. #adamjosephlewiscenter #williammcdonough #sustainabledesign
+-------
+Architectural harmony: Fallingwater in Pennsylvania, designed by Frank Lloyd Wright in 1935. A masterpiece that seamlessly integrates with its natural surroundings. #fallingwater #franklloydwright #architecturalharmony
+-------
+The ethereal grace of the Teshima Art Museum in Japan, designed by Ryue Nishizawa in 2010. A place where architecture, art, and nature converge to create a transcendent experience. #teshimaartmuseum #ryuenishizawa #etherealgrace
+-------
+Unveiling design treasures: The Unité d'Habitation in Marseille, France, designed by Le Corbusier in the 1950s. A revolutionary housing complex that redefined urban living concepts. #unitehabitation #lecorbusier #designtreasures
+-------
+Cultural heritage in focus: The Sheikh Lotfollah Mosque in Isfahan, Iran, a masterpiece of Safavid architecture from the 17th century. A symbol of intricate beauty and Islamic artistry. #sheikhlotfollahmosque #isfahan #culturalheritage
+-------
+Architectural splendor: The Elbphilharmonie in Hamburg, Germany, designed by Herzog &amp; de Meuron. A modern marvel that harmoniously combines old and new architectural elements. #elbphilharmonie #herzogdemeuron #architecturalsplendor
+-------
+Exploring urban landscapes: The Metropol Parasol in Seville, Spain, affectionately known as 'The Mushrooms.' A contemporary architectural marvel that transforms public spaces with innovative design. #metropolparasol #seville #urbanlandscapes
+-------
+Enchanting design: The Biblioteca Vasconcelos in Mexico City, a cultural institution with a breathtaking blend of contemporary architecture and artistic expression. #bibliotecavasconcelos #mexicocity #enchantingdesign
+-------
+Architectural evolution: The High Line in New York City, a groundbreaking urban park built on a historic elevated rail line. A symbol of innovative adaptive reuse in contemporary architecture. #highline #newyorkcity #architecturalevolution
+-------
+Timeless elegance: The Kimbell Art Museum in Fort Worth, Texas, designed by Louis Kahn in the 1970s. A space where architecture serves as a silent partner to art, creating a harmonious environment. #kimbellartmuseum #louiskahn #timelesselegance
+-------
+Architectural symmetry: The Pantheon in Rome, Italy, a marvel of ancient Roman engineering and design. A timeless masterpiece that continues to inspire architects and visitors alike. #pantheon #rome #architecturalsymmetry
+-------
+Designing with nature: The Salk Institute in La Jolla, California, designed by Louis Kahn. A sanctuary of research and contemplation where architecture and landscape coexist in perfect harmony. #salkinstitute #louiskahn #designwithnature
+-------
+Iconic modernism: The Farnsworth House in Plano, Illinois, designed by Mies van der Rohe in 1951. A glass pavilion that blurs the line between interior and exterior, embodying the essence of modernist design. #farnsworthhouse #miesvanderrohe #iconicmodernism
+-------
+Exploring the architectural masterpiece that is the Casa Malaparte in Capri, Italy. Designed by Curzio Malaparte in 1937. 🏛️ #casamalaparte #curziomalaparte #italianarchitecture
+-------
+Capturing the essence of mid-century modern design at the iconic Stahl House (Case Study House #22) in Los Angeles by architect Pierre Koenig. 🌟 #stahlhouse #casestudyhouse #midcenturymodern
+-------
+A glimpse of the minimalist beauty of the Teshima Art Museum on the island of Teshima, Japan. Designed by Ryue Nishizawa and Rei Naito in 2010. 🎨 #teshimaartmuseum #japanesearchitecture
+-------
+Vintage vibes at the Sheats-Goldstein Residence in Beverly Hills, a landmark of organic architecture designed by John Lautner in 1963. 🌿 #sheatsgoldsteinresidence #johnlautner #organicarchitecture
+-------
+Step inside the breathtaking geometric wonderland of the Salk Institute in La Jolla, California, designed by Louis Kahn. A true architectural marvel! 🔷 #salkinstitute #louiskahn #geometricarchitecture
+-------
+Reflecting on the enchanting play of light and shadows at the Naoshima Bath ''I♥湯 (I Love Yu)'' in Japan, designed by artist Shinro Ohtake. 🛁 #naoshimabath #shinroohtake #artinstallation
+-------
+An homage to the timeless elegance of Greta Magnusson Grossman's Grasshopper Floor Lamp, an icon of modern design from the mid-20th century. 🦗💡 #grasshopperlamp #gretamagnussongrossman #modernlighting
+-------
+Discovering the organic forms and natural materials of the Bavinger House in Norman, Oklahoma, a visionary creation by architect Bruce Goff in 1955. 🌿 #bavingerhouse #brucegoff #organicarchitecture
+
+### Response:
+architecture,architectural wonders,design,mid-century modern,modernist,contemporary design,historic influences,sustainable design,urban architecture,natural elements,cultural heritage,minimalist elegance,architectural harmony,artistic expression,architectural evolution,symmetry,organic architecture,iconic modernism,timeless elegance,geometric architecture,light and shadows,play of light,natural materials,innovative design,architectural splendor,aesthetic,architecture and nature,architectural gems,spiritual connection,sustainable architecture,artistic beauty,innovative architecture,creative design,historical architecture,urban landscapes,design treasures,aesthetic appeal,architectural marvels,pioneering architecture,visual beauty&lt;|end_of_text|&gt;</code></pre>
+<p>When we look at the <code>row['labels']</code> we can see many of the entries are <code>-100</code>. This means we will ignore these outputs when doing the loss calculation during training.</p>
+<p>You can decode just the output of <code>row['labels']</code> where the token is not <code>-100</code>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokenizer.decode([r <span class="cf">for</span> r <span class="kw">in</span> row[<span class="st">'labels'</span>] <span class="cf">if</span> r <span class="op">!=</span> <span class="op">-</span><span class="dv">100</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This returns just the output of the record after <code>### Response:</code>. You can also do some sanity checks to make sure the input tokens and label tokens match up:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> input_token, output_token <span class="kw">in</span> <span class="bu">zip</span>(row[<span class="st">'input_ids'</span>], row[<span class="st">'labels'</span>]):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> output_token <span class="op">!=</span> <span class="op">-</span><span class="dv">100</span>:</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(input_token, output_token)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> input_token <span class="op">==</span> output_token</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>During training the output tokens will be right shifted so that the model learns to predict the next token.</p>
+<p>It’s really important to look through the data to make sure everything lines up and there are no weird tokenization errors. Here is another example training record of the type where the instruction says to generate a summary.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>row <span class="op">=</span> ds[<span class="dv">3684</span>] <span class="co"># can pick various rows to test</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokenizer.decode(row[<span class="st">'input_ids'</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>&lt;|begin_of_text|&gt;Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate a summary.
+
+### Input:
+Chasing waves and sunsets, living for the moments that take your breath away 🌅🌊🏄 #sunsetchasers
+-------
+The ocean is my therapist, saltwater my remedy, surfing my meditation 🌊🧘🙏 #surftherapy
+-------
+Salty hair, sandy toes, and endless waves - this is where I belong 🏄🌊🌞 #oceanchild
+-------
+Dancing with the waves under the golden sun, feeling alive and free 🌞🌊💃 #soulfulsurfing
+-------
+Surfing is not just a sport, it's a way of life - a journey of self-discovery and pure joy 🏄🌺🌟 #surferforlife
+-------
+Beneath the surface of the ocean, I find serenity and a connection to something greater 🌊🧜‍♀️🌌 #deepblue
+-------
+Riding the rhythm of the waves, each crest and trough a heartbeat of nature's symphony 🏄🎶🌊 #harmony
+-------
+Sun-kissed and salt-soaked, my happy place is where the sea meets the shore 🌞🏖️🌊 #beachlife
+-------
+In the dance between surfboard and wave, I find grace, balance, and pure exhilaration 🏄💫🌊 #flowstate
+-------
+Sandy cheeks, gleaming smiles, and endless laughter - the perfect day by the sea 🌊😁🏖️ #goodvibesonly
+-------
+Let the waves carry you to new horizons, where the possibilities are as vast as the ocean itself 🌊🌅🚣 #exploreandflow
+-------
+Surfing at dawn, greeted by the rising sun and the promise of a day filled with adventure 🏄🌅☀️ #earlymorningmagic
+-------
+Saltwater runs through my veins, adventure in my heart, and the spirit of the sea in my soul 🌊❤️🌞 #oceanvibes
+-------
+Among the waves, I find clarity, purpose, and a sense of belonging that words cannot capture 🏄🌊🌌 #surfingbliss
+-------
+Every wave tells a story, and I am just a chapter in the never-ending narrative of the sea 📖🌊🏄 #saltystories
+-------
+Breathing in the salty air, feeling the energy of the ocean, and being present in every moment 🌊🌬️🙏 #mindfulsurfing
+-------
+From dawn 'til dusk, chasing waves and memories that will last a lifetime 🏄🌄🌌 #adventureseeker
+-------
+The thrill of the drop, the rush of the ride, and the sheer joy of being one with the ocean 🌊🏄😄 #surfingbliss
+-------
+Where the sea meets the sky, I find freedom, peace, and a sense of infinite possibility 🌊☁️🌈 #limitless
+-------
+Morning vibes with a cup of @rockstarenergy to kickstart the day 🌞☕️
+-------
+Chasing waves in Bali with @rockstarenergy 🏄🌊 #SurfLife
+-------
+Shredding through Indo tunnels with a unique 5'2 board shaped by @mike_andrews3 🏄🌪 #SurfingAdventures
+-------
+Panama jumps with style in my favorite @hurley gear 🌴📸 #SurfingParadise
+-------
+Excited to be part of the new series by @hurley featuring some rad surfers 🤙🌊 #Stoked
+-------
+GoPro footage of an epic wave session posted by @stab and @hurley 📽️🌊 #WaveRider
+-------
+Sunset session at Lower Trestles with @rockstarenergy 🌅🏄‍♂️ #SurfSunRepeat
+-------
+Celebrating my little girl's moment of fame with joy and pride ❤️🌟 #ProudDad
+-------
+Revamped a surfboard design for @parkercoffin with a fiery twist 🔥🏄 #UniqueBoard
+-------
+Cheers to adventure-filled days with @smithoptics 🍻🚣‍♂️ #ThrillSeeker
+-------
+Riding glorious mush burgers in tropical paradise 🍔🌴🏄 #TropicalVibes
+-------
+Let's rock it with @rockstarenergy on this awesome day! 🤘🏄 #RockStarLife
+-------
+Surf's up with peace and love in every wave 🏄💦✌️ #SurfLife
+-------
+Capturing the beauty of the ocean with @goltershot 📸🌊🐕 #OceanLove
+-------
+Winter vibes with high waves and endless energy 🌊❄️🚀 #WinterSurfing
+-------
+Grateful for epic surf shots by @gromarazzi 🙏🤙 #SurfPhotography
+-------
+Surf bug bit my little pug! 🏄🐶❤️ #SurfDog
+-------
+#NationalSunglassesDay vibes with stylish shades from @smithoptics 😎🌞 #EyeProtection
+-------
+Lopey showing off his skills with @rockstarenergy 📸🏄🤙 #SkillsOnPoint
+-------
+Embracing the surf lifestyle with @surfinglens 🌎🏄🌊 #SurfLife
+-------
+Double dose of fun with @rockstarenergy 🏄🤙🌊 #SurfAdventures
+-------
+Adventurous jumps caught on camera by @jacobvanderwork 🌊🏄🎥 #EpicMoments
+-------
+Layback ride with a twist of whiplash captured brilliantly by @jacobvanderwork 🏄🤡 #SurfLife
+-------
+Moment before diving into the North Pacific captured by @muirman 🌊🏄📸 #SurfingThrills
+-------
+Beach day fun with Kingy under the sun ☀️🏖🤙 #BeachLife
+-------
+Surf ride alongs with the legends @kellyslater and Kingy 🏄🤣🌊 #SurfLegends
+-------
+Even on a bad day, there's always room for humor 😆 @ian_crane coronakingsley #ChinUp
+-------
+Epic surf moments with @rockstarenergy captured by @jacobvanderwork 🌊🏄💥 #EpicSurfing
+-------
+When you try something your dad recommended... and regret it! 🤢🙈 #DadAdvice
+-------
+Corona messing with @miguelpuposurf's surf setup! 🍺🌊 #CoronaWoes
+-------
+Family moments with the Mrs and the kids 💑👨‍👩‍👧‍👦 #FamilyLove
+-------
+Unexpected struggles with a board choice... lessons learned! 💩😱 #SurfStruggles
+-------
+Rocking the trend with Birkenstock buddies! 🦶🌴 #FashionForward
+-------
+Wherefore art thou, Dillon? 🕵️‍♂️ #MissingPerson
+-------
+Happy birthday shoutout to the awesome @brettsimpson 🎉🎂 #BirthdayVibes
+-------
+#50ShadesOfGay - celebrating love diversity! 🏳️‍🌈❤️ #LoveIsLove
+
+### Response:
+I am an avid surfer and ocean enthusiast, finding solace and joy in the waves. Surfing is not just a hobby for me; it's a way of life that brings me clarity, purpose, and a deep connection to the sea. I often share my surfing adventures and experiences, capturing the beauty of the ocean through social media posts. Beyond surfing, I enjoy spending time with family, embracing moments of humor, and celebrating love and diversity. Adventure, joy, and a deep appreciation for the natural world define my lifestyle, and I find happiness in sharing these passions with others.&lt;|end_of_text|&gt;</code></pre>
+</section>
+<section id="training-the-model" class="level1">
+<h1>Training the Model</h1>
+<p>Now that we have verified that the pre-processed dataset is all good, we can kick off the training.</p>
+<pre><code>rm -rf qora-test/ # this is where the final model checkpoints are stored
+accelerate launch -m axolotl.cli.train examples/llama-3/qlora.yml</code></pre>
+<p>You will see output to the terminal, and you can also follow along with Weights &amp; Biases.</p>
+<p><img src="imgs/train1.png" class="img-fluid"> <img src="imgs/eval1.png" class="img-fluid"></p>
+<p>Here is a public Weights &amp; Biases <a href="https://wandb.ai/christopherdavidlevy/synthetic-social-llama3?nw=nwuserchristopherdavidlevy">link</a> to the training run.</p>
+</section>
+<section id="inference-with-the-model" class="level1">
+<h1>Inference with the Model</h1>
+<p>While the GPU is still running, hop in there and run some inference tests with the trained model.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_json_file(file_path):</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(file_path, <span class="st">'r'</span>) <span class="im">as</span> f:</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> json.load(f)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> read_json_file(<span class="st">'qlora-test/config.json'</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(config)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>model_ckpt <span class="op">=</span> <span class="st">'qlora-test/checkpoint-1224/'</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_ckpt)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>quantized_config <span class="op">=</span> BitsAndBytesConfig(<span class="op">**</span>config[<span class="st">'quantization_config'</span>])</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(model_ckpt, device_map<span class="op">=</span><span class="st">"auto"</span>, quantization_config<span class="op">=</span>quantized_config)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"""&lt;|begin_of_text|&gt;Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="st">### Instruction:</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="st">Generate a list of interests.</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="st">### Input:</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="st">Explore the fascinating world of probiotics and their potential to revolutionize your health. Uncover the science behind probiotics, their benefits, and how they can empower your gut microbiome. Click the link in our bio to get started on your probiotic journey!</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="st">Did you know that a healthy gut microbiome is pivotal for overall wellness? 🌟 Good gut bacteria and fungi play a crucial role in maintaining a strong immune system and digestive health. Learn more about how you can boost your gut health by visiting the link in our bio! #GutHealth #HealthyMicrobiome</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="st">Swap out sugary drinks for the goodness of Super Greens! 🥬 Your gut will thank you for this positive change. Feel refreshed and rejuvenated from within. Ready to make the switch? Shop Super Greens via the link in our bio! #SuperGreens #GutHealth</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="st">Looking to diversify your gut microbiome? Look no further! 💚 BIOHM Super Greens offers a blend of 34 powerful greens along with probiotics and prebiotics. Enhance your gut health with just a single scoop a day! Click the link in our bio to get your hands on Super Greens today! #BIOHM #SuperGreens</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a><span class="st">Savor the flavors of a tangy cilantro lime dressing over a colorful veggie burrito bowl! 😋 This gut-friendly dish is not just a treat to the taste buds but also a feast for your gut microbiome. Ready to whip up this delightful recipe? Find it in our bio! #HealthyRecipe #GutFriendly</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="st">Discover the simplicity and benefits of BIOHM's products! 🌿 Your gut deserves the best, and BIOHM delivers just that - pure goodness without any junk. Start your journey towards better gut health today! Tap the link in our bio to explore our range! #BIOHM #GutWellness</span></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="st">Invest in your health because health truly is wealth! 💰💚 Prioritize your well-being and kickstart your gut health journey. It's never too late to begin - take that step towards a healthier you today! Visit our bio to shop for your gut health essentials! #HealthIsWealth #GutHealth</span></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="st">Morning routines can impact your digestive health significantly! Start your day right with these 3 tips for better mornings: Deep breathing, hydrate with a glass of water, and resist the snooze button. Try these tips and witness the difference! For more morning hacks, click the link in our bio! #MorningRoutine #HealthyHabits</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="st">Give your gut the love it deserves with BIOHM's Total Probiotic! 💚 Experience reduced bloating, improved gut function, and overall digestive wellness. Join the journey towards a happier gut today! Check out the link in our bio to shop BIOHM Total Probiotic! #Probiotics #GutHealth</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a><span class="st">Listening to your body is key to holistic wellness! 🌿✨ Stay attuned to your body's signals and nurture it with care. Your body knows best when it comes to its needs. Trust the process of healing and listen closely to what your body tells you. #HolisticWellness #ListenToYourBody</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a><span class="st">Indecisive between Super Greens and Super Reds? Why not have both! ❤️💚 Enjoy the fantastic health benefits offered by these superfoods. Mix them together for a powerhouse of nutrients that your body will love. Curious to try our Super Food bundle? Visit our bio to get yours! #SuperFoods #Nutrition</span></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a><span class="st">Unravel the importance of digestive enzymes for optimal nutrient absorption! 🌟 These enzymes are vital for breaking down carbohydrates, proteins, and fats, ensuring your body absorbs all the goodness from your meals. Learn all about digestive enzymes by clicking the link in our bio! #DigestiveHealth #NutrientAbsorption</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="st">### Response:</span></span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    outputs <span class="op">=</span> model.generate(input_ids<span class="op">=</span>inputs[<span class="st">"input_ids"</span>].to(<span class="st">"cuda"</span>), max_new_tokens<span class="op">=</span><span class="dv">500</span>, do_sample<span class="op">=</span><span class="va">True</span>, temperature<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This returns</p>
+<pre><code>probiotics,gut microbiome,gut health,Super Greens,healthy diet,BIOHM,superfoods,healthy recipes,gut wellness,morning routines,holistic wellness,superfoods bundle,digestive health,nutrient absorption&lt;|end_of_text|&gt;</code></pre>
+<p>And if we replace the instruction with <code>Generate a summary.</code> in the above <code>text</code> variable we get something like:</p>
+<pre><code>I am passionate about holistic health and wellness, especially when it comes to gut health and the importance of a healthy microbiome. I love exploring the latest research and sharing tips on how to improve gut health through probiotics, Super Greens, and other gut-friendly foods. My focus is on promoting holistic wellness and helping others prioritize their health for a better overall well-being. I believe in the power of small changes like switching to healthier drinks and morning routines for a significant impact on digestive health. Join me on this journey towards a happier, healthier gut and a happier you!&lt;|end_of_text|&gt;</code></pre>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>I’m excited to continue learning more about axolotl, JarvisLabs, fine-tuning LLMs, and all the other great content in this <a href="https://maven.com/parlance-labs/fine-tuning">Mastering LLMs: A Conference For Developers &amp; Data Scientists Conference</a>. The list of instructors and experts is just insane!</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
