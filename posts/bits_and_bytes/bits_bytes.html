@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-06-22">
+
+<title>Chris Levy - Memory Usage for Quantized LLMS</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">Memory Usage for Quantized LLMS</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 22, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">June 22, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a></li>
+  <li><a href="#bits-and-byte" id="toc-bits-and-byte" class="nav-link" data-scroll-target="#bits-and-byte">Bits and Byte</a></li>
+  <li><a href="#memory-usage-during-inference" id="toc-memory-usage-during-inference" class="nav-link" data-scroll-target="#memory-usage-during-inference">Memory Usage During Inference</a></li>
+  <li><a href="#memory-usage-during-training" id="toc-memory-usage-during-training" class="nav-link" data-scroll-target="#memory-usage-during-training">Memory Usage During Training</a></li>
+  <li><a href="#inference-with-axolotl-fine-tuned-model" id="toc-inference-with-axolotl-fine-tuned-model" class="nav-link" data-scroll-target="#inference-with-axolotl-fine-tuned-model">Inference with Axolotl Fine-Tuned Model</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#resourceslinks" id="toc-resourceslinks" class="nav-link" data-scroll-target="#resourceslinks">Resources/Links</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="intro" class="level1">
+<h1>Intro</h1>
+<p>In this blog post I will be writing about some of my high level learnings from a recent <a href="https://maven.com/parlance-labs/fine-tuning?utm_campaign=2848bd&amp;utm_medium=partner&amp;utm_source=instructor0">LLM conference</a> I took part in. These are some notes for myself so I don’t forget. These concepts are basic and high level but are details I was missing before when thinking about fine-tuning LLMs. Most of the details here were inspired by one of the conference speakers: <a href="https://x.com/johnowhitaker">Jonathan Whitaker’s</a> —&gt; <a href="https://x.com/HamelHusain/status/1798353336145674483">talk</a>.</p>
+</section>
+<section id="bits-and-byte" class="level1">
+<h1>Bits and Byte</h1>
+<p>You have probably heard the saying, “In the computer it’s all 0’s and 1’s”. Well, those 0’s and 1’s are called <strong>bits</strong>. A <strong>bit</strong> is the smallest unit of storage and simply stores a 0 or a 1. A <strong>byte</strong> is a group of 8 <strong>bits</strong> together.</p>
+<ul>
+<li>1 <strong>byte</strong> <strong>=</strong> 8 <strong>bits</strong>.</li>
+</ul>
+<p>All storage is measured in <strong>bytes</strong>.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Unit</th>
+<th>Abbreviation</th>
+<th>Approximate Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Kilobyte</td>
+<td>KB</td>
+<td>about 1 thousand bytes</td>
+</tr>
+<tr class="even">
+<td>Megabyte</td>
+<td>MB</td>
+<td>about 1 million bytes</td>
+</tr>
+<tr class="odd">
+<td>Gigabyte</td>
+<td>GB</td>
+<td>about 1 billion bytes</td>
+</tr>
+<tr class="even">
+<td>Terabyte</td>
+<td>TB</td>
+<td>about 1 trillion bytes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="memory-usage-during-inference" class="level1">
+<h1>Memory Usage During Inference</h1>
+<p>I’m running this code from a local Jupyter notebook in Pycharm connected to a A6000 running on <a href="https://jarvislabs.ai/">JarvisLabs</a>. I used the axolotl template.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:02.433261Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:00.132542Z&quot;}" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gc</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> <span class="st">"cuda"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cleanup():</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    gc.collect()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    torch.cuda.empty_cache()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    torch.cuda.reset_peak_memory_stats(device)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> print_memory_stats():</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Print two different measures of GPU memory usage"""</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Max memory allocated: </span><span class="sc">{</span>torch<span class="sc">.</span>cuda<span class="sc">.</span>max_memory_allocated(device)<span class="op">/</span><span class="fl">1e9</span><span class="sc">:.2f}</span><span class="ss">GB"</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># reserved (aka 'max_memory_cached') is ~the allocated memory plus pre-cached memory</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Max memory reserved: </span><span class="sc">{</span>torch<span class="sc">.</span>cuda<span class="sc">.</span>max_memory_reserved(device)<span class="op">/</span><span class="fl">1e9</span><span class="sc">:.2f}</span><span class="ss">GB"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>cleanup()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.00GB
+Max memory reserved: 0.00GB</code></pre>
+</div>
+</div>
+<p>Let’s load the model <code>TinyLlama/TinyLlama-1.1B-Chat-v1.0</code>. By default, it will load in <code>float32</code>.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:06.542362Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:02.440693Z&quot;}" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model_ckpt <span class="op">=</span> <span class="st">"TinyLlama/TinyLlama-1.1B-Chat-v1.0"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(model_ckpt, device_map<span class="op">=</span>device)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_ckpt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>We can check the <code>dtype</code> of the parameters and indeed see that they are stored in <code>float32</code>.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:06.552361Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:06.546597Z&quot;}" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span>([(x.dtype) <span class="cf">for</span> x <span class="kw">in</span> model.parameters()])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>{torch.float32}</code></pre>
+</div>
+</div>
+<p>Since the parameters are in <code>float32</code>, we can estimate that each parameter will takes up 32/8=4 bytes of memory. For a 1.1B parameter model that is 4.4gb. Let’s see if our rough back of the napkin calculation is correct.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:07.049794Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:06.557993Z&quot;}" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>nvidia<span class="op">-</span>smi</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sat Jun 22 20:45:06 2024       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.104.05             Driver Version: 535.104.05   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA RTX A6000               Off | 00000000:1B:00.0 Off |                  Off |
+| 30%   34C    P2              67W / 300W |   4475MiB / 49140MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
++---------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:07.067065Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:07.061728Z&quot;}" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 4.40GB
+Max memory reserved: 4.40GB</code></pre>
+</div>
+</div>
+<p>Yes, that’s what we thought.</p>
+<p>Let’s run some inference with the model.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:08.031364Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:07.076516Z&quot;}" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> inference(messages):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    tokenized_chat <span class="op">=</span> tokenizer.apply_chat_template(messages, tokenize<span class="op">=</span><span class="va">True</span>, add_generation_prompt<span class="op">=</span><span class="va">True</span>, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        outputs <span class="op">=</span> model.generate(input_ids<span class="op">=</span>tokenized_chat.to(<span class="st">"cuda"</span>), max_new_tokens<span class="op">=</span><span class="dv">128</span>, do_sample<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens<span class="op">=</span><span class="va">True</span>)[<span class="dv">0</span>])</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>inference([{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"How many bytes are in one gigabyte?"</span>}])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|user|&gt;
+How many bytes are in one gigabyte? 
+&lt;|assistant|&gt;
+Yes, there are 1,000,000,000 bytes in a gigabyte (GB).</code></pre>
+</div>
+</div>
+<p>Now let’s load the model in a lower precision. The model config points to what precision to use.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:08.033653Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:08.030414Z&quot;}" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model.config.torch_dtype</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>torch.bfloat16</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:08.801858Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:08.049032Z&quot;}" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> model</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>cleanup()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>nvidia<span class="op">-</span>smi</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.01GB
+Max memory reserved: 0.02GB
+Sat Jun 22 20:45:08 2024       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.104.05             Driver Version: 535.104.05   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA RTX A6000               Off | 00000000:1B:00.0 Off |                  Off |
+| 30%   35C    P2              91W / 300W |    351MiB / 49140MiB |     51%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
++---------------------------------------------------------------------------------------+</code></pre>
+</div>
+</div>
+<p>Now let’s load the model in <code>bfloat16</code>. Estimating that each parameter will use 16/8=2 bytes of memory. For the same model, it should use roughly half the memory as before, 2.2GB.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:10.723238Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:08.810116Z&quot;}" data-execution_count="9">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(model_ckpt, torch_dtype<span class="op">=</span>torch.bfloat16, device_map<span class="op">=</span>device)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:10.732073Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:10.729106Z&quot;}" data-execution_count="10">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 2.21GB
+Max memory reserved: 2.32GB</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:11.005948Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:10.742242Z&quot;}" data-execution_count="11">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span>([(x.dtype) <span class="cf">for</span> x <span class="kw">in</span> model.parameters()])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>{torch.bfloat16}</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:11.623988Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:10.982607Z&quot;}" data-execution_count="12">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>inference([{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"How many bytes are in one gigabyte?"</span>}])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|user|&gt;
+How many bytes are in one gigabyte? 
+&lt;|assistant|&gt;
+Yes, there are 1,000,000,000 bytes in a gigabyte (GB).</code></pre>
+</div>
+</div>
+<p>This is the exact same output we got before. Since most models are currently trained using <code>bfloat16</code>, there’s no need to use full <code>float32</code> precision. In this example if we use float32, it won’t improve inference results compared to <code>bfloat16</code>.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:11.792492Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:11.623182Z&quot;}" data-execution_count="13">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> model</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>cleanup()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.01GB
+Max memory reserved: 0.02GB</code></pre>
+</div>
+</div>
+<p>Now let’s try loading a quantized model using <code>BitsAndBytesConfig</code> to a load a model in 4bit precision. Note that the model weights are stored in 4bit precision but the computations are done in a higher precision. Here we are specifying that the dtype for computations is bf16. During inference, as well as training, the weights of the model are constantly being dequantized (from 4bit to bf16). This can be done for specific layers at a time during forward and backward passes, to keep memory requirements low. <em>The computation happens in a higher precision</em>.</p>
+<p>Here we specify that the model should be loaded in 4bit and the computations done in bf16. Since we are using 4bit we expect each parameter to use 4/8=0.5 bytes so we should be using less than a GB of memory.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:14.967001Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:11.790024Z&quot;}" data-execution_count="14">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>bnb_config <span class="op">=</span> BitsAndBytesConfig(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    load_in_4bit<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    bnb_4bit_compute_dtype<span class="op">=</span>torch.bfloat16</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TinyLlama/TinyLlama-1.1B-Chat-v1.0"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    quantization_config<span class="op">=</span>bnb_config,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    device_map<span class="op">=</span><span class="st">'auto'</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:14.978117Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:14.967953Z&quot;}" data-execution_count="15">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.84GB
+Max memory reserved: 0.89GB</code></pre>
+</div>
+</div>
+<p>Now we can expect the model inference results to be different, for the same query we used before.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:19.998713Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:14.981205Z&quot;}" data-execution_count="16">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>inference([{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"How many bytes are in one gigabyte?"</span>}])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|user|&gt;
+How many bytes are in one gigabyte? 
+&lt;|assistant|&gt;
+Yes, one gigabyte (GB) is equal to 1,073,741,824 bytes. A byte is a unit of information storage in the binary system, which is the basis for digital computing. In binary, each byte has a value of 10, with each bit representing a single binary digit. So, one gigabyte is equivalent to 1,073,741,824 bytes, which is approximately 1,000,000,000 bytes.</code></pre>
+</div>
+</div>
+<p>You can experiment with different types of quantization.<br>
+In this next example we load the model using:</p>
+<ul>
+<li>NF4 quantization.</li>
+<li><code>bnb_4bit_use_double_quant</code> which uses a second quantization after the first one.</li>
+<li>bfloat16 for computation</li>
+</ul>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:20.095933Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:20.036875Z&quot;}" data-execution_count="17">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> model</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>cleanup()</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.01GB
+Max memory reserved: 0.02GB</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:21.943764Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:20.073016Z&quot;}" data-execution_count="18">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>nf4_config <span class="op">=</span> BitsAndBytesConfig(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>   load_in_4bit<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>   bnb_4bit_quant_type<span class="op">=</span><span class="st">"nf4"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>   bnb_4bit_use_double_quant<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>   bnb_4bit_compute_dtype<span class="op">=</span>torch.bfloat16</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"TinyLlama/TinyLlama-1.1B-Chat-v1.0"</span>,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    quantization_config<span class="op">=</span>nf4_config,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    device_map<span class="op">=</span><span class="st">'auto'</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:21.951830Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:21.949115Z&quot;}" data-execution_count="19">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.80GB
+Max memory reserved: 0.84GB</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T20:45:25.470136Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T20:45:21.962519Z&quot;}" data-execution_count="20">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>inference([{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">"How many bytes are in one gigabyte?"</span>}])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|user|&gt;
+How many bytes are in one gigabyte? 
+&lt;|assistant|&gt;
+Yes, I can provide you with the answer to your question. A gigabyte (GB) is a unit of measurement for data storage. It is equal to 1,000 bytes. So, 1 GB is equal to 1,000,000,000 bytes.</code></pre>
+</div>
+</div>
+<p>I really like the high level explanation of quantization from this <a href="https://huggingface.co/blog/optimize-llm">post</a> by Patrick von Platen. In general, when running inference with quantized models the steps are:</p>
+<ul>
+<li>Quantize all the weights of the model and load it (for example 4bit).</li>
+<li>Pass through the input sequence in bf16.</li>
+<li>Dynamically dequantize the weights to bf16 layer by layer during the forward pass</li>
+<li>Quantize the weights back to 4bit after the computation</li>
+</ul>
+<p>So if we want to do <span class="math inline">\(Y = X W\)</span> where <span class="math inline">\(W\)</span> and <span class="math inline">\(X\)</span> are the weights and input sequence respectively, then for each matrix multiplication we do:</p>
+<p><span class="math inline">\(Y = X \cdot \text{dequantize}(W)\)</span> ; <span class="math inline">\(\text{quantize}(W);\)</span></p>
+<p>For this reason, inference is usually not faster when using quantized models. It’s slower. It is good to remember that quantization is a tradeoff between memory usage and output quality, as well as possibly inference time.</p>
+</section>
+<section id="memory-usage-during-training" class="level1">
+<h1>Memory Usage During Training</h1>
+<p>This is not something I know a lot about at the moment, so I can’t go into too much detail. But I can cover some high level basics that I learned recently. There are three main areas which contribute to the memory during training:</p>
+<ul>
+<li>Model Parameters</li>
+<li>Gradients</li>
+<li>Optimizer State</li>
+</ul>
+<p>There are other things to consider such as the activations which tend to dominate the memory at larger batch sizes and context lengths. But let’s ignore this to keep this simple and high level for now.</p>
+<p>Suppose we want to fine-tune llama3-8B in bfloat16 with the basic Adam optimizer.</p>
+<ul>
+<li>Model Parameters: 2 bytes per parameter for 8B parameters is 16GB</li>
+<li>Gradients: To store the gradients for each tunable parameter is 16GB</li>
+<li>Optimizer State: needs 2X the size of the model, to store first/second moments, which is 32GB.</li>
+</ul>
+<p>So you would need at least <strong>64GB</strong> to fully fine-tune llama3-8B in bfloat16. What can we do to fine-tune the model with much less memory?</p>
+<p>First, we can quantize the model to 4bits. Then llama3-8B would take up 4GB of memory for the model parameters. That is a 4X reduction! But when training we don’t quantize the trainable parameters or gradients because the training would not converge. Training still needs to happen higher precision. This is where PEFT methods come in handy, such as LORA and QLORA. Let’s consider QLORA since we are discussing quantization.</p>
+<p>With QLORA we add a set of trainable adapters whose parameters take up a much smaller percentage of the total model parameters. We can freeze the entire quantized model and keep it in 4bit. We can store the corresponding gradients and optimizer state in higher precision. This is possible because we are only dealing with a very small percentage of the total model parameters that are trainable.</p>
+<p>In my last <a href="https://drchrislevy.github.io/posts/fine_tune_jarvis/fine_tune_jarvis.html">blog post</a> I fine-tuned llama3-8B using the axolotl Library. It was configured to use QLORA with the model parameters in 4bit precision. It was using around 15GB of memory during <a href="https://wandb.ai/christopherdavidlevy/synthetic-social-llama3?nw=nwuserchristopherdavidlevy">training</a>. There were some spikes due to me loading a model in a different python session, so just ignore those.</p>
+<p><img src="imgs/wandb-axolotl-gpu-usage.png" class="img-fluid"></p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T21:03:12.701985Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T21:03:12.500676Z&quot;}" data-execution_count="29">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> model</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>cleanup()</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 0.01GB
+Max memory reserved: 0.03GB</code></pre>
+</div>
+</div>
+</section>
+<section id="inference-with-axolotl-fine-tuned-model" class="level1">
+<h1>Inference with Axolotl Fine-Tuned Model</h1>
+<p>This was the corresponding bits and bytes config for my Axolotl fine-tune. As said previously, it was trained using QLORA in 4bit precision.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T21:03:26.404090Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T21:03:14.984364Z&quot;}" data-execution_count="30">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>bnb_llama_config <span class="op">=</span> {</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"_load_in_4bit"</span>: <span class="va">True</span>,</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"_load_in_8bit"</span>: <span class="va">False</span>,</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bnb_4bit_compute_dtype"</span>: <span class="st">"bfloat16"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bnb_4bit_quant_storage"</span>: <span class="st">"bfloat16"</span>,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bnb_4bit_quant_type"</span>: <span class="st">"nf4"</span>,</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bnb_4bit_use_double_quant"</span>: <span class="va">True</span>,</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"llm_int8_enable_fp32_cpu_offload"</span>: <span class="va">False</span>,</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"llm_int8_has_fp16_weight"</span>: <span class="va">False</span>,</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"llm_int8_skip_modules"</span>: <span class="va">None</span>,</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"llm_int8_threshold"</span>: <span class="fl">6.0</span>,</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"load_in_4bit"</span>: <span class="va">True</span>,</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"load_in_8bit"</span>: <span class="va">False</span>,</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"quant_method"</span>: <span class="st">"bitsandbytes"</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>model_ckpt <span class="op">=</span> <span class="st">'model/checkpoint-1224/'</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_ckpt)</span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>quantized_config <span class="op">=</span> BitsAndBytesConfig(<span class="op">**</span>bnb_llama_config)</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(model_ckpt, device_map<span class="op">=</span><span class="st">"auto"</span>, quantization_config<span class="op">=</span>quantized_config)</span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>print_memory_stats()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"version_major":2,"version_minor":0,"model_id":"5a47c727a2794477877772c0be6c1775","quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Max memory allocated: 6.05GB
+Max memory reserved: 6.12GB</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T21:03:26.411812Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T21:03:26.405551Z&quot;}" data-execution_count="31">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>model.config</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<pre><code>LlamaConfig {
+  "_name_or_path": "meta-llama/Meta-Llama-3-8B",
+  "architectures": [
+    "LlamaForCausalLM"
+  ],
+  "attention_bias": false,
+  "attention_dropout": 0.0,
+  "bos_token_id": 128000,
+  "eos_token_id": 128001,
+  "hidden_act": "silu",
+  "hidden_size": 4096,
+  "initializer_range": 0.02,
+  "intermediate_size": 14336,
+  "max_position_embeddings": 8192,
+  "mlp_bias": false,
+  "model_type": "llama",
+  "num_attention_heads": 32,
+  "num_hidden_layers": 32,
+  "num_key_value_heads": 8,
+  "pretraining_tp": 1,
+  "quantization_config": {
+    "_load_in_4bit": true,
+    "_load_in_8bit": false,
+    "bnb_4bit_compute_dtype": "bfloat16",
+    "bnb_4bit_quant_storage": "bfloat16",
+    "bnb_4bit_quant_type": "nf4",
+    "bnb_4bit_use_double_quant": true,
+    "llm_int8_enable_fp32_cpu_offload": false,
+    "llm_int8_has_fp16_weight": false,
+    "llm_int8_skip_modules": null,
+    "llm_int8_threshold": 6.0,
+    "load_in_4bit": true,
+    "load_in_8bit": false,
+    "quant_method": "bitsandbytes"
+  },
+  "rms_norm_eps": 1e-05,
+  "rope_scaling": null,
+  "rope_theta": 500000.0,
+  "tie_word_embeddings": false,
+  "torch_dtype": "bfloat16",
+  "transformers_version": "4.41.1",
+  "use_cache": true,
+  "vocab_size": 128256
+}</code></pre>
+</div>
+</div>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T21:03:26.657751Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T21:03:26.418904Z&quot;}" data-execution_count="32">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>model.config.torch_dtype</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>torch.bfloat16</code></pre>
+</div>
+</div>
+<p>Remember, when we run inference:</p>
+<ul>
+<li><p>The model weights are indeed stored in 4-bit quantized format. This is what allows for the significant reduction in memory usage.</p></li>
+<li><p>During inference, the weights are dequantized on-the-fly as they are needed for computation. However, it’s important to note that this dequantization happens in small chunks, not for the entire model at once.</p></li>
+<li><p>As data passes through each layer, the relevant 4-bit weights for that layer are temporarily dequantized to bfloat16.</p></li>
+<li><p>The computation for that layer is then performed using these dequantized bfloat16 weights and the input data (also in bfloat16).</p></li>
+<li><p>After the computation for a layer is complete, the dequantized weights can be discarded, and the next layer’s weights are dequantized.</p></li>
+<li><p>Given this information, 6 GB of memory usage for a 4-bit quantized 8B parameter model computing in bfloat16 does indeed sound reasonable. The base 4-bit model takes about 4 GB.</p></li>
+</ul>
+<p>I took a few random tweets about Anthropic’s new model release Claude 3.5 Sonnet and run it through the fine-tuned model.</p>
+<div class="cell" data-executetime="{&quot;end_time&quot;:&quot;2024-06-22T21:05:58.769437Z&quot;,&quot;start_time&quot;:&quot;2024-06-22T21:05:53.400536Z&quot;}" data-execution_count="34">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"""&lt;|begin_of_text|&gt;Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="st">### Instruction:</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="st">Generate a list of interests.</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="st">### Input:</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="st">Introducing Claude 3.5 Sonnet—our most intelligent model yet.</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a><span class="st">This is the first release in our 3.5 model family.</span></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="st">Sonnet now outperforms competitor models on key evaluations, at twice the speed of Claude 3 Opus and one-fifth the cost.</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a><span class="st">Less than 24 hours since Anthropic released Claude 3.5 Sonnet, and it surpassed GPT-4o.</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a><span class="st">Here are 10 wild examples you don't want to miss:</span></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="st">RIP ChatGPT?</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a><span class="st">Anthropic just released Claude 3.5 Sonnet — ChatGPT's biggest competitor.</span></span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a><span class="st">12 Wild Examples of what it's capable of:</span></span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a><span class="st">I’m not as excited about OpenAI's new voice mod anymore. After seeing Anthropic's Sonnet 3.5, I realize that what matters most to me is the model's intelligence. </span></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a><span class="st">I’ll be more excited for the next generation of OpenAI models rather than a voice mod that sounds more human.</span></span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a><span class="st">the sheer pettiness of anthropic saying "good evening, sam" in every single one of their demo videos for sonnet 3.5 sends me 💀</span></span>
+<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a><span class="st">how many more days will "sam" sit on gpt5?</span></span>
+<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a><span class="st">It really seems like Anthropic has scratched and Claude its way to the top.</span></span>
+<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a><span class="st">-------</span></span>
+<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a><span class="st">Anthropic is so back. Two things I like the most about Claude-3's release:</span></span>
+<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a><span class="st">1. Domain expert benchmarks. I'm much less interested in the saturated MMLU &amp; HumanEval. Claude specifically picks Finance, Medicine, and Philosophy as expert domains and report performance. I recommend all LLM model cards to follow this, so that the different downstream applications know what to expect. </span></span>
+<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a><span class="st">2. Refusal rate analysis. LLMs' overly cautious answers to innocent questions are becoming a pandemic. Anthropic is typically on the ultra safe end of the spectrum, but they recognize the problem and highlight their efforts on it. Bravo! </span></span>
+<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a><span class="st">I love that Claude dials up heat in the arena that GPT and Gemini dominate. Though keep in mind that GPT-4V, the high water mark that everyone desperately tries to beat, finished training in 2022. It's the calm before the storm.</span></span>
+<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a><span class="st">### Response:</span></span>
+<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a>    outputs <span class="op">=</span> model.generate(input_ids<span class="op">=</span>inputs[<span class="st">"input_ids"</span>].to(<span class="st">"cuda"</span>), max_new_tokens<span class="op">=</span><span class="dv">500</span>, do_sample<span class="op">=</span><span class="va">True</span>, temperature<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|begin_of_text|&gt;&lt;|begin_of_text|&gt;Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+Generate a list of interests.
+
+### Input:
+Introducing Claude 3.5 Sonnet—our most intelligent model yet.
+This is the first release in our 3.5 model family.
+Sonnet now outperforms competitor models on key evaluations, at twice the speed of Claude 3 Opus and one-fifth the cost.
+-------
+Less than 24 hours since Anthropic released Claude 3.5 Sonnet, and it surpassed GPT-4o.
+Here are 10 wild examples you don't want to miss:
+-------
+RIP ChatGPT?
+Anthropic just released Claude 3.5 Sonnet — ChatGPT's biggest competitor.
+12 Wild Examples of what it's capable of:
+-------
+I’m not as excited about OpenAI's new voice mod anymore. After seeing Anthropic's Sonnet 3.5, I realize that what matters most to me is the model's intelligence. 
+I’ll be more excited for the next generation of OpenAI models rather than a voice mod that sounds more human.
+-------
+the sheer pettiness of anthropic saying "good evening, sam" in every single one of their demo videos for sonnet 3.5 sends me 💀
+how many more days will "sam" sit on gpt5?
+-------
+It really seems like Anthropic has scratched and Claude its way to the top.
+-------
+Anthropic is so back. Two things I like the most about Claude-3's release:
+1. Domain expert benchmarks. I'm much less interested in the saturated MMLU &amp; HumanEval. Claude specifically picks Finance, Medicine, and Philosophy as expert domains and report performance. I recommend all LLM model cards to follow this, so that the different downstream applications know what to expect. 
+2. Refusal rate analysis. LLMs' overly cautious answers to innocent questions are becoming a pandemic. Anthropic is typically on the ultra safe end of the spectrum, but they recognize the problem and highlight their efforts on it. Bravo! 
+I love that Claude dials up heat in the arena that GPT and Gemini dominate. Though keep in mind that GPT-4V, the high water mark that everyone desperately tries to beat, finished training in 2022. It's the calm before the storm.
+
+### Response:
+LLM model,Anthropic,Claude,GPT,OpenAI,intelligence,competitor,ChatGPT,benchmark,expert domains,refusal rate,training,spectrum,GPT-4V&lt;|end_of_text|&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>Although my understanding of fine-tuning LLMs and memory usage is pretty high level, it’s making a lot more sense then it did before. I’m happy to have these notes to refer back to as I continue to learn about this topic.</p>
+</section>
+<section id="resourceslinks" class="level1">
+<h1>Resources/Links</h1>
+<p><a href="https://web.stanford.edu/class/cs101/bits-bytes.html">Bits and Bytes Basics</a></p>
+<p><a href="https://huggingface.co/blog/hf-bitsandbytes-integration">A Gentle Introduction to 8-bit Matrix Multiplication for transformers at scale using Hugging Face Transformers, Accelerate and bitsandbytes</a></p>
+<p><a href="https://huggingface.co/blog/4bit-transformers-bitsandbytes">Making LLMs even more accessible with bitsandbytes, 4-bit quantization and QLoRA</a></p>
+<p><a href="https://huggingface.co/blog/optimize-llm">Optimizing your LLM in production</a></p>
+<p><a href="https://sebastianraschka.com/blog/2023/llm-mixed-precision-copy.html">Accelerating Large Language Models with Mixed-Precision Techniques</a></p>
+<p><a href="https://huggingface.co/docs/accelerate/en/usage_guides/model_size_estimator">Understanding how big of a model can fit on your machine</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
