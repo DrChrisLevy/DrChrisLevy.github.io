@@ -174,6 +174,7 @@ class AnthropicLLM:
         cls,
         messages: List[Dict],
         model: str = LLModel.SONNET_35["model"],
+        max_tokens=4000,
         **kwargs: Any,
     ) -> Dict:
         client = cls._load_client()
@@ -184,7 +185,7 @@ class AnthropicLLM:
         else:
             system = []
         try:
-            resp = client.messages.create(model=model, system=system, messages=messages, stream=False, **kwargs)  # type: ignore
+            resp = client.messages.create(model=model, system=system, messages=messages, stream=False, max_tokens=max_tokens, **kwargs)  # type: ignore
             resp = resp.model_dump()  # type: ignore
         except Exception as e:
             return {
