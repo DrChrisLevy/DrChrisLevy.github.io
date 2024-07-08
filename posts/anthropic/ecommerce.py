@@ -587,7 +587,7 @@ questions = [
         "current_period_end_date": "2024-06-09",
     },
     {
-        "question": "What was the Repeat Purchase Rate for PetPal on Chewy and Amazon from March 1, 2024 to May 31, 2024?",
+        "question": "What was the Repeat Purchase Rate for PetPal on Amazon from March 1, 2024 to May 31, 2024?",
         "expected_metric": "REPEAT_PURCHASE_RATE",
         "expected_brands": ["PET_PAL"],
         "expected_sales_channels": ["AMAZON"],
@@ -659,7 +659,7 @@ questions = [
         "current_period_end_date": "2024-05-31",
     },
     {
-        "question": "Calculate the Pages per Session for Microsoft's online store from March 1, 2024 to May 31, 2024.",
+        "question": "Calculate the Pages per Session for Microsoft's through their own website from March 1, 2024 to May 31, 2024.",
         "expected_metric": "PAGES_PER_SESSION",
         "expected_brands": ["MICROSOFT"],
         "expected_sales_channels": ["OWN_WEBSITE"],
