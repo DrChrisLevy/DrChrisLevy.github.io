@@ -62,7 +62,7 @@ class BaseLLM:
         raise NotImplementedError()
 
     @measure_time
-    def generate_with_function_calling(
+    def tool_loop(
         self,
         messages: List[Dict],
         tools: List[Dict],
