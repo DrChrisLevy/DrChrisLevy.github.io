@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Interactive Nested DataFrame Explorer</title>
+    <style>
+        /* CSS styles here */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --hover-color: #e74c3c;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        td {
+            background-color: white;
+            transition: all 0.3s ease;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        td:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            cursor: pointer;
+        }
+        .expanded-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .expanded-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Modern Interactive Nested DataFrame Explorer</h1>
+        <table id="data-table">
+            <thead>
+                <tr id="table-header"></tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const data = [{"message": {"content": "The Customer Lifetime Value for FitFlex customers who purchased through Instagram Shopping in the last 30 days is $10.", "role": "assistant"}, "new_messages": [{"content": null, "role": "assistant", "tool_calls": [{"id": "call_BIxBlcrhb87YfPxNyNyb8KMD", "function": {"arguments": "{\"user_requested_brands\":[\"FitFlex\"]}", "name": "get_backend_brands"}, "type": "function"}]}, {"tool_call_id": "call_BIxBlcrhb87YfPxNyNyb8KMD", "role": "tool", "name": "get_backend_brands", "content": "{'FitFlex': [{'name': 'FitFlex', 'enum': 'FIT_FLEX', 'description': 'Athletic wear and fitness equipment'}, {'name': 'FitTech', 'enum': 'FIT_TECH', 'description': 'Fitness technology and wearables'}, {'name': 'FitFuel', 'enum': 'FIT_FUEL', 'description': 'Sports nutrition and energy products'}]}"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_ZtJ9SqDYMj1I33CbOTW6D9f1", "function": {"arguments": "{\"user_requested_metric\":\"Customer Lifetime Value\"}", "name": "get_backend_metric"}, "type": "function"}]}, {"tool_call_id": "call_ZtJ9SqDYMj1I33CbOTW6D9f1", "role": "tool", "name": "get_backend_metric", "content": "[{'name': 'Customer Lifetime Value', 'enum': 'CUSTOMER_LIFETIME_VALUE', 'description': 'Predicted total revenue from a customer over their lifetime'}, {'name': 'Average Customer Lifespan', 'enum': 'AVG_CUSTOMER_LIFESPAN', 'description': 'Average duration a customer continues to purchase from the store'}, {'name': 'Customer Acquisition Cost', 'enum': 'CUSTOMER_ACQUISITION_COST', 'description': 'Average cost to acquire a new customer'}]"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_42S80jKASxYwbJHPFNtol0C1", "function": {"arguments": "{\"backend_metric\":\"CUSTOMER_LIFETIME_VALUE\",\"backend_brands\":[\"FIT_FLEX\"],\"sales_channels\":[\"INSTAGRAM_SHOPPING\"],\"current_period_start_date\":\"2024-05-11\",\"current_period_end_date\":\"2024-06-10\"}", "name": "get_sales_data"}, "type": "function"}]}, {"tool_call_id": "call_42S80jKASxYwbJHPFNtol0C1", "role": "tool", "name": "get_sales_data", "content": "10"}, {"content": "The Customer Lifetime Value for FitFlex customers who purchased through Instagram Shopping in the last 30 days is $10.", "role": "assistant"}], "model": "gpt-3.5-turbo-0125", "tool_calls_details": {"call_BIxBlcrhb87YfPxNyNyb8KMD": {"tool_result": {"data": {"FitFlex": [{"name": "FitFlex", "enum": "FIT_FLEX", "description": "Athletic wear and fitness equipment"}, {"name": "FitTech", "enum": "FIT_TECH", "description": "Fitness technology and wearables"}, {"name": "FitFuel", "enum": "FIT_FUEL", "description": "Sports nutrition and energy products"}]}}, "id": "call_BIxBlcrhb87YfPxNyNyb8KMD", "function": {"arguments": "{\"user_requested_brands\":[\"FitFlex\"]}", "name": "get_backend_brands"}, "type": "function"}, "call_ZtJ9SqDYMj1I33CbOTW6D9f1": {"tool_result": {"data": [{"name": "Customer Lifetime Value", "enum": "CUSTOMER_LIFETIME_VALUE", "description": "Predicted total revenue from a customer over their lifetime"}, {"name": "Average Customer Lifespan", "enum": "AVG_CUSTOMER_LIFESPAN", "description": "Average duration a customer continues to purchase from the store"}, {"name": "Customer Acquisition Cost", "enum": "CUSTOMER_ACQUISITION_COST", "description": "Average cost to acquire a new customer"}]}, "id": "call_ZtJ9SqDYMj1I33CbOTW6D9f1", "function": {"arguments": "{\"user_requested_metric\":\"Customer Lifetime Value\"}", "name": "get_backend_metric"}, "type": "function"}, "call_42S80jKASxYwbJHPFNtol0C1": {"tool_result": {"data": 10}, "id": "call_42S80jKASxYwbJHPFNtol0C1", "function": {"arguments": "{\"backend_metric\":\"CUSTOMER_LIFETIME_VALUE\",\"backend_brands\":[\"FIT_FLEX\"],\"sales_channels\":[\"INSTAGRAM_SHOPPING\"],\"current_period_start_date\":\"2024-05-11\",\"current_period_end_date\":\"2024-06-10\"}", "name": "get_sales_data"}, "type": "function"}}, "question": "What was the Customer Lifetime Value for FitFlex customers who purchased through Instagram Shopping in the last 30 days?", "expected_metric": "CUSTOMER_LIFETIME_VALUE", "predicted_metric": "CUSTOMER_LIFETIME_VALUE", "metric_correct": true, "expected_brands": ["FIT_FLEX"], "predicted_brands": ["FIT_FLEX"], "brands_correct": true, "expected_sales_channels": ["INSTAGRAM_SHOPPING"], "predicted_sales_channels": ["INSTAGRAM_SHOPPING"], "sales_channels_correct": true, "expected_current_period_start_date": "2024-05-11", "predicted_current_period_start_date": "2024-05-11", "current_period_start_date_correct": true, "expected_current_period_end_date": "2024-06-09", "predicted_current_period_end_date": "2024-06-10", "current_period_end_date_correct": false}, {"message": {"content": "The Average Order Value for Apple products sold through their Own Website between April 1, 2024 and May 31, 2024 is $10.", "role": "assistant"}, "new_messages": [{"content": null, "role": "assistant", "tool_calls": [{"id": "call_PZqxT990RSponwh2I4pw1XZM", "function": {"arguments": "{\"user_requested_brands\":[\"Apple\"]}", "name": "get_backend_brands"}, "type": "function"}]}, {"tool_call_id": "call_PZqxT990RSponwh2I4pw1XZM", "role": "tool", "name": "get_backend_brands", "content": "{'Apple': [{'name': 'Apple', 'enum': 'APPLE', 'description': 'Multinational technology company'}, {'name': 'Samsung', 'enum': 'SAMSUNG', 'description': 'South Korean electronics conglomerate'}, {'name': 'Microsoft', 'enum': 'MICROSOFT', 'description': 'Multinational technology corporation'}]}"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_5uWRLI39QlsxTb3K31Ryitn1", "function": {"arguments": "{\"user_requested_metric\":\"Average Order Value\"}", "name": "get_backend_metric"}, "type": "function"}]}, {"tool_call_id": "call_5uWRLI39QlsxTb3K31Ryitn1", "role": "tool", "name": "get_backend_metric", "content": "[{'name': 'Average Order Value', 'enum': 'AVG_ORDER_VALUE', 'description': 'The average amount spent per order'}, {'name': 'Average Order Size', 'enum': 'AVG_ORDER_SIZE', 'description': 'Average number of items per order'}, {'name': 'Average Discount per Order', 'enum': 'AVG_DISCOUNT_PER_ORDER', 'description': 'Average amount of discount applied per order'}]"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_BSCHOVNF1CXDaLTDCIrEYfhk", "function": {"arguments": "{\"backend_metric\":\"AVG_ORDER_VALUE\",\"backend_brands\":[\"APPLE\"],\"sales_channels\":[\"OWN_WEBSITE\"],\"current_period_start_date\":\"2024-04-01\",\"current_period_end_date\":\"2024-05-31\"}", "name": "get_sales_data"}, "type": "function"}]}, {"tool_call_id": "call_BSCHOVNF1CXDaLTDCIrEYfhk", "role": "tool", "name": "get_sales_data", "content": "10"}, {"content": "The Average Order Value for Apple products sold through their Own Website between April 1, 2024 and May 31, 2024 is $10.", "role": "assistant"}], "model": "gpt-3.5-turbo-0125", "tool_calls_details": {"call_PZqxT990RSponwh2I4pw1XZM": {"tool_result": {"data": {"Apple": [{"name": "Apple", "enum": "APPLE", "description": "Multinational technology company"}, {"name": "Samsung", "enum": "SAMSUNG", "description": "South Korean electronics conglomerate"}, {"name": "Microsoft", "enum": "MICROSOFT", "description": "Multinational technology corporation"}]}}, "id": "call_PZqxT990RSponwh2I4pw1XZM", "function": {"arguments": "{\"user_requested_brands\":[\"Apple\"]}", "name": "get_backend_brands"}, "type": "function"}, "call_5uWRLI39QlsxTb3K31Ryitn1": {"tool_result": {"data": [{"name": "Average Order Value", "enum": "AVG_ORDER_VALUE", "description": "The average amount spent per order"}, {"name": "Average Order Size", "enum": "AVG_ORDER_SIZE", "description": "Average number of items per order"}, {"name": "Average Discount per Order", "enum": "AVG_DISCOUNT_PER_ORDER", "description": "Average amount of discount applied per order"}]}, "id": "call_5uWRLI39QlsxTb3K31Ryitn1", "function": {"arguments": "{\"user_requested_metric\":\"Average Order Value\"}", "name": "get_backend_metric"}, "type": "function"}, "call_BSCHOVNF1CXDaLTDCIrEYfhk": {"tool_result": {"data": 10}, "id": "call_BSCHOVNF1CXDaLTDCIrEYfhk", "function": {"arguments": "{\"backend_metric\":\"AVG_ORDER_VALUE\",\"backend_brands\":[\"APPLE\"],\"sales_channels\":[\"OWN_WEBSITE\"],\"current_period_start_date\":\"2024-04-01\",\"current_period_end_date\":\"2024-05-31\"}", "name": "get_sales_data"}, "type": "function"}}, "question": "Calculate the Average Order Value for Apple products sold through their Own Website between April 1, 2024 and May 31, 2024.", "expected_metric": "AVG_ORDER_VALUE", "predicted_metric": "AVG_ORDER_VALUE", "metric_correct": true, "expected_brands": ["APPLE"], "predicted_brands": ["APPLE"], "brands_correct": true, "expected_sales_channels": ["OWN_WEBSITE"], "predicted_sales_channels": ["OWN_WEBSITE"], "sales_channels_correct": true, "expected_current_period_start_date": "2024-04-01", "predicted_current_period_start_date": "2024-04-01", "current_period_start_date_correct": true, "expected_current_period_end_date": "2024-05-31", "predicted_current_period_end_date": "2024-05-31", "current_period_end_date_correct": true}, {"message": {"content": "The Cart Abandonment Rate for IKEA on their Own Website and Physical Stores from May 1, 2024 to June 9, 2024 is 10%.", "role": "assistant"}, "new_messages": [{"content": null, "role": "assistant", "tool_calls": [{"id": "call_5FwO7V3qLrxaLSxJdjyglJle", "function": {"arguments": "{\"user_requested_metric\":\"Cart Abandonment Rate\"}", "name": "get_backend_metric"}, "type": "function"}]}, {"tool_call_id": "call_5FwO7V3qLrxaLSxJdjyglJle", "role": "tool", "name": "get_backend_metric", "content": "[{'name': 'Cart Abandonment Rate', 'enum': 'CART_ABANDONMENT_RATE', 'description': \"Percentage of users who add items to cart but don't purchase\"}, {'name': 'Abandoned Cart Recovery Rate', 'enum': 'ABANDONED_CART_RECOVERY_RATE', 'description': 'Percentage of abandoned carts that are recovered through follow-up'}, {'name': 'Average Time to Abandon Cart', 'enum': 'AVG_TIME_TO_ABANDON_CART', 'description': 'Average time spent before a cart is abandoned'}]"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_wiP3kJtNB2TbOeIZmCO2Opuh", "function": {"arguments": "{\"user_requested_brands\":[\"IKEA\"]}", "name": "get_backend_brands"}, "type": "function"}]}, {"tool_call_id": "call_wiP3kJtNB2TbOeIZmCO2Opuh", "role": "tool", "name": "get_backend_brands", "content": "{'IKEA': [{'name': 'IKEA', 'enum': 'IKEA', 'description': 'Swedish-founded furniture retailer'}, {'name': 'H&M', 'enum': 'H_AND_M', 'description': 'Swedish multinational clothing company'}, {'name': 'FitKitchen', 'enum': 'FIT_KITCHEN', 'description': 'Healthy cooking appliances'}]}"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_gdWOZrby0vJn9GDTvA4jIxue", "function": {"arguments": "{\"backend_metric\":\"CART_ABANDONMENT_RATE\",\"backend_brands\":[\"IKEA\"],\"current_period_start_date\":\"2024-05-01\",\"current_period_end_date\":\"2024-06-09\"}", "name": "get_sales_data"}, "type": "function"}]}, {"tool_call_id": "call_gdWOZrby0vJn9GDTvA4jIxue", "role": "tool", "name": "get_sales_data", "content": "10"}, {"content": "The Cart Abandonment Rate for IKEA on their Own Website and Physical Stores from May 1, 2024 to June 9, 2024 is 10%.", "role": "assistant"}], "model": "gpt-3.5-turbo-0125", "tool_calls_details": {"call_5FwO7V3qLrxaLSxJdjyglJle": {"tool_result": {"data": [{"name": "Cart Abandonment Rate", "enum": "CART_ABANDONMENT_RATE", "description": "Percentage of users who add items to cart but don't purchase"}, {"name": "Abandoned Cart Recovery Rate", "enum": "ABANDONED_CART_RECOVERY_RATE", "description": "Percentage of abandoned carts that are recovered through follow-up"}, {"name": "Average Time to Abandon Cart", "enum": "AVG_TIME_TO_ABANDON_CART", "description": "Average time spent before a cart is abandoned"}]}, "id": "call_5FwO7V3qLrxaLSxJdjyglJle", "function": {"arguments": "{\"user_requested_metric\":\"Cart Abandonment Rate\"}", "name": "get_backend_metric"}, "type": "function"}, "call_wiP3kJtNB2TbOeIZmCO2Opuh": {"tool_result": {"data": {"IKEA": [{"name": "IKEA", "enum": "IKEA", "description": "Swedish-founded furniture retailer"}, {"name": "H&M", "enum": "H_AND_M", "description": "Swedish multinational clothing company"}, {"name": "FitKitchen", "enum": "FIT_KITCHEN", "description": "Healthy cooking appliances"}]}}, "id": "call_wiP3kJtNB2TbOeIZmCO2Opuh", "function": {"arguments": "{\"user_requested_brands\":[\"IKEA\"]}", "name": "get_backend_brands"}, "type": "function"}, "call_gdWOZrby0vJn9GDTvA4jIxue": {"tool_result": {"data": 10}, "id": "call_gdWOZrby0vJn9GDTvA4jIxue", "function": {"arguments": "{\"backend_metric\":\"CART_ABANDONMENT_RATE\",\"backend_brands\":[\"IKEA\"],\"current_period_start_date\":\"2024-05-01\",\"current_period_end_date\":\"2024-06-09\"}", "name": "get_sales_data"}, "type": "function"}}, "question": "Determine the Cart Abandonment Rate for IKEA on their Own Website and Physical Stores from May 1, 2024 to June 9, 2024.", "expected_metric": "CART_ABANDONMENT_RATE", "predicted_metric": "CART_ABANDONMENT_RATE", "metric_correct": true, "expected_brands": ["IKEA"], "predicted_brands": ["IKEA"], "brands_correct": true, "expected_sales_channels": ["OWN_WEBSITE", "PHYSICAL_STORES"], "predicted_sales_channels": [], "sales_channels_correct": false, "expected_current_period_start_date": "2024-05-01", "predicted_current_period_start_date": "2024-05-01", "current_period_start_date_correct": true, "expected_current_period_end_date": "2024-06-09", "predicted_current_period_end_date": "2024-06-09", "current_period_end_date_correct": true}, {"message": {"content": "The Conversion Rate for Samsung on Walmart Marketplace during the first quarter of 2024 was 10%.", "role": "assistant"}, "new_messages": [{"content": null, "role": "assistant", "tool_calls": [{"id": "call_nbt4Ci2XnXilzjKimpWoBF8v", "function": {"arguments": "{\"user_requested_metric\":\"Conversion Rate\"}", "name": "get_backend_metric"}, "type": "function"}]}, {"tool_call_id": "call_nbt4Ci2XnXilzjKimpWoBF8v", "role": "tool", "name": "get_backend_metric", "content": "[{'name': 'Conversion Rate', 'enum': 'CONVERSION_RATE', 'description': 'Percentage of visitors who make a purchase'}, {'name': 'Mobile Conversion Rate', 'enum': 'MOBILE_CONVERSION_RATE', 'description': 'Conversion rate for visitors on mobile devices'}, {'name': 'Shopping Cart Conversion Rate', 'enum': 'SHOPPING_CART_CONVERSION_RATE', 'description': 'Percentage of carts that result in a completed purchase'}]"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_SWInuovjEubOUFHhqJj9TwGp", "function": {"arguments": "{\"user_requested_brands\":[\"Samsung\"]}", "name": "get_backend_brands"}, "type": "function"}]}, {"tool_call_id": "call_SWInuovjEubOUFHhqJj9TwGp", "role": "tool", "name": "get_backend_brands", "content": "{'Samsung': [{'name': 'Samsung', 'enum': 'SAMSUNG', 'description': 'South Korean electronics conglomerate'}, {'name': 'Sony', 'enum': 'SONY', 'description': 'Japanese multinational conglomerate'}, {'name': 'LG', 'enum': 'LG', 'description': 'South Korean electronics company'}]}"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_SaD07H6No8BeXIy2YqPJLWOD", "function": {"arguments": "{\"backend_metric\":\"CONVERSION_RATE\",\"backend_brands\":[\"SAMSUNG\"],\"sales_channels\":[\"WALMART_MARKETPLACE\"],\"current_period_start_date\":\"2024-01-01\",\"current_period_end_date\":\"2024-03-31\"}", "name": "get_sales_data"}, "type": "function"}]}, {"tool_call_id": "call_SaD07H6No8BeXIy2YqPJLWOD", "role": "tool", "name": "get_sales_data", "content": "10"}, {"content": "The Conversion Rate for Samsung on Walmart Marketplace during the first quarter of 2024 was 10%.", "role": "assistant"}], "model": "gpt-3.5-turbo-0125", "tool_calls_details": {"call_nbt4Ci2XnXilzjKimpWoBF8v": {"tool_result": {"data": [{"name": "Conversion Rate", "enum": "CONVERSION_RATE", "description": "Percentage of visitors who make a purchase"}, {"name": "Mobile Conversion Rate", "enum": "MOBILE_CONVERSION_RATE", "description": "Conversion rate for visitors on mobile devices"}, {"name": "Shopping Cart Conversion Rate", "enum": "SHOPPING_CART_CONVERSION_RATE", "description": "Percentage of carts that result in a completed purchase"}]}, "id": "call_nbt4Ci2XnXilzjKimpWoBF8v", "function": {"arguments": "{\"user_requested_metric\":\"Conversion Rate\"}", "name": "get_backend_metric"}, "type": "function"}, "call_SWInuovjEubOUFHhqJj9TwGp": {"tool_result": {"data": {"Samsung": [{"name": "Samsung", "enum": "SAMSUNG", "description": "South Korean electronics conglomerate"}, {"name": "Sony", "enum": "SONY", "description": "Japanese multinational conglomerate"}, {"name": "LG", "enum": "LG", "description": "South Korean electronics company"}]}}, "id": "call_SWInuovjEubOUFHhqJj9TwGp", "function": {"arguments": "{\"user_requested_brands\":[\"Samsung\"]}", "name": "get_backend_brands"}, "type": "function"}, "call_SaD07H6No8BeXIy2YqPJLWOD": {"tool_result": {"data": 10}, "id": "call_SaD07H6No8BeXIy2YqPJLWOD", "function": {"arguments": "{\"backend_metric\":\"CONVERSION_RATE\",\"backend_brands\":[\"SAMSUNG\"],\"sales_channels\":[\"WALMART_MARKETPLACE\"],\"current_period_start_date\":\"2024-01-01\",\"current_period_end_date\":\"2024-03-31\"}", "name": "get_sales_data"}, "type": "function"}}, "question": "What was the Conversion Rate for Samsung on Walmart Marketplace during the first quarter of 2024?", "expected_metric": "CONVERSION_RATE", "predicted_metric": "CONVERSION_RATE", "metric_correct": true, "expected_brands": ["SAMSUNG"], "predicted_brands": ["SAMSUNG"], "brands_correct": true, "expected_sales_channels": ["WALMART_MARKETPLACE"], "predicted_sales_channels": ["WALMART_MARKETPLACE"], "sales_channels_correct": true, "expected_current_period_start_date": "2024-01-01", "predicted_current_period_start_date": "2024-01-01", "current_period_start_date_correct": true, "expected_current_period_end_date": "2024-03-31", "predicted_current_period_end_date": "2024-03-31", "current_period_end_date_correct": true}, {"message": {"content": "The total revenue for Nike and Adidas on Amazon and eBay from January 1, 2024, to March 31, 2024, was $10 million.", "role": "assistant"}, "new_messages": [{"content": null, "role": "assistant", "tool_calls": [{"id": "call_HxNsnRJEzp19WJVfNXb1MpXV", "function": {"arguments": "{\"user_requested_brands\":[\"Nike\",\"Adidas\"]}", "name": "get_backend_brands"}, "type": "function"}]}, {"tool_call_id": "call_HxNsnRJEzp19WJVfNXb1MpXV", "role": "tool", "name": "get_backend_brands", "content": "{'Nike': [{'name': 'Nike', 'enum': 'NIKE', 'description': 'Global sportswear and athletic footwear brand'}, {'name': 'Adidas', 'enum': 'ADIDAS', 'description': 'German sportswear manufacturer'}, {'name': 'FitFashion', 'enum': 'FIT_FASHION', 'description': 'Athleisure and activewear'}], 'Adidas': [{'name': 'Adidas', 'enum': 'ADIDAS', 'description': 'German sportswear manufacturer'}, {'name': 'Nike', 'enum': 'NIKE', 'description': 'Global sportswear and athletic footwear brand'}, {'name': 'Adobe', 'enum': 'ADOBE', 'description': 'Software company'}]}"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_Y734tTefSH0gqP483ldms1JI", "function": {"arguments": "{\"user_requested_metric\":\"Total Revenue\"}", "name": "get_backend_metric"}, "type": "function"}]}, {"tool_call_id": "call_Y734tTefSH0gqP483ldms1JI", "role": "tool", "name": "get_backend_metric", "content": "[{'name': 'Total Revenue', 'enum': 'TOTAL_REVENUE', 'description': 'The total amount of money earned from all sales'}, {'name': 'Average Revenue per User', 'enum': 'AVG_REVENUE_PER_USER', 'description': 'Average revenue generated per registered user'}, {'name': 'Revenue per Visitor', 'enum': 'REVENUE_PER_VISITOR', 'description': 'Average revenue generated per site visitor'}]"}, {"content": null, "role": "assistant", "tool_calls": [{"id": "call_3mScSfST0ZmpsKqyj29tx4uB", "function": {"arguments": "{\"backend_metric\":\"TOTAL_REVENUE\",\"backend_brands\":[\"NIKE\",\"ADIDAS\"],\"sales_channels\":[\"AMAZON\",\"EBAY\"],\"current_period_start_date\":\"2024-01-01\",\"current_period_end_date\":\"2024-03-31\"}", "name": "get_sales_data"}, "type": "function"}]}, {"tool_call_id": "call_3mScSfST0ZmpsKqyj29tx4uB", "role": "tool", "name": "get_sales_data", "content": "10"}, {"content": "The total revenue for Nike and Adidas on Amazon and eBay from January 1, 2024, to March 31, 2024, was $10 million.", "role": "assistant"}], "model": "gpt-3.5-turbo-0125", "tool_calls_details": {"call_HxNsnRJEzp19WJVfNXb1MpXV": {"tool_result": {"data": {"Nike": [{"name": "Nike", "enum": "NIKE", "description": "Global sportswear and athletic footwear brand"}, {"name": "Adidas", "enum": "ADIDAS", "description": "German sportswear manufacturer"}, {"name": "FitFashion", "enum": "FIT_FASHION", "description": "Athleisure and activewear"}], "Adidas": [{"name": "Adidas", "enum": "ADIDAS", "description": "German sportswear manufacturer"}, {"name": "Nike", "enum": "NIKE", "description": "Global sportswear and athletic footwear brand"}, {"name": "Adobe", "enum": "ADOBE", "description": "Software company"}]}}, "id": "call_HxNsnRJEzp19WJVfNXb1MpXV", "function": {"arguments": "{\"user_requested_brands\":[\"Nike\",\"Adidas\"]}", "name": "get_backend_brands"}, "type": "function"}, "call_Y734tTefSH0gqP483ldms1JI": {"tool_result": {"data": [{"name": "Total Revenue", "enum": "TOTAL_REVENUE", "description": "The total amount of money earned from all sales"}, {"name": "Average Revenue per User", "enum": "AVG_REVENUE_PER_USER", "description": "Average revenue generated per registered user"}, {"name": "Revenue per Visitor", "enum": "REVENUE_PER_VISITOR", "description": "Average revenue generated per site visitor"}]}, "id": "call_Y734tTefSH0gqP483ldms1JI", "function": {"arguments": "{\"user_requested_metric\":\"Total Revenue\"}", "name": "get_backend_metric"}, "type": "function"}, "call_3mScSfST0ZmpsKqyj29tx4uB": {"tool_result": {"data": 10}, "id": "call_3mScSfST0ZmpsKqyj29tx4uB", "function": {"arguments": "{\"backend_metric\":\"TOTAL_REVENUE\",\"backend_brands\":[\"NIKE\",\"ADIDAS\"],\"sales_channels\":[\"AMAZON\",\"EBAY\"],\"current_period_start_date\":\"2024-01-01\",\"current_period_end_date\":\"2024-03-31\"}", "name": "get_sales_data"}, "type": "function"}}, "question": "What was the Total Revenue for Nike and Adidas on Amazon and eBay from January 1, 2024 to March 31, 2024?", "expected_metric": "TOTAL_REVENUE", "predicted_metric": "TOTAL_REVENUE", "metric_correct": true, "expected_brands": ["ADIDAS", "NIKE"], "predicted_brands": ["ADIDAS", "NIKE"], "brands_correct": true, "expected_sales_channels": ["AMAZON", "EBAY"], "predicted_sales_channels": ["AMAZON", "EBAY"], "sales_channels_correct": true, "expected_current_period_start_date": "2024-01-01", "predicted_current_period_start_date": "2024-01-01", "current_period_start_date_correct": true, "expected_current_period_end_date": "2024-03-31", "predicted_current_period_end_date": "2024-03-31", "current_period_end_date_correct": true}];
+
+        function createTable() {
+            const tableHeader = document.getElementById('table-header');
+            const tableBody = document.getElementById('table-body');
+
+            // Create header
+            Object.keys(data[0]).forEach(key => {
+                const th = document.createElement('th');
+                th.textContent = key;
+                tableHeader.appendChild(th);
+            });
+
+            // Create rows
+            data.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                Object.entries(row).forEach(([key, value]) => {
+                    const td = document.createElement('td');
+                    td.textContent = typeof value === 'object' ? JSON.stringify(value).slice(0, 50) + '...' : value;
+                    td.onclick = () => toggleCell(td, value);
+                    td.dataset.fullContent = JSON.stringify(value);
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function toggleCell(cell, value) {
+            const existingContent = cell.querySelector('.expanded-content');
+            if (existingContent) {
+                cell.removeChild(existingContent);
+                cell.style.whiteSpace = 'nowrap';
+                cell.textContent = cell.dataset.fullContent.slice(0, 50) + '...';
+            } else {
+                const expandedContent = document.createElement('div');
+                expandedContent.className = 'expanded-content';
+                expandedContent.textContent = JSON.stringify(value, null, 2);
+                cell.textContent = '';
+                cell.appendChild(expandedContent);
+                cell.style.whiteSpace = 'normal';
+            }
+        }
+
+        createTable();
+    </script>
+</body>
+</html>
+    
