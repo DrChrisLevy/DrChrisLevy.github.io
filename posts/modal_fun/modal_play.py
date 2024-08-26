@@ -53,5 +53,6 @@ class Model:
                 generator=torch.Generator("cpu").manual_seed(seed),
                 guidance_scale=guidance_scale,
             ).images[0]
-            image.save(f"{fname}_{seed}.png")
-            os.system(f"aws s3 cp {fname}_guidance_scale_{guidance_scale}_{seed}.png s3://{S3_BUCKET}{S3_PREFIX}")
+            fname_final = f'{fname}_guidance_scale_{guidance_scale}_num_inference_steps_{num_inference_steps}_seed_{seed}.png'
+            image.save(fname_final)
+            os.system(f"aws s3 cp {fname_final} s3://{S3_BUCKET}{S3_PREFIX}")
