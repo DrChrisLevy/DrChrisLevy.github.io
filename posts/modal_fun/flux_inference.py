@@ -10,31 +10,13 @@ def main():
     # Sample data
     data = {
         "prompts": [
-            "A serene mountain landscape at sunset",
-            "A futuristic cityscape with flying cars",
-            "An underwater scene with colorful coral reefs",
-            "A steampunk-inspired clockwork dragon",
-            "A bioluminescent forest at midnight",
-            "An ancient library filled with floating books",
-            "A surreal Salvador Dali-inspired melting cityscape",
-            "A cyberpunk street market in neon-lit rain",
-            "A whimsical tea party on a giant mushroom",
-            "An intergalactic spaceport with alien travelers",
+            "A pristine tropical island paradise with crystal-clear turquoise waters lapping at white sandy shores. Palm trees sway gently in the breeze along the coastline. In the foreground, the words 'Welcome to Modal' are elegantly written in the smooth wet sand, with small seashells decorating the letters. The sun is setting in the background, painting the sky with vibrant hues of orange, pink, and purple. A few scattered clouds reflect the warm sunset colors.",
         ],
         "fnames": [
-            "mountain_sunset",
-            "future_city",
-            "underwater_coral",
-            "steampunk_dragon",
-            "bioluminescent_forest",
-            "floating_library",
-            "melting_cityscape",
-            "cyberpunk_market",
-            "mushroom_teaparty",
-            "alien_spaceport",
+            "modal_island"
         ],
         "num_inference_steps": 4,
-        "guidance_scale": 3.5,
+        "guidance_scale": 5,
     }
 
     # Make the API request
