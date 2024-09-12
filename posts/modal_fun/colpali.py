@@ -116,7 +116,7 @@ class Model:
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
-        idx_top_1 = scores.argmax(axis=1)
+        idx_top_1 = scores.argmax(axis=-1)
         print("Indices of the top-1 retrieved documents for each query:", idx_top_1)
 
         # Sanity check
