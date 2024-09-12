@@ -90,13 +90,13 @@ class Model:
             dataset=ListDataset[str](images),
             batch_size=4,
             shuffle=False,
-            collate_fn=lambda x: processor.process_images(x),
+            collate_fn=lambda x: self.processor.process_images(x),
         )
         ds: List[torch.Tensor] = []
         for batch_doc in tqdm(dataloader):
             with torch.no_grad():
-                batch_doc = {k: v.to(model.device) for k, v in batch_doc.items()}
-                embeddings_doc = model(**batch_doc)
+                batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
+                embeddings_doc = self.model(**batch_doc)
             ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
 
         # Run inference - queries
@@ -104,18 +104,18 @@ class Model:
             dataset=ListDataset[str](queries),
             batch_size=4,
             shuffle=False,
-            collate_fn=lambda x: processor.process_queries(x),
+            collate_fn=lambda x: self.processor.process_queries(x),
         )
 
         qs: List[torch.Tensor] = []
         for batch_query in dataloader:
             with torch.no_grad():
-                batch_query = {k: v.to(model.device) for k, v in batch_query.items()}
-                embeddings_query = model(**batch_query)
+                batch_query = {k: v.to(self.model.device) for k, v in batch_query.items()}
+                embeddings_query = self.model(**batch_query)
             qs.extend(list(torch.unbind(embeddings_query.to("cpu"))))
 
         # Run scoring
-        scores = processor.score(qs, ds).cpu().numpy()
+        scores = self.processor.score(qs, ds).cpu().numpy()
         idx_top_1 = scores.argmax(axis=1)
         print("Indices of the top-1 retrieved documents for each query:", idx_top_1)
 
