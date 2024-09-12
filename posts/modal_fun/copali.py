@@ -36,54 +36,72 @@ class Model:
     @build()
     @enter()
     def setup(self):
+        import torch
         from typing import cast
 
-        import torch
-
         from colpali_engine.models import ColPali, ColPaliProcessor
+        from colpali_engine.utils.processing_utils import BaseVisualRetrieverProcessor
 
-        self.model = cast(
-            ColPali,
-            ColPali.from_pretrained(
-                "vidore/colpali-v1.2",
-                torch_dtype=torch.bfloat16,
-                device_map="cuda:0",  # or "mps" if on Apple Silicon
-            ),
-        )
-
-        self.processor = cast(ColPaliProcessor, ColPaliProcessor.from_pretrained("google/paligemma-3b-mix-448"))
+        model_name = "vidore/colpali-v1.2"
+        self.model = ColPali.from_pretrained("vidore/colpaligemma-3b-pt-448-base", torch_dtype=torch.bfloat16, device_map="cuda").eval()
+        self.model.load_adapter(model_name)
+        self.processor = cast(ColPaliProcessor, ColPaliProcessor.from_pretrained("google/paligemma-3b-mix-448"))  # TODO: took out of readme.
+        if not isinstance(self.processor, BaseVisualRetrieverProcessor):
+            raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
     @modal.method()
     def f(self):
-        from PIL import Image
-        import torch
+        import os
 
         os.system("pip install datasets")
-        # Your inputs
-        images = [
-            Image.new("RGB", (32, 32), color="white"),
-            Image.new("RGB", (16, 16), color="black"),
-        ]
+        from typing import cast
+
+        import torch
+        from datasets import Dataset, load_dataset
+        from torch.utils.data import DataLoader
+        from tqdm import tqdm
+
+        images = cast(Dataset, load_dataset("vidore/docvqa_test_subsampled", split="test"))["image"]
         queries = [
-            "Is attention really all you need?",
-            "Are Benjamin, Antoine, Merve, and Jo best friends?",
+            "From which university does James V. Fiorca come ?",
+            "Who is the japanese prime minister?",
+            "What is the Log-in No. ?",
+            "Which is the railways company?",
+            "What is the % Promoted Volume in EDLP stores?",
         ]
 
-        # Process the inputs
-        batch_images = self.processor.process_images(images).to(self.model.device)
-        batch_queries = self.processor.process_queries(queries).to(self.model.device)
+        # run inference - docs
+        dataloader = DataLoader(
+            images,
+            batch_size=4,
+            shuffle=False,
+            collate_fn=lambda x: self.processor.process_images(x),
+        )
+        ds = []
+        for batch_doc in tqdm(dataloader):
+            with torch.no_grad():
+                batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
+                embeddings_doc = self.model(**batch_doc)
+            ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
 
-        # Forward pass
-        with torch.no_grad():
-            image_embeddings = self.model(**batch_images)
-            query_embeddings = self.model(**batch_queries)
+        # run inference - queries
+        dataloader = DataLoader(
+            queries,
+            batch_size=4,
+            shuffle=False,
+            collate_fn=lambda x: self.processor.process_queries(x),
+        )
 
-        scores = self.processor.score_multi_vector(query_embeddings, image_embeddings)
-        print(batch_images)
-        print(batch_queries)
-        print(image_embeddings)
-        print(query_embeddings)
-        print(scores)
+        qs = []
+        for batch_query in dataloader:
+            with torch.no_grad():
+                batch_query = {k: v.to(self.model.device) for k, v in batch_query.items()}
+                embeddings_query = self.model(**batch_query)
+            qs.extend(list(torch.unbind(embeddings_query.to("cpu"))))
+
+        # run evaluation
+        scores = self.processor.score(qs, ds)
+        print(scores.argmax(axis=1))
         return scores
 
 
