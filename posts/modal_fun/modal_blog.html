@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-09-13">
+
+<title>Chris Levy - 🚀 Building with Modal 🚀</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">🚀 Building with Modal 🚀</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 13, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">September 13, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a>
+  <ul class="collapse">
+  <li><a href="#why-am-i-writing-this-post" id="toc-why-am-i-writing-this-post" class="nav-link" data-scroll-target="#why-am-i-writing-this-post">Why am I writing this post?</a></li>
+  </ul></li>
+  <li><a href="#setting-up-modal" id="toc-setting-up-modal" class="nav-link" data-scroll-target="#setting-up-modal">Setting Up Modal</a></li>
+  <li><a href="#hello-modal" id="toc-hello-modal" class="nav-link" data-scroll-target="#hello-modal">Hello Modal</a>
+  <ul class="collapse">
+  <li><a href="#shell-into-your-container" id="toc-shell-into-your-container" class="nav-link" data-scroll-target="#shell-into-your-container">Shell into your container</a></li>
+  </ul></li>
+  <li><a href="#image-generation-with-flux-models-from-black-forest-labs" id="toc-image-generation-with-flux-models-from-black-forest-labs" class="nav-link" data-scroll-target="#image-generation-with-flux-models-from-black-forest-labs">Image Generation with Flux Models from Black Forest Labs</a></li>
+  <li><a href="#qwen2-vl-vision-language-model" id="toc-qwen2-vl-vision-language-model" class="nav-link" data-scroll-target="#qwen2-vl-vision-language-model">Qwen2-VL: Vision Language Model</a></li>
+  <li><a href="#multimodal-rag-with-colpali" id="toc-multimodal-rag-with-colpali" class="nav-link" data-scroll-target="#multimodal-rag-with-colpali">Multimodal RAG with ColPali</a></li>
+  <li><a href="#concurrent-inputs-on-a-single-container" id="toc-concurrent-inputs-on-a-single-container" class="nav-link" data-scroll-target="#concurrent-inputs-on-a-single-container">Concurrent inputs on a single container</a></li>
+  <li><a href="#finishing-up" id="toc-finishing-up" class="nav-link" data-scroll-target="#finishing-up">Finishing Up</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="intro" class="level1">
+<h1>Intro</h1>
+<p>In my professional life I write code which ends up on a production environment, supported by sophisticated DevOps infrastructure. This system leverages a suite of tools such as Kubernetes, Rancher, Karpenter, Helm charts, Argo CD, GitHub Actions, and of course AWS. I’m fortunate to work alongside an exceptional DevOps team that keeps this complex machinery running smoothly. While I’m not deeply involved in the nitty-gritty of DevOps and infrastructure, I’m certainly exposed to it.</p>
+<p>On the other hand, I also crave the simplicity of building and tinkering without infrastructure concerns, especially in my free time. Ideally, I’d work directly with Python code using just my IDE and terminal. I’d rather avoid writing another YAML file or worrying about spinning up instances, managing IAM roles, installing CUDA drivers, or juggling multiple microservices and containers. What I seek is a streamlined development experience that lets me focus on creativity and problem-solving, not infrastructure management.</p>
+<p>This is where Modal enters the picture. I’m genuinely excited about <a href="https://modal.com/">Modal</a> and consider it the most impressive platform I’ve encountered for running code without infrastructure concerns. Modal is a serverless platform designed for Data/ML/AI teams that seamlessly bridges the gap between local development and cloud execution. The primary interface is a Python SDK, where decorators are used to quickly move function execution into the cloud. You write your code as if it were running locally, and Modal effortlessly deploys and runs it in the cloud. This approach offers the best of both worlds: the simplicity of local development with the power and scalability of cloud computing.</p>
+<p>Modal didn’t simply create a wrapper on top of Kubernetes or Docker. While I won’t even pretend to understand the engineering behind it; it’s clearly their secret sauce. From what I’ve read and heard, they’ve built their own systems from scratch in Rust, including a container runtime, custom file system, custom image builder, and custom job scheduler. This allows for launching containers in the cloud within seconds.</p>
+<p>For many AI applications, GPUs are a necessity. This can be a barrier for developers, including myself, who don’t have access to a local GPU. This is where Modal can really shine, providing easy access to GPU resources in the cloud within an isolated environment. You can experiment within the isolated environment without worrying about messing up your local machine.</p>
+<p>Of course there are many great options out there for spinning up GPU instances in the cloud. Some of the other platforms I enjoy are <a href="https://jarvislabs.ai/">Jarvis Labs</a>, <a href="https://cloud.lambdalabs.com/">Lambda Labs</a>, and <a href="https://www.runpod.io/">RunPod</a>. I have tried all of these and I like them. I have even written previously about using some of these services <a href="https://drchrislevy.github.io/posts/intro_fine_tune/intro_fine_tune.html">here</a> and <a href="https://drchrislevy.github.io/posts/fine_tune_jarvis/fine_tune_jarvis.html">here</a>. Modal is offering something different though. It’s the developer experience that has hooked me on Modal. It’s the lower cold start times and the feeling of developing locally that make it so nice.</p>
+<p>I should note that I have only used Modal for personal projects and tinkering around with various ideas. However, I anticipate incorporating it more into my professional work, particularly for research projects and proofs of concept. Looking ahead, I can envision leveraging Modal directly in our production environment as well. It seems particularly well-suited for deploying complex AI models that require specific container configurations and GPU resources, especially in scenarios with unpredictable or spiky traffic patterns.</p>
+<p>If you want to learn more about the history of Modal or keep up with the latest news, I recommend the following resources:</p>
+<ul>
+<li><a href="https://modal.com/">Modal Website</a></li>
+<li><a href="https://x.com/modal_labs">Modal X Account</a></li>
+<li><a href="https://modal.com/slack">Modal Slack Account</a> (They are so helpful and responsive on Slack)</li>
+<li><a href="https://x.com/charles_irl">Charles Frye X Account</a> (AI Engineer at Modal)</li>
+<li><a href="https://x.com/bernhardsson">Erik Bernhardsson X Account</a> (CEO at Modal)</li>
+<li><a href="https://www.youtube.com/watch?v=MGVeavVJiWw">1 to 100: Modal Labs</a> (Interview with Erik Bernhardsson)</li>
+<li><a href="https://whyyoushouldjoin.substack.com/p/modal">Why you should join Modal</a> (Article)</li>
+<li><a href="https://erikbern.com/2022/12/07/what-ive-been-working-on-modal.html">What I have been working on: Modal</a> (Older article with relevant background)</li>
+</ul>
+<section id="why-am-i-writing-this-post" class="level2">
+<h2 class="anchored" data-anchor-id="why-am-i-writing-this-post">Why am I writing this post?</h2>
+<p>I could simply direct you to the Modal Documentation, which is exceptionally comprehensive and well-crafted. In fact, it’s so good that I doubt I could do it justice in a single post. However, I’m currently investing time in learning Modal, and what better way to solidify my understanding than by writing about it? Even if it means repeating some of the information in the documentation, it will still be a valuable exercise. Moreover, I’m eager to spread the word about this game-changing platform that I believe is still flying under the radar for many developers. By sharing my experiences and insights, I hope to contribute to the growing community of Modal enthusiasts.</p>
+</section>
+</section>
+<section id="setting-up-modal" class="level1">
+<h1>Setting Up Modal</h1>
+<ul>
+<li><a href="https://modal.com/docs/guide">Getting Started Documentation</a></li>
+</ul>
+<pre><code># create an account at modal.com
+pip install modal
+modal setup</code></pre>
+<p>🚀✨ That is like zero friction! ✨🚀</p>
+</section>
+<section id="hello-modal" class="level1">
+<h1>Hello Modal</h1>
+<p>Okay let’s write our first function and run it in the cloud.</p>
+<div class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"hello-modal"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">@app.function</span>()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f(i):</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"hello modal! </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> + </span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>i<span class="op">+</span>i<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> i</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">@app.local_entrypoint</span>()</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"This is running locally"</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(f.local(<span class="dv">1</span>))</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"This is running remotely on Modal"</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(f.remote(<span class="dv">2</span>))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"This is running in parallel and remotely on Modal"</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ret <span class="kw">in</span> f.<span class="bu">map</span>(<span class="bu">range</span>(<span class="dv">2500</span>)):</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> ret</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(total)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p>We decorated our function with the primary logic and then decorated the entry point. We can call the function locally, remotely, in parallel and remotely on Modal. Here is a video showing the output when running the code. We run it with this command:</p>
+<p><code>modal run hello_modal.py</code></p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/-BgAiGW4o5c" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>Take a moment to let that sink in! We can run the code on a remote server and see the output and print statements locally. Imagine trying to do that with a traditional server where you have to log in and manually copy the logs. This is a simple function, but the ability to run it remotely on Modal and get the output locally is quite impressive. Modal handles spinning up containers and managing everything else seamlessly.</p>
+<section id="shell-into-your-container" class="level2">
+<h2 class="anchored" data-anchor-id="shell-into-your-container">Shell into your container</h2>
+<p>We will see in later examples how to customize the environment of the container. But even with this simple example, we can shell into the default container and poke around. There are numerous ways to <a href="https://modal.com/docs/guide/developing-debugging#developing-and-debugging">develop and debug your application with Modal</a>.</p>
+<p>Here we use the <code>modal shell</code> command to quickly create a container and shell into it.</p>
+<pre><code>modal shell hello_modal.py::f</code></pre>
+<p>This video shows how easy it is to shell into the container.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/5yw29jQEn3E" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>By shelling into the container you get direct access to that isolated environment. You can inspect the file system, test the installation of additional dependencies, and generally look around to ensure your application is configured correctly.</p>
+</section>
+</section>
+<section id="image-generation-with-flux-models-from-black-forest-labs" class="level1">
+<h1>Image Generation with Flux Models from Black Forest Labs</h1>
+<p>Let’s dive into our first “real” and exciting example. If you haven’t heard already, the new Flux image generation models from <a href="https://blackforestlabs.ai/">Black Forest Labs</a> are truly impressive. One of the easiest ways to try them out is through <a href="https://replicate.com/stability-ai/sdxl">Replicate</a>.</p>
+<p>What’s particularly appealing about the two smaller Flux models is that their weights are open and available for download. Running these models using the transformers and diffusers libraries is relatively straightforward. You can find an example in the model card <a href="https://huggingface.co/black-forest-labs/FLUX.1-schnell#diffusers">here</a> - it only takes a handful of lines of code!</p>
+<p>Here is some code to create an endpoint hosted through Modal, allowing you to generate images. You can read the Modal documentation for all the details, but here are some features worth pointing out:</p>
+<ul>
+<li>We defined a specific container with <code>Image.debian_slim(python_version="3.11").run_commands(.....</code>
+<ul>
+<li>I did not know what to put here initially. I just started with a blank slate and then shelled into the container and tried running snippets of code until I figured out what I needed. It’s an iterative process where you build up your container with whatever dependencies you need.</li>
+</ul></li>
+<li>We use the <a href="https://modal.com/docs/guide/lifecycle-functions">Modal class syntax</a>.
+<ul>
+<li><code>@enter</code> - Called when a new container is started. Useful for loading weights into memory for example.</li>
+<li><code>@build</code> - Code that runs as a part of the container image build process. Useful for downloading weights.</li>
+<li>In the case of Hugging Face diffusers models, the weights only have to be downloaded once and future containers will only need to load the weights into memory. This means the initial build process takes longer but subsequent builds are much faster. Especially since Modal has done all the heavy lifting and engineering to make containers load very fast.</li>
+</ul></li>
+<li><code>@modal.web_endpoint(method="POST", docs=True)</code> is used to create a web server using FastAPI under the hood. See <a href="https://modal.com/docs/guide/webhooks">here</a> for more information on creating web endpoints.</li>
+<li>Modal has multiple ways to deal with secrets and environment variables. See <a href="https://modal.com/docs/guide/secrets">here</a> for more information. Here I am making use of <code>Secret.from_dotenv()</code> to load the Hugging Face token from a .env file.</li>
+<li><code>gpu="A100"</code> - <a href="https://modal.com/docs/guide/gpu#gpu-acceleration">GPU acceleration!</a>.</li>
+</ul>
+<div class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> modal <span class="im">import</span> Image, build, enter</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"black-forest-labs-flux"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.debian_slim(python_version<span class="op">=</span><span class="st">"3.11"</span>).run_commands(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"apt-get update &amp;&amp; apt-get install -y git"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install transformers"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install accelerate"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install sentencepiece"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install git+https://github.com/huggingface/diffusers.git"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pip install python-dotenv"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f'huggingface-cli login --token </span><span class="sc">{</span>os<span class="sc">.</span>environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>]<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="at">@app.cls</span>(image<span class="op">=</span>image, secrets<span class="op">=</span>[modal.Secret.from_dotenv()], gpu<span class="op">=</span><span class="st">"A100"</span>, cpu<span class="op">=</span><span class="dv">4</span>, timeout<span class="op">=</span><span class="dv">600</span>, container_idle_timeout<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">@build</span>()</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">@enter</span>()</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup(<span class="va">self</span>):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> diffusers <span class="im">import</span> FluxPipeline</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers.utils <span class="im">import</span> move_cache</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># black-forest-labs/FLUX.1-schnell</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># black-forest-labs/FLUX.1-dev</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> <span class="st">"black-forest-labs/FLUX.1-schnell"</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pipe <span class="op">=</span> FluxPipeline.from_pretrained(<span class="va">self</span>.model, torch_dtype<span class="op">=</span>torch.bfloat16).to(<span class="st">"cuda"</span>)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        move_cache()</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@modal.web_endpoint</span>(method<span class="op">=</span><span class="st">"POST"</span>, docs<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f(<span class="va">self</span>, data: <span class="bu">dict</span>):</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> random</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> io <span class="im">import</span> BytesIO</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> base64</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        prompts <span class="op">=</span> data[<span class="st">"prompts"</span>]</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        fnames <span class="op">=</span> data[<span class="st">"fnames"</span>]</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        num_inference_steps <span class="op">=</span> data.get(<span class="st">"num_inference_steps"</span>, <span class="dv">4</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        seed <span class="op">=</span> data.get(<span class="st">"seed"</span>, random.randint(<span class="dv">1</span>, <span class="dv">2</span><span class="op">**</span><span class="dv">63</span> <span class="op">-</span> <span class="dv">1</span>))</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        guidance_scale <span class="op">=</span> data.get(<span class="st">"guidance_scale"</span>, <span class="fl">3.5</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> []</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> prompt, fname <span class="kw">in</span> <span class="bu">zip</span>(prompts, fnames):</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>            image <span class="op">=</span> <span class="va">self</span>.pipe(</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>                prompt,</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>                output_type<span class="op">=</span><span class="st">"pil"</span>,</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>                num_inference_steps<span class="op">=</span>num_inference_steps,</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>                generator<span class="op">=</span>torch.Generator(<span class="st">"cpu"</span>).manual_seed(seed),</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>                guidance_scale<span class="op">=</span>guidance_scale,</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>            ).images[<span class="dv">0</span>]</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Convert PIL image to bytes</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>            buffered <span class="op">=</span> BytesIO()</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>            image.save(buffered, <span class="bu">format</span><span class="op">=</span><span class="st">"PNG"</span>)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>            img_str <span class="op">=</span> base64.b64encode(buffered.getvalue()).decode()</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>            results.append(</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"filename"</span>: <span class="ss">f"</span><span class="sc">{</span>fname<span class="sc">}</span><span class="ss">_guidance_scale_</span><span class="sc">{</span>guidance_scale<span class="sc">}</span><span class="ss">_num_inference_steps_</span><span class="sc">{</span>num_inference_steps<span class="sc">}</span><span class="ss">_seed_</span><span class="sc">{</span>seed<span class="sc">}</span><span class="ss">_model_</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>model<span class="sc">.</span>replace(<span class="st">'/'</span>, <span class="st">'_'</span>)<span class="sc">}</span><span class="ss">.png"</span>,</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"image"</span>: img_str,</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p>You can serve it for testing with this command:</p>
+<pre><code>modal serve flux.py</code></pre>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/692hHe6Irjg" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>I sped up the video, but here are some takeaways:</p>
+<ul>
+<li>The app starts immediately with 0 containers. The cost is zero. Containers are only spun up when the first request comes in.</li>
+<li>I had already built the container image so this time around the model weights were already within the container image. On the first request to the endpoint the container spins up and the model weights are loaded into memory.</li>
+<li>Once the weights are loaded into memory, subsequent requests are much faster.</li>
+<li><code>container_idle_timeout</code> is set to 300 seconds. This means the container will be terminated after 300 seconds of inactivity so it scales down to 0 containers. But the endpoint application is still running and can scale back up when the next request comes in.</li>
+</ul>
+<p>Here is some inference code so we can hit the endpoint and download the images locally. This code will work as long as the endpoint is running.</p>
+<div class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> requests</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> base64</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> os</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    os.makedirs(<span class="st">"images"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Your API endpoint URL</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    API_URL <span class="op">=</span> <span class="st">"https://drchrislevy--black-forest-labs-flux-model-f-dev.modal.run"</span>  <span class="co"># Replace with your actual Modal app URL</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sample data</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> {</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"prompts"</span>: [</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"A pristine tropical island paradise with crystal-clear turquoise waters lapping at white sandy shores. Palm trees sway gently in the breeze along the coastline. In the foreground, the words 'Welcome to Modal' are elegantly written in the smooth wet sand, with small seashells decorating the letters. The sun is setting in the background, painting the sky with vibrant hues of orange, pink, and purple. A few scattered clouds reflect the warm sunset colors."</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">"fnames"</span>: [</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"modal_island"</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"num_inference_steps"</span>: <span class="dv">4</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"guidance_scale"</span>: <span class="dv">5</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make the API request</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> requests.post(API_URL, json<span class="op">=</span>data)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> response.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> response.json()</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> result <span class="kw">in</span> results:</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            filename <span class="op">=</span> result[<span class="st">"filename"</span>]</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>            img_data <span class="op">=</span> base64.b64decode(result[<span class="st">"image"</span>])</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> <span class="bu">open</span>(os.path.join(<span class="st">"images"</span>, filename), <span class="st">"wb"</span>) <span class="im">as</span> f:</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>                f.write(img_data)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Saved: </span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>response<span class="sc">.</span>status_code<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(response.text)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"All images have been downloaded to the 'images/' folder."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p>Here is a video of running the inference code, inspecting the Modal application dashboard, and viewing downloaded images on my local machine. The video is also sped up.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/MI91tqjT9z4" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>One awesome thing about Modal is that it scales automatically with the number of requests. You can tweak parameters to control the behavior of the scaling, and you can refer to the <a href="https://modal.com/docs/guide/concurrent-inputs">documentation</a> for the details. Let’s illustrate this with running the larger Flux model, <code>"black-forest-labs/FLUX.1-dev"</code>.</p>
+<p>Im going to change the request payload to</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"prompts"</span>: [</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Futuristic spaceship wreckage overgrown with lush forest vegetation"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Pristine tropical island with crystal-clear blue waters and white sandy beaches"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Abandoned, overgrown streets of post-apocalyptic Boston from The Last of Us"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fnames"</span>: [<span class="st">"sci_fi_forest_ship"</span>, <span class="st">"tropical_island_paradise"</span>, <span class="st">"last_of_us_boston"</span>],</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"num_inference_steps"</span>: <span class="dv">50</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"guidance_scale"</span>: <span class="fl">3.5</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In the video I’m going to kick off 10 requests to the endpoint in 10 shells, all in parallel. You will see the containers spin up and then back down automatically. For this demo I also changed <code>container_idle_timeout</code> to 10 seconds so the containers are terminated quickly. The video is sped up at 5X the speed.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/K9vDW8J440k" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="qwen2-vl-vision-language-model" class="level1">
+<h1>Qwen2-VL: Vision Language Model</h1>
+<p>Qwen2-VL is a recent vision language model from the Qwen team. Here is a <a href="https://qwenlm.github.io/blog/qwen2-vl/">post</a> about it, and also the the Hugging Face <a href="https://huggingface.co/Qwen/Qwen2-VL-7B-Instruct">model card</a> for the 7B parameter model. I wanted to experiment with this model and make use of flash attention during inference.</p>
+<p>First, lets get into setting up the container with the CUDA environment. There are different <a href="https://modal.com/docs/guide/cuda">ways</a> of using CUDA on Modal. Since Modal supports the underlying CUDA stack, it’s often very easy to get started by simply using <code>pip</code> to install your libraries. Here is an example straight out of their <a href="https://modal.com/docs/guide/cuda#install-gpu-accelerated-torch-and-transformers-with-pip_install">documentation</a>:</p>
+<pre><code>image = modal.Image.debian_slim().pip_install("torch")
+
+
+@app.function(gpu="any", image=image)
+def run_torch():
+    import torch
+    has_cuda = torch.cuda.is_available()
+    print(f"It is {has_cuda} that torch can access CUDA")
+    return has_cuda</code></pre>
+<p>Easy!</p>
+<p>Other use cases may require a more involved installation setup. One such example is using flash attention. Luckily, Modal also <a href="https://modal.com/docs/guide/cuda#for-more-complex-setups-use-an-officially-supported-cuda-image">documented</a> this common use case and how to go about setting up the environment. So that is what I started with. I shelled into the container and ran bits of code while debugging the environment until I got it working. You can see the full code for the container image below. One trick is that you can use <code>.run_commands(</code> and <code>.pip_install</code> multiple times within the code that builds the container image. This is convenient to cache the parts of the container installation that are working while you are still debugging. That way if you are experimenting with one part such as the the final line, <code>.run_commands("pip install flash-attn --no-build-isolation")</code>, you don’t have to rerun the entire container build every time you make a small change.</p>
+<div class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> modal <span class="im">import</span> build, enter</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"qwen2_vl_78_Instruct"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>cuda_version <span class="op">=</span> <span class="st">"12.4.0"</span>  <span class="co"># should be no greater than host CUDA version</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>flavor <span class="op">=</span> <span class="st">"devel"</span>  <span class="co">#  includes full CUDA toolkit</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>operating_sys <span class="op">=</span> <span class="st">"ubuntu22.04"</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>tag <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>cuda_version<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>flavor<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>operating_sys<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> (</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    modal.Image.from_registry(<span class="ss">f"nvidia/cuda:</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">"</span>, add_python<span class="op">=</span><span class="st">"3.11"</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    .apt_install(<span class="st">"git"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    .pip_install(</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"ninja"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"packaging"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wheel"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    .run_commands(</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/huggingface/transformers"</span>,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install accelerate"</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install qwen-vl-utils"</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install python-dotenv"</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'huggingface-cli login --token </span><span class="sc">{</span>os<span class="sc">.</span>environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>]<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    .run_commands(<span class="st">"pip install flash-attn --no-build-isolation"</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="at">@app.cls</span>(image<span class="op">=</span>image, secrets<span class="op">=</span>[modal.Secret.from_dotenv()], gpu<span class="op">=</span><span class="st">"a100"</span>, cpu<span class="op">=</span><span class="dv">4</span>, timeout<span class="op">=</span><span class="dv">600</span>, container_idle_timeout<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">@build</span>()</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@enter</span>()</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup(<span class="va">self</span>):</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers <span class="im">import</span> Qwen2VLForConditionalGeneration, AutoProcessor, TextStreamer</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> Qwen2VLForConditionalGeneration.from_pretrained(</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Qwen/Qwen2-VL-7B-Instruct"</span>,</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>            torch_dtype<span class="op">=</span>torch.bfloat16,</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>            attn_implementation<span class="op">=</span><span class="st">"flash_attention_2"</span>,</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>            vision_config<span class="op">=</span>{<span class="st">"torch_dtype"</span>: torch.bfloat16},</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>            device_map<span class="op">=</span><span class="st">"auto"</span>,</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>        <span class="co"># default processor</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.processor <span class="op">=</span> AutoProcessor.from_pretrained(<span class="st">"Qwen/Qwen2-VL-7B-Instruct"</span>)</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>        <span class="co"># The default range for the number of visual tokens per image in the model is 4-16384. You can set min_pixels and max_pixels according to your needs, such as a token count range of 256-1280, to balance speed and memory usage.</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>        <span class="co"># min_pixels = 256*28*28</span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>        <span class="co"># max_pixels = 1280*28*28</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.streamer <span class="op">=</span> TextStreamer(<span class="va">self</span>.processor, skip_prompt<span class="op">=</span><span class="va">True</span>, skip_special_tokens<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">@modal.method</span>()</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f(<span class="va">self</span>, messages_list, max_new_tokens<span class="op">=</span><span class="dv">256</span>, show_stream<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> qwen_vl_utils <span class="im">import</span> process_vision_info</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> messages_inference(messages):</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Preparation for inference</span></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>            text <span class="op">=</span> <span class="va">self</span>.processor.apply_chat_template(messages, tokenize<span class="op">=</span><span class="va">False</span>, add_generation_prompt<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>            image_inputs, video_inputs <span class="op">=</span> process_vision_info(messages)</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>            inputs <span class="op">=</span> <span class="va">self</span>.processor(</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>                text<span class="op">=</span>[text],</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>                images<span class="op">=</span>image_inputs,</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>                videos<span class="op">=</span>video_inputs,</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>                padding<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>                return_tensors<span class="op">=</span><span class="st">"pt"</span>,</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>            inputs <span class="op">=</span> inputs.to(<span class="st">"cuda"</span>)</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Inference: Generation of the output</span></span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> show_stream:</span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n\n</span><span class="st">-----------------------------------------------------------</span><span class="ch">\n\n</span><span class="st">"</span>)</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>                generated_ids <span class="op">=</span> <span class="va">self</span>.model.generate(<span class="op">**</span>inputs, max_new_tokens<span class="op">=</span>max_new_tokens, streamer<span class="op">=</span><span class="va">self</span>.streamer)</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>                generated_ids <span class="op">=</span> <span class="va">self</span>.model.generate(<span class="op">**</span>inputs, max_new_tokens<span class="op">=</span>max_new_tokens)</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>            generated_ids_trimmed <span class="op">=</span> [out_ids[<span class="bu">len</span>(in_ids) :] <span class="cf">for</span> in_ids, out_ids <span class="kw">in</span> <span class="bu">zip</span>(inputs.input_ids, generated_ids)]</span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>            output_text <span class="op">=</span> <span class="va">self</span>.processor.batch_decode(generated_ids_trimmed, skip_special_tokens<span class="op">=</span><span class="va">True</span>, clean_up_tokenization_spaces<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> output_text</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [messages_inference(messages) <span class="cf">for</span> messages <span class="kw">in</span> messages_list]</span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="at">@app.local_entrypoint</span>()</span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a>    s3_bucket <span class="op">=</span> os.environ[<span class="st">"S3_BUCKET"</span>]  <span class="co"># where my images are hosted</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>    s3_prefix <span class="op">=</span> os.environ[<span class="st">"S3_PREFIX"</span>]  <span class="co"># where my images are hosted</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Model()</span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>    messages_list <span class="op">=</span> [</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>                <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>                <span class="st">"content"</span>: [</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"image"</span>: <span class="ss">f"https://</span><span class="sc">{</span>s3_bucket<span class="sc">}</span><span class="ss">.s3.amazonaws.com</span><span class="sc">{</span>s3_prefix<span class="sc">}</span><span class="ss">tropical_island_paradise_guidance_scale_3.5_num_inference_steps_50_seed_5013302010029533033_model_black-forest-labs_FLUX.1-dev.png"</span>,</span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>                    },</span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>                    {<span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"text"</span>: <span class="st">"Give a short description of this image."</span>},</span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>                ],</span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a>                <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a>                <span class="st">"content"</span>: [</span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"image"</span>: <span class="ss">f"https://</span><span class="sc">{</span>s3_bucket<span class="sc">}</span><span class="ss">.s3.amazonaws.com</span><span class="sc">{</span>s3_prefix<span class="sc">}</span><span class="ss">sci_fi_forest_ship_guidance_scale_3.5_num_inference_steps_50_seed_6510529542810937186_model_black-forest-labs_FLUX.1-dev.png"</span>,</span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>                    },</span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a>                    {<span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"text"</span>: <span class="st">"Give a long detailed description of this image."</span>},</span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>                ],</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a>            {</span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>                <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>                <span class="st">"content"</span>: [</span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"image"</span>: <span class="ss">f"https://</span><span class="sc">{</span>s3_bucket<span class="sc">}</span><span class="ss">.s3.amazonaws.com</span><span class="sc">{</span>s3_prefix<span class="sc">}</span><span class="ss">tropical_island_paradise_guidance_scale_3.5_num_inference_steps_50_seed_5013302010029533033_model_black-forest-labs_FLUX.1-dev.png"</span>,</span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>                    },</span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>                    {</span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a>                        <span class="st">"image"</span>: <span class="ss">f"https://</span><span class="sc">{</span>s3_bucket<span class="sc">}</span><span class="ss">.s3.amazonaws.com</span><span class="sc">{</span>s3_prefix<span class="sc">}</span><span class="ss">sci_fi_forest_ship_guidance_scale_3.5_num_inference_steps_50_seed_6510529542810937186_model_black-forest-labs_FLUX.1-dev.png"</span>,</span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a>                    },</span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>                    {<span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"text"</span>: <span class="st">"For each image explain whether you think it is real or AI generated. Explain your reasoning."</span>},</span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>                ],</span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Testing Single Inference with show_stream=True"</span>)</span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(model.f.remote(messages_list[<span class="dv">1</span>:<span class="dv">2</span>], max_new_tokens<span class="op">=</span><span class="dv">1000</span>, show_stream<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Testing Multiple Container with show_stream=False"</span>)</span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> res <span class="kw">in</span> model.f.starmap([(messages_list[:<span class="dv">1</span>], <span class="dv">1000</span>, <span class="va">False</span>), (messages_list[<span class="dv">1</span>:<span class="dv">2</span>], <span class="dv">1000</span>, <span class="va">False</span>), (messages_list[<span class="dv">2</span>:<span class="dv">3</span>], <span class="dv">1000</span>, <span class="va">False</span>)]):</span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p>The function <code>f</code> above takes a list of <code>messages</code> and loops over each one sequentially and handles the inference. There is also the option to pass in a <code>stream=True</code> parameter to get a streaming response as the tokens are generated.</p>
+<p>For the test images I am using some images that I generated with Flux earlier. Here are two such images and the descriptions generated from Qwen2-VL, using the code above. For the images on the left I asked for a longer detailed description and for the images on the right I asked for a short description.</p>
+<div class="quarto-layout-panel">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/sci_fi_forest_ship_guidance_scale_3.5_num_inference_steps_50_seed_6510529542810937186_model_black-forest-labs_FLUX.1-dev.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">This image depicts a futuristic, floating structure nestled within a lush, verdant landscape. The structure appears to be an abandoned or repurposed aircraft, possibly a large jet or a military transport plane, given its size and shape. The aircraft has been partially integrated into the natural environment, with vines and other greenery growing over its surface, suggesting a long period of disuse or abandonment. The aircraft is suspended in mid-air, supported by unseen technology or infrastructure that is not visible in the image. The surrounding area is dense with greenery, including trees, bushes, and other vegetation, creating a sense of harmony between the man-made structure and the natural world. The landscape below the aircraft features a river or stream, flanked by rocky cliffs and dense foliage, adding to the serene and almost otherworldly atmosphere of the scene. The overall color palette is dominated by greens and browns, with the aircraft’s rusted metal adding a touch of industrial decay. The lighting is soft and diffused, likely from an overcast sky, which enhances the tranquil and somewhat mystical ambiance of the image. The scene evokes a sense of isolation and abandonment, yet also a connection to nature, as if the aircraft has been reclaimed by the environment.</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/tropical_island_paradise_guidance_scale_3.5_num_inference_steps_50_seed_5013302010029533033_model_black-forest-labs_FLUX.1-dev.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">The image depicts a small, tropical island with a white sandy beach surrounded by crystal-clear turquoise waters. The island is covered with lush greenery and palm trees, and there is a small structure on the beach. The sky is mostly clear with a few scattered clouds.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>And here is the output from the model on where I passed both images into the conversation and asked whether or not they were AI generated.</p>
+<p><em>The first image appears to be a real photograph of a tropical island with clear blue waters and a small sandy beach. The natural lighting, shadows, and details in the water and sky suggest that this is a real image.second image, on the other hand, depicts a futuristic, floating structure covered in vegetation, suspended over a lush, green landscape with a river. The level of detail, the blending of natural and artificial elements, and the overall surreal nature of the scene suggest that this is likely an AI-generated image. The combination of a realistic natural environment with an advanced, almost sci-fi structure is not something typically captured in real photographs.</em></p>
+<p>Here is a video of running the above inference on the container at 5X speed. I first stream one image and then use <a href="https://modal.com/docs/guide/scale#starmap">starmap</a> to spin up 3 containers in parallel to handle 3 different requests.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/KEcGqcFLidI" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="multimodal-rag-with-colpali" class="level1">
+<h1>Multimodal RAG with ColPali</h1>
+<p>ColPali is an innovative document retrieval model that uses vision language models to efficiently index and retrieve documents based on their visual features. It allows querying images, paragraphs and tables from any document with no pre-processing whatsoever. Instead of chunking up the document pages into embeddings, it instead uses the visual of the entire page/image. I am quite new to ColPali and would like to do a deep dive into it in the near future. I highly recommend the following resources for learning more:</p>
+<ul>
+<li><a href="https://arxiv.org/pdf/2407.01449v1">Paper</a></li>
+<li>The quick start in the README <a href="https://github.com/illuin-tech/colpali">Original ColPali Repo</a> as well as the sample <a href="https://github.com/illuin-tech/colpali/blob/main/scripts/infer/run_inference_with_python.py">inference code</a>.</li>
+<li>Recent <a href="https://docs.google.com/presentation/d/1Zczs5Sk3FsCO06ZLDznqkOOhbTe96PwJa4_7FwyMBrA/edit#slide=id.p">Talk</a> by <a href="https://x.com/bclavie">Benjamin Clavié</a>: <em>RAG is more than dense embeddings</em>
+<ul>
+<li>Many more links/resources at the end of these slides.</li>
+</ul></li>
+<li><a href="https://huggingface.co/vidore/colpali-v1.2">Hugging Face Model Cards</a>
+<ul>
+<li>There seem to be updates so always look for the latest model.</li>
+</ul></li>
+<li>Benjamin Clavié wrote a <a href="https://github.com/AnswerDotAI/byaldi/blob/main/examples/chat_with_your_pdf.ipynb">demo notebook</a> here within the AnswerDotAI repo which uses ColPali and Claude 3.5 Sonnet.</li>
+<li><a href="https://x.com/mervenoyann">Merve Noyan</a> wrote a notebook <a href="https://github.com/merveenoyan/smol-vision/blob/main/ColPali_%2B_Qwen2_VL.ipynb">here</a> using ColPali and Qwen2-VL.</li>
+<li>Notebook by <a href="https://x.com/jobergum">Jo Bergum</a> on scaling ColPALI with Vespa: <a href="https://github.com/vespa-engine/pyvespa/blob/master/docs/sphinx/source/examples/simplified-retrieval-with-colpali-vlm_Vespa-cloud.ipynb">Scaling ColPALI (VLM) Retrieval</a></li>
+</ul>
+<p>The function we write will take a <code>pdf_url</code> and a list of <code>queries</code> as input. The ColPali model will be used to generate the most likely page of the PDF that contains the answer for each query. The next step is to use a vision language model to generate an answer to the query using that context (image of the page). For example you could pass the image of the page and the question to OpenAI or Anthropic models. But here we will use Qwen2-VL since we already have code to run that using Modal. This also demonstrates how to <a href="https://modal.com/docs/guide/trigger-deployed-functions">invoke deployed functions within Modal</a> that are on different apps/containers.</p>
+<p>In order to run this code, we first need to deploy the Qwen2-VL model/app container:</p>
+<pre><code>modal deploy qwen2_vl_78_Instruct.py</code></pre>
+<p><img src="imgs/qwen_deployed1.png" class="img-fluid"></p>
+<p><img src="imgs/qwen_deployed2.png" class="img-fluid"></p>
+<p>We can invoke this function from any Python context!</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> modal.Function.lookup(<span class="st">"qwen2_vl_78_Instruct"</span>, <span class="st">"Model.f"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>messages_list <span class="op">=</span> [] <span class="co"># see how we can pass in a list of messages from previous examples</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>f.remote(messages_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We can use this awesome Modal feature to use Qwen2-VL in our ColPali app. Here is the full code for the ColPali app.</p>
+<div class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> modal <span class="im">import</span> build, enter</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"colpali"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>cuda_version <span class="op">=</span> <span class="st">"12.4.0"</span>  <span class="co"># should be no greater than host CUDA version</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>flavor <span class="op">=</span> <span class="st">"devel"</span>  <span class="co">#  includes full CUDA toolkit</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>operating_sys <span class="op">=</span> <span class="st">"ubuntu22.04"</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>tag <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>cuda_version<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>flavor<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>operating_sys<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> (</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    modal.Image.from_registry(<span class="ss">f"nvidia/cuda:</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">"</span>, add_python<span class="op">=</span><span class="st">"3.11"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    .apt_install(<span class="st">"git"</span>, <span class="st">"poppler-utils"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    .pip_install(</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"ninja"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"packaging"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wheel"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    .run_commands(</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/huggingface/transformers"</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install accelerate"</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/illuin-tech/colpali.git"</span>,  <span class="co"># </span><span class="al">TODO</span><span class="co">: maybe pin version once pipy updated released inference bug fix</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install requests pdf2image PyPDF2"</span>,</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install python-dotenv"</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'huggingface-cli login --token </span><span class="sc">{</span>os<span class="sc">.</span>environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>]<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    .run_commands(<span class="st">"pip install flash-attn --no-build-isolation"</span>)</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="at">@app.cls</span>(image<span class="op">=</span>image, secrets<span class="op">=</span>[modal.Secret.from_dotenv()], gpu<span class="op">=</span><span class="st">"a10g"</span>, cpu<span class="op">=</span><span class="dv">4</span>, timeout<span class="op">=</span><span class="dv">600</span>, container_idle_timeout<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">@build</span>()</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@enter</span>()</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup(<span class="va">self</span>):</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> typing <span class="im">import</span> cast</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> colpali_engine.models <span class="im">import</span> ColPali</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> colpali_engine.models.paligemma.colpali.processing_colpali <span class="im">import</span> ColPaliProcessor</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> colpali_engine.utils.processing_utils <span class="im">import</span> BaseVisualRetrieverProcessor</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Define adapter name</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>        base_model_name <span class="op">=</span> <span class="st">"vidore/colpaligemma-3b-pt-448-base"</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>        adapter_name <span class="op">=</span> <span class="st">"vidore/colpali-v1.2"</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Load model</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model <span class="op">=</span> ColPali.from_pretrained(</span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>            base_model_name,</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>            torch_dtype<span class="op">=</span>torch.bfloat16,</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>            device_map<span class="op">=</span><span class="st">"cuda"</span>,</span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>        ).<span class="bu">eval</span>()</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model.load_adapter(adapter_name)</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.processor <span class="op">=</span> cast(ColPaliProcessor, ColPaliProcessor.from_pretrained(<span class="st">"google/paligemma-3b-mix-448"</span>))</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(<span class="va">self</span>.processor, BaseVisualRetrieverProcessor):</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Processor should be a BaseVisualRetrieverProcessor"</span>)</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pdf_to_images(<span class="va">self</span>, pdf_url):</span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Function to download and convert PDF url to images</span></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> requests</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> io <span class="im">import</span> BytesIO</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> pdf2image <span class="im">import</span> convert_from_bytes</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Step 1: Download the PDF from the provided URL</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>        response <span class="op">=</span> requests.get(pdf_url)</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> response.status_code <span class="op">!=</span> <span class="dv">200</span>:</span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">Exception</span>(<span class="ss">f"Failed to download PDF from </span><span class="sc">{</span>pdf_url<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Step 2: Convert the PDF into images (in-memory)</span></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>        pdf_bytes <span class="op">=</span> BytesIO(response.content)</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>        images <span class="op">=</span> convert_from_bytes(pdf_bytes.read())</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Step 3: Return the list of PIL images</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> images</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> pil_image_to_data_url(<span class="va">self</span>, pil_image):</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> base64</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> io <span class="im">import</span> BytesIO</span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Convert PIL Image to bytes</span></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>        buffered <span class="op">=</span> BytesIO()</span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>        pil_image.save(buffered, <span class="bu">format</span><span class="op">=</span><span class="st">"PNG"</span>)</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Encode to base64</span></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>        img_str <span class="op">=</span> base64.b64encode(buffered.getvalue()).decode()</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Format as data URL</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"data:image/png;base64,</span><span class="sc">{</span>img_str<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> answer_questions_with_image_context(<span class="va">self</span>, images, queries, idx_top_1):</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>        messages_list <span class="op">=</span> [</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>            [</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"role"</span>: <span class="st">"user"</span>,</span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"content"</span>: [</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>                        {<span class="st">"type"</span>: <span class="st">"image"</span>, <span class="st">"image"</span>: <span class="va">self</span>.pil_image_to_data_url(images[idx_top_1[i]])},</span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>                        {<span class="st">"type"</span>: <span class="st">"text"</span>, <span class="st">"text"</span>: <span class="ss">f"Using the PDF image with the context, answer the following question.</span><span class="ch">\n</span><span class="ss"> </span><span class="sc">{</span>queries[i]<span class="sc">}</span><span class="ss">"</span>},</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>                    ],</span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>            ]</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(queries))</span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>        f <span class="op">=</span> modal.Function.lookup(<span class="st">"qwen2_vl_78_Instruct"</span>, <span class="st">"Model.f"</span>)</span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> f.remote(messages_list)</span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>    <span class="at">@modal.method</span>()</span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> f(<span class="va">self</span>, pdf_url: <span class="bu">str</span>, queries: <span class="bu">list</span>[<span class="bu">str</span>]):</span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> typing <span class="im">import</span> List</span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> colpali_engine.utils.torch_utils <span class="im">import</span> ListDataset</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>        images <span class="op">=</span> <span class="va">self</span>.pdf_to_images(pdf_url)</span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run inference - docs</span></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>        dataloader <span class="op">=</span> DataLoader(</span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a>            dataset<span class="op">=</span>ListDataset[<span class="bu">str</span>](images),</span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>            batch_size<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a>            shuffle<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>            collate_fn<span class="op">=</span><span class="kw">lambda</span> x: <span class="va">self</span>.processor.process_images(x),</span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>        ds: List[torch.Tensor] <span class="op">=</span> []</span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> batch_doc <span class="kw">in</span> tqdm(dataloader):</span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a>                batch_doc <span class="op">=</span> {k: v.to(<span class="va">self</span>.model.device) <span class="cf">for</span> k, v <span class="kw">in</span> batch_doc.items()}</span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>                embeddings_doc <span class="op">=</span> <span class="va">self</span>.model(<span class="op">**</span>batch_doc)</span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a>            ds.extend(<span class="bu">list</span>(torch.unbind(embeddings_doc.to(<span class="st">"cpu"</span>))))</span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run inference - queries</span></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>        dataloader <span class="op">=</span> DataLoader(</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a>            dataset<span class="op">=</span>ListDataset[<span class="bu">str</span>](queries),</span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>            batch_size<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>            shuffle<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>            collate_fn<span class="op">=</span><span class="kw">lambda</span> x: <span class="va">self</span>.processor.process_queries(x),</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>        qs: List[torch.Tensor] <span class="op">=</span> []</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> batch_query <span class="kw">in</span> dataloader:</span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>                batch_query <span class="op">=</span> {k: v.to(<span class="va">self</span>.model.device) <span class="cf">for</span> k, v <span class="kw">in</span> batch_query.items()}</span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>                embeddings_query <span class="op">=</span> <span class="va">self</span>.model(<span class="op">**</span>batch_query)</span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>            qs.extend(<span class="bu">list</span>(torch.unbind(embeddings_query.to(<span class="st">"cpu"</span>))))</span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run scoring</span></span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> <span class="va">self</span>.processor.score(qs, ds).cpu().numpy()</span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a>        idx_top_1 <span class="op">=</span> scores.argmax(axis<span class="op">=-</span><span class="dv">1</span>).tolist()</span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>        results <span class="op">=</span> []</span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>        answers <span class="op">=</span> <span class="va">self</span>.answer_questions_with_image_context(images, queries, idx_top_1)</span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> question, idx, answer <span class="kw">in</span> <span class="bu">zip</span>(queries, idx_top_1, answers):</span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"QUESTION: </span><span class="sc">{</span>question<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"PDF PAGE CONTEXT: </span><span class="sc">{</span>idx<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"ANSWER: </span><span class="sc">{</span>answer<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">"</span>)</span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>            results.append({<span class="st">"question"</span>: question, <span class="st">"answer"</span>: answer, <span class="st">"page"</span>: idx})</span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> results</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a><span class="at">@app.local_entrypoint</span>()</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Need to have the Qwen2-VL-Instruct app deployed to run this:  modal deploy qwen2_vl_78_Instruct.py</span></span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>    model <span class="op">=</span> Model()</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a>    model.f.remote(</span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>        <span class="st">"https://arxiv.org/pdf/1706.03762"</span>,  <span class="co"># Self Attention Paper: Attention is all you need</span></span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Who are the authors of the paper?"</span>,</span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What is the model architecture for the transformer?"</span>,</span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What is the equation for Scaled Dot-Product Attention?"</span>,</span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What Optimizer was used for training?"</span>,</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What was the value used for label smoothing?"</span>,</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a>    model.f.remote(</span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a>        <span class="st">"https://arxiv.org/pdf/2407.01449"</span>,  <span class="co"># ColPali: Efficient Document Retrieval with Vision Language Models</span></span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a>        [</span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What was the size of the training dataset?"</span>,</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Can you summarize the abstract for me please?"</span>,</span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a>            <span class="st">"What is the main contribution of this paper?"</span>,</span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>        ],</span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p>Here was the output from running the code above with <code>modal run colpali.py</code>:</p>
+<pre><code>QUESTION: Who are the authors of the paper?
+PDF PAGE CONTEXT: 0
+ANSWER: ['The authors of the paper are Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia Polosukhin.']
+
+
+QUESTION: What is the model architecture for the transformer?
+PDF PAGE CONTEXT: 2
+ANSWER: ['The model architecture for the transformer is shown in the figure.']
+
+
+QUESTION: What is the equation for Scaled Dot-Product Attention?
+PDF PAGE CONTEXT: 3
+ANSWER: ['The equation for Scaled Dot-Product Attention is:\n\n\\[ \\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V \\]']
+
+
+QUESTION: What Optimizer was used for training?
+PDF PAGE CONTEXT: 6
+ANSWER: ['The Adam optimizer was used for training.']
+
+
+QUESTION: What was the value used for label smoothing?
+PDF PAGE CONTEXT: 7
+ANSWER: ['The value used for label smoothing was εls = 0.1.']</code></pre>
+<p>And the ColPali Paper:</p>
+<pre><code>QUESTION: What was the size of the training dataset?
+PDF PAGE CONTEXT: 4
+ANSWER: ['The training dataset consisted of 127,460 query-page pairs.']
+
+
+QUESTION: Can you summarize the abstract for me please?
+PDF PAGE CONTEXT: 0
+ANSWER: ['The abstract discusses the challenges faced by modern document retrieval systems in efficiently exploiting visual cues for practical applications such as Retrieval Augmented Generation. To address this, the authors introduce the Visual Document Retrieval Benchmark (ViDoRe), which consists of various page-level retrieving tasks spanning multiple domains, languages, and settings. They propose a new retrieval model architecture called ColPali, which leverages the document understanding capabilities of recent Vision Language Models to produce high-quality contextualized embeddings solely from images of document pages. ColPali is combined with a late interaction matching mechanism and is shown to outperform modern document retrieval pipelines while being faster and end-to-end trainable. The authors release all project artifacts and demonstrate the effectiveness of their approach through experiments.']
+
+
+QUESTION: What is the main contribution of this paper?
+PDF PAGE CONTEXT: 1
+ANSWER: ['The main contribution of this paper is the introduction of ColPali, a novel model architecture and training strategy based on Vision Language Models (VLMs) to efficiently index documents purely from their visual features, allowing for subsequent fast query matching with late interaction mechanisms.']
+</code></pre>
+<p>Here is a video of running the inference at 5X the speed.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/RHdj6mg5Pb8" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>This was meant to be a quick demo. There is so much more you could do here such as:</p>
+<ul>
+<li>Using more PDF pages as context.</li>
+<li>Baking in the document inference and caching the embeddings into the container image or startup.</li>
+<li>Making an endpoint out of it where PDFs could be uploaded and then queried.</li>
+</ul>
+</section>
+<section id="concurrent-inputs-on-a-single-container" class="level1">
+<h1>Concurrent inputs on a single container</h1>
+<p>One thing I was wondering about, especially for IO bound tasks like calling endpoints or interacting with databases, is if I could serve requests within a single container. This is something I found later on in the Modal documentation <a href="https://modal.com/docs/guide/concurrent-inputs#when-to-use-concurrent-inputs">here</a>. I thought it was worth calling out here.</p>
+<p>You can set the <code>allow_concurrent_inputs</code> parameter to have concurrent inputs on a single container. You can also use the <code>concurrency_limit</code> to control the maximum number of containers. In some cases this makes sense and is more efficient (and cheaper) then spinning up many containers. As in this simple example below.</p>
+<div class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"concurrent-requests-container"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="at">@app.function</span>(allow_concurrent_inputs<span class="op">=</span><span class="dv">100</span>, concurrency_limit<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blocking_function():</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"running IO bound task"</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    time.sleep(<span class="dv">5</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">42</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="at">@app.function</span>(allow_concurrent_inputs<span class="op">=</span><span class="dv">100</span>, concurrency_limit<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> async_function(i):</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> <span class="cf">await</span> blocking_function.remote.aio()</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">*</span> i</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="at">@app.local_entrypoint</span>()</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blocking_main():</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ret <span class="kw">in</span> async_function.<span class="bu">map</span>(<span class="bu">range</span>(<span class="dv">80</span>)):</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        total <span class="op">+=</span> ret</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(total)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section>
+<section id="finishing-up" class="level1">
+<h1>Finishing Up</h1>
+<p>There is a lot more to explore with Modal and I am even more excited to go build stuff with it. This blog post is just scratching the surface, but I’m also running out of steam when it comes to adding or writing more content. Maybe I will come back and add more examples in the future. I hope you enjoyed it and learned something from it.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

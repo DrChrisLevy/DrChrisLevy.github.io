@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/modal_fun/modal_blog.html",
       "/posts/anthropic/anthropic.html",
       "/posts/bits_and_bytes/bits_bytes.html",
       "/posts/fine_tune_jarvis/fine_tune_jarvis.html",
