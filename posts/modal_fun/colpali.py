@@ -78,6 +78,37 @@ class Model:
         # Step 3: Return the list of PIL images
         return images
 
+    def pil_image_to_data_url(self, pil_image):
+        import base64
+        from io import BytesIO
+
+        # Convert PIL Image to bytes
+        buffered = BytesIO()
+        pil_image.save(buffered, format="PNG")
+
+        # Encode to base64
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+
+        # Format as data URL
+        return f"data:image/png;base64,{img_str}"
+
+    def answer_questions_with_image_context(self, images, queries, idx_top_1):
+        messages_list = [
+            [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image", "image": self.pil_image_to_data_url(images[idx_top_1[i]])},
+                        {"type": "text", "text": f"Using the PDF image with the context, answer the following question.\n {queries[i]}"},
+                    ],
+                }
+            ]
+            for i in range(len(queries))
+        ]
+
+        f = modal.Function.lookup("qwen2_vl_78_Instruct", "Model.f")
+        return f.remote(messages_list)
+
     @modal.method()
     def f(self, pdf_url: str, queries: list[str]):
         from typing import List
@@ -120,14 +151,38 @@ class Model:
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
-        idx_top_1 = scores.argmax(axis=-1)
-        return idx_top_1.tolist()
+        idx_top_1 = scores.argmax(axis=-1).tolist()
+
+        results = []
+        answers = self.answer_questions_with_image_context(images, queries, idx_top_1)
+        for question, idx, answer in zip(queries, idx_top_1, answers):
+            print(f"QUESTION: {question}")
+            print(f"PDF PAGE CONTEXT: {idx}")
+            print(f"ANSWER: {answer}\n\n")
+            results.append({"question": question, "answer": answer, "page": idx})
+        return results
 
 
 @app.local_entrypoint()
 def main():
+    # Need to have the Qwen2-VL-Instruct app deployed to run this:  modal deploy qwen2_vl_78_Instruct.py
     model = Model()
     model.f.remote(
-        "https://arxiv.org/pdf/1706.03762",
-        ["Who are the authors of the paper?", "What is the formula for self attention?", "What Optimizer was used for training?"],
+        "https://arxiv.org/pdf/1706.03762",  # Self Attention Paper: Attention is all you need
+        [
+            "Who are the authors of the paper?",
+            "What is the model architecture for the transformer?",
+            "What is the equation for Scaled Dot-Product Attention?",
+            "What Optimizer was used for training?",
+            "What was the value used for label smoothing?",
+        ],
+    )
+
+    model.f.remote(
+        "https://arxiv.org/pdf/2407.01449",  # ColPali: Efficient Document Retrieval with Vision Language Models
+        [
+            "What was the size of the training dataset?",
+            "Can you summarize the abstract for me please?",
+            "What is the main contribution of this paper?",
+        ],
     )
