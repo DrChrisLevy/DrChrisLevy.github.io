@@ -708,7 +708,7 @@ def run_torch():
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124"</span>,</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/huggingface/transformers"</span>,</span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install accelerate"</span>,</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/illuin-tech/colpali.git"</span>,  <span class="co"># </span><span class="al">TODO</span><span class="co">: maybe pin version once pipy updated released inference bug fix</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install git+https://github.com/illuin-tech/colpali.git"</span>,</span>
 <span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install requests pdf2image PyPDF2"</span>,</span>
 <span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install python-dotenv"</span>,</span>
 <span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'huggingface-cli login --token </span><span class="sc">{</span>os<span class="sc">.</span>environ[<span class="st">"HUGGING_FACE_ACCESS_TOKEN"</span>]<span class="sc">}</span><span class="ss">'</span>,</span>
@@ -926,7 +926,7 @@ ANSWER: ['The main contribution of this paper is the introduction of ColPali, a 
 <h1>Concurrent inputs on a single container</h1>
 <p>One thing I was wondering about, especially for IO bound tasks like calling endpoints or interacting with databases, is if I could serve requests within a single container. This is something I found later on in the Modal documentation <a href="https://modal.com/docs/guide/concurrent-inputs#when-to-use-concurrent-inputs">here</a>. I thought it was worth calling out here.</p>
 <p>You can set the <code>allow_concurrent_inputs</code> parameter to have concurrent inputs on a single container. You can also use the <code>concurrency_limit</code> to control the maximum number of containers. In some cases this makes sense and is more efficient (and cheaper) then spinning up many containers. As in this simple example below.</p>
-<div class="cell" data-execution_count="8">
+<div class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
