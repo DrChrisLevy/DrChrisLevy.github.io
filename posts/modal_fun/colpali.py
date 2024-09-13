@@ -60,30 +60,35 @@ class Model:
         if not isinstance(self.processor, BaseVisualRetrieverProcessor):
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
-    @modal.method()
-    def f(self):
-        import os
-        import pprint
+    def pdf_to_images(self, pdf_url):
+        # Function to download and convert PDF url to images
+        import requests
+        from io import BytesIO
+        from pdf2image import convert_from_bytes
 
-        os.system("pip install datasets")
-        from typing import List, cast
+        # Step 1: Download the PDF from the provided URL
+        response = requests.get(pdf_url)
+        if response.status_code != 200:
+            raise Exception(f"Failed to download PDF from {pdf_url}")
+
+        # Step 2: Convert the PDF into images (in-memory)
+        pdf_bytes = BytesIO(response.content)
+        images = convert_from_bytes(pdf_bytes.read())
+
+        # Step 3: Return the list of PIL images
+        return images
+
+    @modal.method()
+    def f(self, pdf_url: str, queries: list[str]):
+        from typing import List
 
         import torch
-        from datasets import Dataset, load_dataset
         from torch.utils.data import DataLoader
         from tqdm import tqdm
 
         from colpali_engine.utils.torch_utils import ListDataset
 
-        # NOTE: Only the first 16 images are used for demonstration purposes
-        dataset = cast(Dataset, load_dataset("vidore/docvqa_test_subsampled", split="test[:16]"))
-        images = dataset["image"]
-
-        # Select a few queries for demonstration purposes
-        query_indices = [12, 15]
-        queries = [dataset[idx]["query"] for idx in query_indices]
-        print("Selected queries:")
-        pprint.pprint(dict(zip(query_indices, queries)))
+        images = self.pdf_to_images(pdf_url)
 
         # Run inference - docs
         dataloader = DataLoader(
@@ -106,7 +111,6 @@ class Model:
             shuffle=False,
             collate_fn=lambda x: self.processor.process_queries(x),
         )
-
         qs: List[torch.Tensor] = []
         for batch_query in dataloader:
             with torch.no_grad():
@@ -117,17 +121,13 @@ class Model:
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
         idx_top_1 = scores.argmax(axis=-1)
-        print("Indices of the top-1 retrieved documents for each query:", idx_top_1)
-
-        # Sanity check
-        if idx_top_1.tolist() == query_indices:
-            print("The top-1 retrieved documents are correct.")
-        else:
-            print("The top-1 retrieved documents are incorrect.")
-        return
+        return idx_top_1.tolist()
 
 
 @app.local_entrypoint()
 def main():
     model = Model()
-    model.f.remote()
+    model.f.remote(
+        "https://arxiv.org/pdf/1706.03762",
+        ["Who are the authors of the paper?", "What is the formula for self attention?", "What Optimizer was used for training?"],
+    )
