@@ -22,7 +22,7 @@ image = (
         "pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124",
         "pip install git+https://github.com/huggingface/transformers",
         "pip install accelerate",
-        "pip install git+https://github.com/illuin-tech/colpali.git",  # TODO: maybe pin version once pipy updated released inference bug fix
+        "pip install git+https://github.com/illuin-tech/colpali.git",
         "pip install requests pdf2image PyPDF2",
         "pip install python-dotenv",
         f'huggingface-cli login --token {os.environ["HUGGING_FACE_ACCESS_TOKEN"]}',
