@@ -27,7 +27,7 @@ def home():
     add = Form(Group(inp, Button("Generate")), hx_post="/", target_id="gen-list", hx_swap="afterbegin")
     gen_containers = [generation_preview(g) for g in gens(limit=10)]  # Start with last 10
     gen_list = Div(*reversed(gen_containers), id="gen-list", cls="row")  # flexbox container: class = row
-    return Title("Image Generation Demo"), Main(H1("Magic Image Generation"), add, gen_list, cls="container")
+    return Title("Image Generation Demo"), Main(H1("Image Generation"), add, gen_list, cls="container")
 
 
 # Show the image (if available) and prompt for a generation
@@ -82,7 +82,6 @@ def generate_and_save(prompt, id, folder):
     import base64
     import os
 
-    os.makedirs("gens", exist_ok=True)
     # Your API endpoint URL
     API_URL = "https://drchrislevy--black-forest-labs-flux-model-f.modal.run/"  # Replace with your actual Modal app URL
 
