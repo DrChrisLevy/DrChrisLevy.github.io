@@ -16,7 +16,7 @@ def main():
             "modal_island"
         ],
         "num_inference_steps": 4,
-        "guidance_scale": 5,
+        "guidance_scale": 3.5,
     }
 
     # Make the API request
