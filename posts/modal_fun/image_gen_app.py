@@ -25,7 +25,7 @@ app = FastHTML(hdrs=(picolink, gridlink))
 def home():
     inp = Input(id="new-prompt", name="prompt", placeholder="Enter a prompt")
     add = Form(Group(inp, Button("Generate")), hx_post="/", target_id="gen-list", hx_swap="afterbegin")
-    gen_containers = [generation_preview(g) for g in gens(limit=10)]  # Start with last 10
+    gen_containers = [generation_preview(g) for g in gens(limit=20)]  # Start with last 20
     gen_list = Div(*reversed(gen_containers), id="gen-list", cls="row")  # flexbox container: class = row
     return Title("Image Generation Demo"), Main(H1("Image Generation"), add, gen_list, cls="container")
 
