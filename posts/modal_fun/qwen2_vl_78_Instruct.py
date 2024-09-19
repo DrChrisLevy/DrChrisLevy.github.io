@@ -58,7 +58,7 @@ class Model:
         self.streamer = TextStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
 
     @modal.method()
-    def f(self, messages_list, max_new_tokens=256, show_stream=False):
+    def f(self, messages_list, max_new_tokens=512, show_stream=False):
         from qwen_vl_utils import process_vision_info
 
         def messages_inference(messages):
