@@ -61,6 +61,8 @@ class Model:
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
     def pdf_to_images(self, pdf_url):
+        # if pdf_url in PDF_IMAGES:
+        #     return PDF_IMAGES[pdf_url]
         # Function to download and convert PDF url to images
         import requests
         from io import BytesIO
@@ -158,46 +160,3 @@ class Model:
             print(f"ANSWER: {answer}\n\n")
             results.append({"question": question, "answer": answer, "pages": idxs})
         return results
-
-
-@app.local_entrypoint()
-def main():
-    # Need to have the Qwen2-VL-Instruct app deployed to run this:  modal deploy qwen2_vl_78_Instruct.py
-    model = Model()
-    model.f.remote(
-        "https://arxiv.org/pdf/1706.03762",  # Self Attention Paper: Attention is all you need
-        [
-            "Who are the authors of the paper?",
-            "What is the model architecture for the transformer?",
-            "What is the equation for Scaled Dot-Product Attention?",
-            "What Optimizer was used for training?",
-            "What was the value used for label smoothing?",
-        ],
-    )
-
-    model.f.remote(
-        "https://arxiv.org/pdf/2407.01449",  # ColPali: Efficient Document Retrieval with Vision Language Models
-        [
-            "What was the size of the training dataset?",
-            "Can you summarize the abstract for me please?",
-            "What is the main contribution of this paper?",
-        ],
-    )
-
-    s3_bucket = os.environ["S3_BUCKET"]  # where my images are hosted
-    s3_prefix = os.environ["S3_PREFIX"]  # where my images are hosted
-    model.f.remote(
-        f"https://{s3_bucket}.s3.amazonaws.com/{s3_prefix}merged.pdf",
-        [
-            "How is the average engagement rate calculated on LinkedIn?",
-            "How is total engagements calculated on Pinterest?",
-            "How is total engagements calculated on Instagram?",
-            "What is the entertainment score and how is it calculated?",
-            "What was the change in total followers on Instagram for Nike?",
-            "What day was there a spike in avg engagement rate for Spotify on Instagram?",
-            "What differences can you call out between the top and lowest performing posts for NBA on Instagram in terms of visual content?",
-            "What was the top performing post by Nike on Instagram about on March 25?",
-            "what was the top performing post for BMW?",
-            "What was the lady eating in the top post for All Recipes on Pinterest? Where was it bought from?",
-        ],
-    )

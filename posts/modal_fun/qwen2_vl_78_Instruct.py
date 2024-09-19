@@ -136,9 +136,8 @@ def main():
         ],
     ]
 
-    print("Testing Single Inference with show_stream=True")
-    print(model.f.remote(messages_list[1:2], max_new_tokens=1000, show_stream=True))
-
     print("Testing Multiple Container with show_stream=False")
     for res in model.f.starmap([(messages_list[:1], 1000, False), (messages_list[1:2], 1000, False), (messages_list[2:3], 1000, False)]):
-        print(res)
+        for r in res:
+            print(r)
+            print("\n\n-----------------------------------------------------------\n\n")
