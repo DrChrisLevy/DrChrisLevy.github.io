@@ -31,7 +31,7 @@ image = (
 )
 
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu="a10g", cpu=4, timeout=600, container_idle_timeout=300)
+@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=600, container_idle_timeout=300)
 class Model:
     @build()
     @enter()
@@ -92,39 +92,35 @@ class Model:
         # Format as data URL
         return f"data:image/png;base64,{img_str}"
 
-    def answer_questions_with_image_context(self, images, queries, idx_top_1):
-        messages_list = [
-            [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "image", "image": self.pil_image_to_data_url(images[idx_top_1[i]])},
-                        {"type": "text", "text": f"Using the PDF image with the context, answer the following question.\n {queries[i]}"},
-                    ],
-                }
-            ]
-            for i in range(len(queries))
-        ]
+    def answer_questions_with_image_context(self, images, queries, idxs_top_k):
+        messages_list = []
+
+        for i, idxs in enumerate(idxs_top_k):
+            query = queries[i]
+            content = [{"type": "image", "image": self.pil_image_to_data_url(images[idx])} for idx in idxs]
+            content.append({"type": "text", "text": f"Using the provided image(s) as context, answer the following question.\n {query}"})
+            messages_list.append([{"role": "user", "content": content}])
 
         f = modal.Function.lookup("qwen2_vl_78_Instruct", "Model.f")
         return f.remote(messages_list)
 
     @modal.method()
-    def f(self, pdf_url: str, queries: list[str]):
+    def f(self, pdf_url: str, queries: list[str], top_k=5):
         from typing import List
-
         import torch
         from torch.utils.data import DataLoader
         from tqdm import tqdm
 
+        import numpy as np
+
         from colpali_engine.utils.torch_utils import ListDataset
 
         images = self.pdf_to_images(pdf_url)
-
+        batch_size = 8
         # Run inference - docs
         dataloader = DataLoader(
             dataset=ListDataset[str](images),
-            batch_size=4,
+            batch_size=batch_size,
             shuffle=False,
             collate_fn=lambda x: self.processor.process_images(x),
         )
@@ -138,7 +134,7 @@ class Model:
         # Run inference - queries
         dataloader = DataLoader(
             dataset=ListDataset[str](queries),
-            batch_size=4,
+            batch_size=batch_size,
             shuffle=False,
             collate_fn=lambda x: self.processor.process_queries(x),
         )
@@ -151,15 +147,16 @@ class Model:
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
-        idx_top_1 = scores.argmax(axis=-1).tolist()
+        # The top k indices for each query
+        idxs_top_k = np.argsort(scores, axis=-1)[:, -top_k:][:, ::-1].tolist()
 
         results = []
-        answers = self.answer_questions_with_image_context(images, queries, idx_top_1)
-        for question, idx, answer in zip(queries, idx_top_1, answers):
+        answers = self.answer_questions_with_image_context(images, queries, idxs_top_k)
+        for question, idxs, answer in zip(queries, idxs_top_k, answers):
             print(f"QUESTION: {question}")
-            print(f"PDF PAGE CONTEXT: {idx}")
+            print(f"PDF PAGES USED FOR CONTEXT: {idxs}")
             print(f"ANSWER: {answer}\n\n")
-            results.append({"question": question, "answer": answer, "page": idx})
+            results.append({"question": question, "answer": answer, "pages": idxs})
         return results
 
 
@@ -184,5 +181,22 @@ def main():
             "What was the size of the training dataset?",
             "Can you summarize the abstract for me please?",
             "What is the main contribution of this paper?",
+        ],
+    )
+
+    s3_bucket = os.environ["S3_BUCKET"]  # where my images are hosted
+    s3_prefix = os.environ["S3_PREFIX"]  # where my images are hosted
+    model.f.remote(
+        f"https://{s3_bucket}.s3.amazonaws.com/{s3_prefix}merged.pdf",
+        [
+            "How is the average engagement rate calculated on LinkedIn?",
+            "How is total engagements calculated on Pinterest?",
+            "How is total engagements calculated on Instagram?",
+            "What was the change in total followers on Instagram for Nike?",
+            "What day was there a spike in follower growth rate for NBA on Instagram?",
+            "What day was there a spike in avg engagement rate for Spotify on Instagram?",
+            "What differences can you call out between the top and lowest performing posts for NBA on Instagram in terms of visual content?",
+            "What was the top performing post by Nike on Instagram about on March 25?",
+            "What brand was featured in the top posts for All Recipes on Pinterest?",
         ],
     )
