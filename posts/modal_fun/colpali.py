@@ -105,7 +105,7 @@ class Model:
         return f.remote(messages_list)
 
     @modal.method()
-    def f(self, pdf_url: str, queries: list[str], top_k=5):
+    def f(self, pdf_url: str, queries: list[str], top_k=3):
         from typing import List
         import torch
         from torch.utils.data import DataLoader
@@ -192,11 +192,11 @@ def main():
             "How is the average engagement rate calculated on LinkedIn?",
             "How is total engagements calculated on Pinterest?",
             "How is total engagements calculated on Instagram?",
+            "What is the entertainment score and how is it calculated?",
             "What was the change in total followers on Instagram for Nike?",
-            "What day was there a spike in follower growth rate for NBA on Instagram?",
             "What day was there a spike in avg engagement rate for Spotify on Instagram?",
             "What differences can you call out between the top and lowest performing posts for NBA on Instagram in terms of visual content?",
             "What was the top performing post by Nike on Instagram about on March 25?",
-            "What brand was featured in the top posts for All Recipes on Pinterest?",
+            "What was the lady eating in the top post for All Recipes on Pinterest?" "what was the top performing post for BMW?",
         ],
     )
