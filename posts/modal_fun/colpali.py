@@ -197,6 +197,7 @@ def main():
             "What day was there a spike in avg engagement rate for Spotify on Instagram?",
             "What differences can you call out between the top and lowest performing posts for NBA on Instagram in terms of visual content?",
             "What was the top performing post by Nike on Instagram about on March 25?",
-            "What was the lady eating in the top post for All Recipes on Pinterest?" "what was the top performing post for BMW?",
+            "what was the top performing post for BMW?",
+            "What was the lady eating in the top post for All Recipes on Pinterest? Where was it bought from?",
         ],
     )
