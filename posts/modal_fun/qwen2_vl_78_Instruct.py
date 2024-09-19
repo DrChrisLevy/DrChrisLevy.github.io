@@ -30,7 +30,7 @@ image = (
 )
 
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu="a100", cpu=4, timeout=600, container_idle_timeout=300)
+@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=600, container_idle_timeout=300)
 class Model:
     @build()
     @enter()
