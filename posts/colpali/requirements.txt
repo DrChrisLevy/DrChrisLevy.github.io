@@ -1,3 +1,4 @@
 python-fasthtml
 modal
 notebook
+pytest
