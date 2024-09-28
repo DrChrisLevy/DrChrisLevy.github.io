@@ -3,3 +3,4 @@ modal
 notebook
 pytest
 pytest-xdist
+torch

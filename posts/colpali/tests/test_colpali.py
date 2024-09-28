@@ -2,6 +2,7 @@ from typing import List
 
 import modal
 import pytest
+import torch
 
 TEST_CASES = [
     (
@@ -38,7 +39,7 @@ TEST_CASES = [
 
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
-def test_colpali_no_cache(url: str, questions: List[str], expected_indices: List[int]):
+def test_top_pages_no_cache(url: str, questions: List[str], expected_indices: List[int]):
     top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
 
     results = top_pages.remote(url, questions, use_cache=False)
@@ -47,10 +48,29 @@ def test_colpali_no_cache(url: str, questions: List[str], expected_indices: List
 
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
-def test_colpali_cache(url: str, questions: List[str], expected_indices: List[int]):
+def test_top_pages_cache(url: str, questions: List[str], expected_indices: List[int]):
     top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
 
     # Test with use_cache=True
     results = top_pages.remote(url, questions, use_cache=True)
     actual_indices = [a[0] for a in results]
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
+
+
+def test_forward_strings():
+    forward = modal.Function.lookup("colpali", "ColPaliModel.forward")
+    t1 = "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at least once. Pangrams are often used to display fonts or test equipment. In typography, they're particularly useful for displaying the characteristics of a font."
+    t2 = "Hello Friend, how are you?"
+    t3 = "Hello"
+    t4 = "1"
+    res = forward.remote([t1])
+    assert [r.shape for r in res] == [torch.Size([66, 128])]
+
+    res = forward.remote([t2])
+    assert [r.shape for r in res] == [torch.Size([21, 128])]
+
+    res = forward.remote([t3])
+    assert [r.shape for r in res] == [torch.Size([15, 128])]
+
+    res = forward.remote([t1, t2, t3, t4])
+    assert [r.shape for r in res] == [torch.Size([66, 128]), torch.Size([66, 128]), torch.Size([66, 128]), torch.Size([66, 128])]

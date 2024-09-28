@@ -68,6 +68,7 @@ class ColPaliModel:
         if not isinstance(self.processor, BaseVisualRetrieverProcessor):
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
+    @modal.method()
     def forward(self, inputs):
         import torch
         from colpali_engine.utils.torch_utils import ListDataset
@@ -101,11 +102,11 @@ class ColPaliModel:
         ds = self.load_cached_data(pdf_url, "embeddings") if use_cache else None
         if ds is None:
             images = self.pdf_to_images(pdf_url)
-            ds = self.forward(images)
+            ds = self.forward.local(images)
             self.cache_embeddings(pdf_url, ds)
 
         # Run inference - queries
-        qs = self.forward(queries)
+        qs = self.forward.local(queries)
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
