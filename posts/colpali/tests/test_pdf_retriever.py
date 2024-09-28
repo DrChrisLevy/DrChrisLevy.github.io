@@ -57,6 +57,20 @@ def test_top_pages_cache(url: str, questions: List[str], expected_indices: List[
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
 
 
+def test_top_pages_top_k():
+    top_pages = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
+    results = top_pages.remote(
+        "https://arxiv.org/pdf/2305.07759",
+        ["How many parameters do the models have when trained on TinyStories dataset?", "What is the name of the dataset?"],
+        use_cache=True,
+        top_k=4,
+    )
+    assert len(results) == 2
+    assert len(results[0]) == len(results[1]) == 4
+    assert 4 in results[1]
+    assert 3 in results[0]
+
+
 def test_forward_strings():
     forward = modal.Function.lookup("pdf-retriever", "PDFRetriever.forward")
     t1 = "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at least once. Pangrams are often used to display fonts or test equipment. In typography, they're particularly useful for displaying the characteristics of a font."
