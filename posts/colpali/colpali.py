@@ -69,7 +69,7 @@ class ColPaliModel:
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
     @modal.method()
-    def top_pages(self, pdf_url: str, queries: list[str], top_k=2):
+    def top_pages(self, pdf_url: str, queries: list[str], top_k=2, use_cache=True):
         import numpy as np
         import torch
         from colpali_engine.utils.torch_utils import ListDataset
@@ -81,7 +81,7 @@ class ColPaliModel:
         # Check if cached embeddings exist
         cache_dir = self.generate_unique_folder_name(pdf_url)
         embeddings_cache_path = os.path.join("/data/embeddings", f"{cache_dir}_embeddings.pkl")
-        if os.path.exists(embeddings_cache_path):
+        if os.path.exists(embeddings_cache_path) and use_cache:
             print("Loading cached embeddings...")
             with open(embeddings_cache_path, "rb") as f:
                 ds = pickle.load(f)

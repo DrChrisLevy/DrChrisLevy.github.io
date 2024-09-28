@@ -38,8 +38,19 @@ TEST_CASES = [
 
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
-def test_colpali(url: str, questions: List[str], expected_indices: List[int]):
+def test_colpali_no_cache(url: str, questions: List[str], expected_indices: List[int]):
     top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
-    results = top_pages.remote(url, questions)
+
+    results = top_pages.remote(url, questions, use_cache=False)
+    actual_indices = [a[0] for a in results]
+    assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
+
+
+@pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
+def test_colpali_cache(url: str, questions: List[str], expected_indices: List[int]):
+    top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
+
+    # Test with use_cache=True
+    results = top_pages.remote(url, questions, use_cache=True)
     actual_indices = [a[0] for a in results]
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
