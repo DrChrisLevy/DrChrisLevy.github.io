@@ -97,15 +97,9 @@ class ColPaliModel:
     def top_pages(self, pdf_url: str, queries: list[str], top_k=2, use_cache=True):
         import numpy as np
 
-        # Check if cached embeddings exist
-        cache_dir = self.generate_unique_folder_name(pdf_url)
-        embeddings_cache_path = os.path.join("/data/embeddings", f"{cache_dir}_embeddings.pkl")
-        if os.path.exists(embeddings_cache_path) and use_cache:
-            print("Loading cached embeddings...")
-            with open(embeddings_cache_path, "rb") as f:
-                ds = pickle.load(f)
-        else:
-            # Run inference - docs
+        # Run inference - PDF pages
+        ds = self.load_cached_data(pdf_url, "embeddings") if use_cache else None
+        if ds is None:
             images = self.pdf_to_images(pdf_url)
             ds = self.forward(images)
             self.cache_embeddings(pdf_url, ds)
@@ -174,39 +168,56 @@ class ColPaliModel:
         return f"{base_name}_{url_hash[:8]}"
 
     def cache_pdf_images(self, pdf_url: str, images: list):
-        vol.reload()
-        cache_dir = f"/data/pdf_images/{self.generate_unique_folder_name(pdf_url)}"
-        if os.path.exists(cache_dir):
-            print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
-            return
-        os.makedirs(cache_dir, exist_ok=True)
+        self.cache_data(pdf_url, images, "pdf_images")
 
-        # Save each image with a name corresponding to its page index
+    def cache_embeddings(self, pdf_url: str, embeddings):
+        self.cache_data(pdf_url, embeddings, "embeddings")
+
+    def cache_data(self, pdf_url: str, data, data_type: str):
+        vol.reload()
+        cache_dir = self.generate_unique_folder_name(pdf_url)
+        cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
+
+        if os.path.exists(cache_path):
+            print(f"Cache already exists for {pdf_url}. Skipping {data_type} caching.")
+            return
+
+        os.makedirs(cache_path, exist_ok=True)
+
+        start_time = time.time()
+        if data_type == "pdf_images":
+            self._save_images(data, cache_path)
+        elif data_type == "embeddings":
+            self._save_embeddings(data, cache_path)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"{data_type.capitalize()} caching time: {execution_time:.2f} seconds")
+        vol.commit()
+
+    def _save_images(self, images, cache_dir):
         def save_image(args):
             index, image = args
             image_path = os.path.join(cache_dir, f"{index}.png")
             image.save(image_path, "PNG")
 
-        # Use ThreadPoolExecutor to save images in parallel
         with ThreadPoolExecutor(max_workers=8) as executor:
             executor.map(save_image, enumerate(images))
-        vol.commit()
 
-    def cache_embeddings(self, pdf_url: str, embeddings):
+    def _save_embeddings(self, embeddings, cache_path):
+        with open(os.path.join(cache_path, "embeddings.pkl"), "wb") as f:
+            pickle.dump(embeddings, f)
+
+    def load_cached_data(self, pdf_url: str, data_type: str):
         vol.reload()
         cache_dir = self.generate_unique_folder_name(pdf_url)
-        embeddings_cache_path = os.path.join("/data/embeddings", f"{cache_dir}_embeddings.pkl")
+        cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
 
-        if os.path.exists(embeddings_cache_path):
-            print(f"Cache directory already exists for {pdf_url}. Skipping embeddings caching.")
-            return
-
-        os.makedirs(os.path.dirname(embeddings_cache_path), exist_ok=True)
-
-        start_time = time.time()
-        with open(embeddings_cache_path, "wb") as f:
-            pickle.dump(embeddings, f)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"Embeddings caching time: {execution_time:.2f} seconds")
-        vol.commit()
+        if os.path.exists(cache_path):
+            print(f"Loading cached {data_type}...")
+            if data_type == "embeddings":
+                with open(os.path.join(cache_path, "embeddings.pkl"), "rb") as f:
+                    return pickle.load(f)
+            elif data_type == "pdf_images":
+                # You might want to implement image loading here if needed
+                pass
+        return None
