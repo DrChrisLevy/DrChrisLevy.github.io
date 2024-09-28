@@ -42,7 +42,7 @@ image = (
 vol = modal.Volume.from_name("colpali-volume", create_if_missing=True)
 
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=300)
+@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=60)
 class ColPaliModel:
     @build()
     @enter()
