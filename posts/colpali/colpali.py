@@ -167,8 +167,6 @@ class ColPaliModel:
 
     def cache_pdf_images(self, pdf_url: str, images: list):
         vol.reload()
-
-        # Create a directory for caching if it doesn't exist
         cache_dir = f"/data/pdf_images/{self.generate_unique_folder_name(pdf_url)}"
         # Check if the directory already exists
         if os.path.exists(cache_dir):
