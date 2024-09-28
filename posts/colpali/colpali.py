@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import os
+import pickle
 import time
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
@@ -75,21 +76,32 @@ class ColPaliModel:
         from torch.utils.data import DataLoader
         from tqdm import tqdm
 
-        images = self.pdf_to_images(pdf_url)
         batch_size = 8
-        # Run inference - docs
-        dataloader = DataLoader(
-            dataset=ListDataset[str](images),
-            batch_size=batch_size,
-            shuffle=False,
-            collate_fn=lambda x: self.processor.process_images(x),
-        )
-        ds: List[torch.Tensor] = []
-        for batch_doc in tqdm(dataloader):
-            with torch.no_grad():
-                batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
-                embeddings_doc = self.model(**batch_doc)
-            ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
+
+        # Check if cached embeddings exist
+        cache_dir = self.generate_unique_folder_name(pdf_url)
+        embeddings_cache_path = os.path.join("/data/embeddings", f"{cache_dir}_embeddings.pkl")
+        if os.path.exists(embeddings_cache_path):
+            print("Loading cached embeddings...")
+            with open(embeddings_cache_path, "rb") as f:
+                ds = pickle.load(f)
+        else:
+            # Run inference - docs
+            images = self.pdf_to_images(pdf_url)
+            dataloader = DataLoader(
+                dataset=ListDataset[str](images),
+                batch_size=batch_size,
+                shuffle=False,
+                collate_fn=lambda x: self.processor.process_images(x),
+            )
+            ds: List[torch.Tensor] = []
+            for batch_doc in tqdm(dataloader):
+                with torch.no_grad():
+                    batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
+                    embeddings_doc = self.model(**batch_doc)
+                ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
+            # Cache the embeddings
+            self.cache_embeddings(pdf_url, ds)
 
         # Run inference - queries
         dataloader = DataLoader(
@@ -168,10 +180,9 @@ class ColPaliModel:
     def cache_pdf_images(self, pdf_url: str, images: list):
         vol.reload()
         cache_dir = f"/data/pdf_images/{self.generate_unique_folder_name(pdf_url)}"
-        # Check if the directory already exists
-        # if os.path.exists(cache_dir):
-        #     print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
-        #     return cache_dir
+        if os.path.exists(cache_dir):
+            print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
+            return
         os.makedirs(cache_dir, exist_ok=True)
 
         # Save each image with a name corresponding to its page index
@@ -183,4 +194,23 @@ class ColPaliModel:
         # Use ThreadPoolExecutor to save images in parallel
         with ThreadPoolExecutor(max_workers=8) as executor:
             executor.map(save_image, enumerate(images))
+        vol.commit()
+
+    def cache_embeddings(self, pdf_url: str, embeddings):
+        vol.reload()
+        cache_dir = self.generate_unique_folder_name(pdf_url)
+        embeddings_cache_path = os.path.join("/data/embeddings", f"{cache_dir}_embeddings.pkl")
+
+        if os.path.exists(embeddings_cache_path):
+            print(f"Cache directory already exists for {pdf_url}. Skipping embeddings caching.")
+            return
+
+        os.makedirs(os.path.dirname(embeddings_cache_path), exist_ok=True)
+
+        start_time = time.time()
+        with open(embeddings_cache_path, "wb") as f:
+            pickle.dump(embeddings, f)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Embeddings caching time: {execution_time:.2f} seconds")
         vol.commit()

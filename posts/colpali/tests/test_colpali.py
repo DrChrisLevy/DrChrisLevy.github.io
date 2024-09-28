@@ -29,6 +29,11 @@ TEST_CASES = [
         ["How many jelly beans did the jar contain", "What's a good haircut that looks great on everybody"],
         [56, 58],
     ),
+    (
+        "https://arxiv.org/pdf/2004.12832",
+        ["What is the general architecture of ColBERT given a query q and a document d?"],
+        [2],
+    ),
 ]
 
 
