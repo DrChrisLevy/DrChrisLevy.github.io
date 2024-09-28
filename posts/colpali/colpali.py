@@ -1,9 +1,14 @@
-import modal
-from modal import build, enter
+import base64
+import hashlib
 import os
-from dotenv import load_dotenv
-from concurrent.futures import ThreadPoolExecutor
 import time
+from concurrent.futures import ThreadPoolExecutor
+from io import BytesIO
+from typing import List, cast
+
+import modal
+from dotenv import load_dotenv
+from modal import build, enter
 
 load_dotenv()
 app = modal.App("colpali")
@@ -33,16 +38,15 @@ image = (
     .pip_install("pdf2image", "PyPDF2", "Pillow", "requests")
 )
 
+vol = modal.Volume.from_name("colpali-volume", create_if_missing=True)
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu="a10g", cpu=4, timeout=600, container_idle_timeout=300)
+
+@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=300)
 class ColPaliModel:
     @build()
     @enter()
     def setup(self):
-        from typing import cast
-
         import torch
-
         from colpali_engine.models import ColPali
         from colpali_engine.models.paligemma.colpali.processing_colpali import ColPaliProcessor
         from colpali_engine.utils.processing_utils import BaseVisualRetrieverProcessor
@@ -65,14 +69,11 @@ class ColPaliModel:
 
     @modal.method()
     def top_pages(self, pdf_url: str, queries: list[str], top_k=2):
-        from typing import List
+        import numpy as np
         import torch
+        from colpali_engine.utils.torch_utils import ListDataset
         from torch.utils.data import DataLoader
         from tqdm import tqdm
-
-        import numpy as np
-
-        from colpali_engine.utils.torch_utils import ListDataset
 
         images = self.pdf_to_images(pdf_url)
         batch_size = 8
@@ -112,7 +113,6 @@ class ColPaliModel:
 
     def pdf_to_images(self, pdf_url):
         import requests
-        from io import BytesIO
         from pdf2image import convert_from_bytes, pdfinfo_from_bytes
 
         start_time = time.time()
@@ -137,12 +137,14 @@ class ColPaliModel:
         execution_time = end_time - start_time
         print(f"PDF processing time: {execution_time:.2f} seconds")
 
+        start_time = time.time()
+        self.cache_pdf_images(pdf_url, images)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"PDF caching time: {execution_time:.2f} seconds")
         return images
 
     def pil_image_to_data_url(self, pil_image):
-        import base64
-        from io import BytesIO
-
         # Convert PIL Image to bytes
         buffered = BytesIO()
         pil_image.save(buffered, format="PNG")
@@ -152,3 +154,29 @@ class ColPaliModel:
 
         # Format as data URL
         return f"data:image/png;base64,{img_str}"
+
+    def generate_unique_folder_name(self, pdf_url: str) -> str:
+        # Create a hash of the URL
+        url_hash = hashlib.md5(pdf_url.encode()).hexdigest()
+        # Get the last part of the URL as the filename
+        original_filename = os.path.basename(pdf_url)
+        # Remove the file extension if present
+        base_name = os.path.splitext(original_filename)[0]
+        # Combine the base name and hash
+        return f"{base_name}_{url_hash[:8]}"
+
+    def cache_pdf_images(self, pdf_url: str, images: list):
+        vol.reload()
+
+        # Create a directory for caching if it doesn't exist
+        cache_dir = f"/data/pdf_images/{self.generate_unique_folder_name(pdf_url)}"
+        # Check if the directory already exists
+        if os.path.exists(cache_dir):
+            print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
+            return cache_dir
+        os.makedirs(cache_dir, exist_ok=True)
+        # Save each image with a name corresponding to its page index
+        for index, image in enumerate(images):
+            image_path = os.path.join(cache_dir, f"{index}.png")
+            image.save(image_path, "PNG")
+        vol.commit()

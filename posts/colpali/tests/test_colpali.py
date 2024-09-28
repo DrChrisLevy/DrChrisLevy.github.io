@@ -1,6 +1,7 @@
-import pytest
-import modal
 from typing import List
+
+import modal
+import pytest
 
 TEST_CASES = [
     (
