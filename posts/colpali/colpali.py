@@ -68,15 +68,34 @@ class ColPaliModel:
         if not isinstance(self.processor, BaseVisualRetrieverProcessor):
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
-    @modal.method()
-    def top_pages(self, pdf_url: str, queries: list[str], top_k=2, use_cache=True):
-        import numpy as np
+    def forward(self, inputs):
         import torch
         from colpali_engine.utils.torch_utils import ListDataset
         from torch.utils.data import DataLoader
         from tqdm import tqdm
 
+        if type(inputs[0]) == str:
+            process_fn = self.processor.process_queries
+        else:
+            process_fn = self.processor.process_images
         batch_size = 8
+        dataloader = DataLoader(
+            dataset=ListDataset[str](inputs),
+            batch_size=batch_size,
+            shuffle=False,
+            collate_fn=lambda x: process_fn(x),
+        )
+        ds: List[torch.Tensor] = []
+        for batch_doc in tqdm(dataloader):
+            with torch.no_grad():
+                batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
+                embeddings_doc = self.model(**batch_doc)
+            ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
+        return ds
+
+    @modal.method()
+    def top_pages(self, pdf_url: str, queries: list[str], top_k=2, use_cache=True):
+        import numpy as np
 
         # Check if cached embeddings exist
         cache_dir = self.generate_unique_folder_name(pdf_url)
@@ -88,34 +107,11 @@ class ColPaliModel:
         else:
             # Run inference - docs
             images = self.pdf_to_images(pdf_url)
-            dataloader = DataLoader(
-                dataset=ListDataset[str](images),
-                batch_size=batch_size,
-                shuffle=False,
-                collate_fn=lambda x: self.processor.process_images(x),
-            )
-            ds: List[torch.Tensor] = []
-            for batch_doc in tqdm(dataloader):
-                with torch.no_grad():
-                    batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
-                    embeddings_doc = self.model(**batch_doc)
-                ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
-            # Cache the embeddings
+            ds = self.forward(images)
             self.cache_embeddings(pdf_url, ds)
 
         # Run inference - queries
-        dataloader = DataLoader(
-            dataset=ListDataset[str](queries),
-            batch_size=batch_size,
-            shuffle=False,
-            collate_fn=lambda x: self.processor.process_queries(x),
-        )
-        qs: List[torch.Tensor] = []
-        for batch_query in dataloader:
-            with torch.no_grad():
-                batch_query = {k: v.to(self.model.device) for k, v in batch_query.items()}
-                embeddings_query = self.model(**batch_query)
-            qs.extend(list(torch.unbind(embeddings_query.to("cpu"))))
+        qs = self.forward(queries)
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
