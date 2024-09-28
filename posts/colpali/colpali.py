@@ -35,7 +35,7 @@ image = (
 
 
 @app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu="a10g", cpu=4, timeout=600, container_idle_timeout=300)
-class Model:
+class ColPaliModel:
     @build()
     @enter()
     def setup(self):
@@ -64,7 +64,7 @@ class Model:
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
 
     @modal.method()
-    def f(self, pdf_url: str, queries: list[str], top_k=2):
+    def top_pages(self, pdf_url: str, queries: list[str], top_k=2):
         from typing import List
         import torch
         from torch.utils.data import DataLoader

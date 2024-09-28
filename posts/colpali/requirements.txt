@@ -2,3 +2,4 @@ python-fasthtml
 modal
 notebook
 pytest
+pytest-xdist

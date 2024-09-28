@@ -2,7 +2,6 @@ import pytest
 import modal
 from typing import List
 
-# Define test cases: (url, questions, expected_indices)
 TEST_CASES = [
     (
         "https://arxiv.org/pdf/1706.03762",
@@ -34,7 +33,7 @@ TEST_CASES = [
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
 def test_colpali(url: str, questions: List[str], expected_indices: List[int]):
-    f = modal.Function.lookup("colpali", "Model.f")
-    results = f.remote(url, questions)
+    top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
+    results = top_pages.remote(url, questions)
     actual_indices = [a[0] for a in results]
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
