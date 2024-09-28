@@ -169,12 +169,18 @@ class ColPaliModel:
         vol.reload()
         cache_dir = f"/data/pdf_images/{self.generate_unique_folder_name(pdf_url)}"
         # Check if the directory already exists
-        if os.path.exists(cache_dir):
-            print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
-            return cache_dir
+        # if os.path.exists(cache_dir):
+        #     print(f"Cache directory already exists for {pdf_url}. Skipping image caching.")
+        #     return cache_dir
         os.makedirs(cache_dir, exist_ok=True)
+
         # Save each image with a name corresponding to its page index
-        for index, image in enumerate(images):
+        def save_image(args):
+            index, image = args
             image_path = os.path.join(cache_dir, f"{index}.png")
             image.save(image_path, "PNG")
+
+        # Use ThreadPoolExecutor to save images in parallel
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            executor.map(save_image, enumerate(images))
         vol.commit()
