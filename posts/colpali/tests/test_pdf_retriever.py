@@ -42,7 +42,7 @@ TEST_CASES = [
 def test_top_pages_no_cache(url: str, questions: List[str], expected_indices: List[int]):
     top_pages = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
 
-    results = top_pages.remote(url, questions, use_cache=False)
+    results = top_pages.remote(url, questions, use_cache=False, top_k=1)
     actual_indices = [a[0] for a in results]
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
 
@@ -52,7 +52,7 @@ def test_top_pages_cache(url: str, questions: List[str], expected_indices: List[
     top_pages = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
 
     # Test with use_cache=True
-    results = top_pages.remote(url, questions, use_cache=True)
+    results = top_pages.remote(url, questions, use_cache=True, top_k=1)
     actual_indices = [a[0] for a in results]
     assert actual_indices == expected_indices, f"Expected {expected_indices}, but got {actual_indices}"
 

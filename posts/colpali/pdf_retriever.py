@@ -95,7 +95,7 @@ class PDFRetriever:
         return ds
 
     @modal.method()
-    def top_pages(self, pdf_url: str, queries: list[str], top_k=2, use_cache=True):
+    def top_pages(self, pdf_url: str, queries: list[str], top_k=1, use_cache=True):
         import numpy as np
 
         # Run inference - PDF pages
