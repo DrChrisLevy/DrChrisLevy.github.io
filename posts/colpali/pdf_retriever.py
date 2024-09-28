@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from modal import build, enter
 
 load_dotenv()
-app = modal.App("colpali")
+app = modal.App("pdf-retriever")
 
 cuda_version = "12.4.0"  # should be no greater than host CUDA version
 flavor = "devel"  #  includes full CUDA toolkit
@@ -39,11 +39,11 @@ image = (
     .pip_install("pdf2image", "PyPDF2", "Pillow", "requests")
 )
 
-vol = modal.Volume.from_name("colpali-volume", create_if_missing=True)
+vol = modal.Volume.from_name("pdf-retriever-volume", create_if_missing=True)
 
 
 @app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=60)
-class ColPaliModel:
+class PDFRetriever:
     @build()
     @enter()
     def setup(self):

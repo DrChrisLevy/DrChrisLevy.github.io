@@ -40,7 +40,7 @@ TEST_CASES = [
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
 def test_top_pages_no_cache(url: str, questions: List[str], expected_indices: List[int]):
-    top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
+    top_pages = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
 
     results = top_pages.remote(url, questions, use_cache=False)
     actual_indices = [a[0] for a in results]
@@ -49,7 +49,7 @@ def test_top_pages_no_cache(url: str, questions: List[str], expected_indices: Li
 
 @pytest.mark.parametrize("url, questions, expected_indices", TEST_CASES)
 def test_top_pages_cache(url: str, questions: List[str], expected_indices: List[int]):
-    top_pages = modal.Function.lookup("colpali", "ColPaliModel.top_pages")
+    top_pages = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
 
     # Test with use_cache=True
     results = top_pages.remote(url, questions, use_cache=True)
@@ -58,7 +58,7 @@ def test_top_pages_cache(url: str, questions: List[str], expected_indices: List[
 
 
 def test_forward_strings():
-    forward = modal.Function.lookup("colpali", "ColPaliModel.forward")
+    forward = modal.Function.lookup("pdf-retriever", "PDFRetriever.forward")
     t1 = "The quick brown fox jumps over the lazy dog. This pangram contains every letter of the English alphabet at least once. Pangrams are often used to display fonts or test equipment. In typography, they're particularly useful for displaying the characteristics of a font."
     t2 = "Hello Friend, how are you?"
     t3 = "Hello"
