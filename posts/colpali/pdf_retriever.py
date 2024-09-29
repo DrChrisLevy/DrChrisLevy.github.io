@@ -147,17 +147,6 @@ class PDFRetriever:
         print(f"PDF caching time: {execution_time:.2f} seconds")
         return images
 
-    def pil_image_to_data_url(self, pil_image):
-        # Convert PIL Image to bytes
-        buffered = BytesIO()
-        pil_image.save(buffered, format="PNG")
-
-        # Encode to base64
-        img_str = base64.b64encode(buffered.getvalue()).decode()
-
-        # Format as data URL
-        return f"data:image/png;base64,{img_str}"
-
     def generate_unique_folder_name(self, pdf_url: str) -> str:
         # Create a hash of the URL
         url_hash = hashlib.md5(pdf_url.encode()).hexdigest()

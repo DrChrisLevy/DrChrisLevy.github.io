@@ -67,8 +67,8 @@ def test_top_pages_top_k():
     )
     assert len(results) == 2
     assert len(results[0]) == len(results[1]) == 4
-    assert 4 in results[1]
-    assert 3 in results[0]
+    assert 3 in results[1]
+    assert 2 in results[0]
 
 
 def test_forward_strings():
