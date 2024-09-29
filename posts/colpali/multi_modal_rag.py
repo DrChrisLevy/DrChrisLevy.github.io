@@ -69,30 +69,3 @@ def answer_questions_with_image_context(pdf_url, queries, top_k=1, use_cache=Tru
         messages_list.append([{"role": "user", "content": content}])
 
     return vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream)
-
-
-@app.local_entrypoint()
-def maim():
-    res = answer_questions_with_image_context.remote(
-        pdf_url="https://arxiv.org/pdf/2407.01449",
-        queries=[
-            "How does the Colpali model compare to standard retrieval? What are the differences? How long would it take to process each page in the standard retrieval? How does that compare to the Colpali model processing each page?",
-            "What is the new eval benchmark that they are using? How does it work? Give a long answer with 1000 words  citing text from the paper.",
-        ],
-        top_k=1,
-        use_cache=True,
-        max_new_tokens=1024,
-    )
-    print(res)
-    res = answer_questions_with_image_context.remote(
-        pdf_url="https://arxiv.org/pdf/2405.04434",
-        queries=[
-            "What is this paper about?",
-            "What is the conclusion of this paper?",
-        ],
-        top_k=1,
-        use_cache=True,
-        max_new_tokens=1024,
-    )
-
-    print(res)
