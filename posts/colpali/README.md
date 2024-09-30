@@ -10,4 +10,4 @@ pytest -n 10 tests
 # Lint
 
 ```
-ruff check . --select I --fix; ruff format .
+ruff check . --select F,I --fix && ruff format .
