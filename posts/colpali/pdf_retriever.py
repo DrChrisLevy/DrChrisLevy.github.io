@@ -110,8 +110,7 @@ class PDFRetriever:
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
         # The top k indices for each query
-        idxs_top_k = np.argsort(scores, axis=-1)[:, -top_k:][:, ::-1].tolist()
-        return idxs_top_k
+        return np.argsort(scores, axis=-1)[:, -top_k:][:, ::-1].tolist()
 
     def pdf_to_images(self, pdf_url):
         import requests
@@ -164,13 +163,9 @@ class PDFRetriever:
         os.makedirs(cache_path, exist_ok=True)
 
         start_time = time.time()
-        if data_type == "pdf_images":
-            self._save_images(data, cache_path)
-        elif data_type == "embeddings":
-            self._save_embeddings(data, cache_path)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"{data_type.capitalize()} caching time: {execution_time:.2f} seconds")
+        save_method = self._save_images if data_type == "pdf_images" else self._save_embeddings
+        save_method(data, cache_path)
+        print(f"{data_type.capitalize()} caching time: {time.time() - start_time:.2f} seconds")
         vol.commit()
 
     def _save_images(self, images, cache_dir):
