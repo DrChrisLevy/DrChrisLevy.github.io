@@ -1,4 +1,3 @@
-import hashlib
 import os
 import pickle
 import time
@@ -9,6 +8,7 @@ from typing import List, cast
 import modal
 from dotenv import load_dotenv
 from modal import build, enter
+from utils import generate_unique_folder_name
 
 load_dotenv()
 app = modal.App("pdf-retriever")
@@ -98,7 +98,7 @@ class PDFRetriever:
         import numpy as np
 
         # Run inference - PDF pages
-        ds = self.load_cached_data(pdf_url, "embeddings") if use_cache else None
+        ds = self.load_embeddings(pdf_url) if use_cache else None
         if ds is None:
             images = self.pdf_to_images(pdf_url)
             ds = self.forward.local(images)
@@ -146,16 +146,6 @@ class PDFRetriever:
         print(f"PDF caching time: {execution_time:.2f} seconds")
         return images
 
-    def generate_unique_folder_name(self, pdf_url: str) -> str:
-        # Create a hash of the URL
-        url_hash = hashlib.md5(pdf_url.encode()).hexdigest()
-        # Get the last part of the URL as the filename
-        original_filename = os.path.basename(pdf_url)
-        # Remove the file extension if present
-        base_name = os.path.splitext(original_filename)[0]
-        # Combine the base name and hash
-        return f"{base_name}_{url_hash[:8]}"
-
     def cache_pdf_images(self, pdf_url: str, images: list):
         self.cache_data(pdf_url, images, "pdf_images")
 
@@ -164,7 +154,7 @@ class PDFRetriever:
 
     def cache_data(self, pdf_url: str, data, data_type: str):
         vol.reload()
-        cache_dir = self.generate_unique_folder_name(pdf_url)
+        cache_dir = generate_unique_folder_name(pdf_url)
         cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
 
         if os.path.exists(cache_path):
@@ -196,17 +186,12 @@ class PDFRetriever:
         with open(os.path.join(cache_path, "embeddings.pkl"), "wb") as f:
             pickle.dump(embeddings, f)
 
-    def load_cached_data(self, pdf_url: str, data_type: str):
+    def load_embeddings(self, pdf_url: str):
         vol.reload()
-        cache_dir = self.generate_unique_folder_name(pdf_url)
-        cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
+        cache_dir = generate_unique_folder_name(pdf_url)
+        cache_path = os.path.join("/data/embeddings", f"{cache_dir}")
 
         if os.path.exists(cache_path):
-            print(f"Loading cached {data_type}...")
-            if data_type == "embeddings":
-                with open(os.path.join(cache_path, "embeddings.pkl"), "rb") as f:
-                    return pickle.load(f)
-            elif data_type == "pdf_images":
-                # You might want to implement image loading here if needed
-                pass
+            with open(os.path.join(cache_path, "embeddings.pkl"), "rb") as f:
+                return pickle.load(f)
         return None
