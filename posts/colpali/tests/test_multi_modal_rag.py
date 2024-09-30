@@ -4,12 +4,12 @@ import modal
 def test_answer_questions_with_image_context():
     answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
     res = answer_questions_with_image_context.remote(
-        pdf_url="https://arxiv.org/pdf/2405.04434",
+        pdf_url="https://arxiv.org/pdf/2310.06825",
         queries=[
-            "What were the results of the Needle In A Haystack evaluation? And what type of cluster and GPU was used for experiments?",
-            "What is the conclusion of this paper?",
+            "What is the paper about?",
+            "How does mamba architecture compare to other LLM architectures?",
         ],
-        top_k=1,
+        top_k=5,
         use_cache=True,
         max_new_tokens=1024,
     )

@@ -1,6 +1,5 @@
 import os
 import pickle
-import time
 from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 from typing import List, cast
@@ -116,8 +115,6 @@ class PDFRetriever:
         import requests
         from pdf2image import convert_from_bytes, pdfinfo_from_bytes
 
-        start_time = time.time()
-
         response = requests.get(pdf_url)
         if response.status_code != 200:
             raise Exception(f"Failed to download PDF from {pdf_url}")
@@ -134,15 +131,7 @@ class PDFRetriever:
             futures = [executor.submit(process_page, page_num) for page_num in range(1, num_pages + 1)]
             images = [future.result() for future in futures]
 
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"PDF processing time: {execution_time:.2f} seconds")
-
-        start_time = time.time()
         self.cache_pdf_images(pdf_url, images)
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"PDF caching time: {execution_time:.2f} seconds")
         return images
 
     def cache_pdf_images(self, pdf_url: str, images: list):
@@ -157,15 +146,12 @@ class PDFRetriever:
         cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
 
         if os.path.exists(cache_path):
-            print(f"Cache already exists for {pdf_url}. Skipping {data_type} caching.")
             return
 
         os.makedirs(cache_path, exist_ok=True)
 
-        start_time = time.time()
         save_method = self._save_images if data_type == "pdf_images" else self._save_embeddings
         save_method(data, cache_path)
-        print(f"{data_type.capitalize()} caching time: {time.time() - start_time:.2f} seconds")
         vol.commit()
 
     def _save_images(self, images, cache_dir):
