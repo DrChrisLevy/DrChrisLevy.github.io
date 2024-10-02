@@ -6,8 +6,8 @@ def test_answer_questions_with_image_context():
     res = answer_questions_with_image_context.remote(
         pdf_url="https://arxiv.org/pdf/2405.04434",
         queries=[
-            "What is the paper about?",
-            "How does mamba architecture compare to other LLM architectures?",
+            "What were the results of the Needle In A Haystack evaluation? And what type of cluster and GPU was used for experiments?",
+            "What is the conclusion of this paper?",
         ],
         top_k=5,
         use_cache=True,
