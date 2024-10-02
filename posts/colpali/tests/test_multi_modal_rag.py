@@ -4,7 +4,7 @@ import modal
 def test_answer_questions_with_image_context():
     answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
     res = answer_questions_with_image_context.remote(
-        pdf_url="https://arxiv.org/pdf/2310.06825",
+        pdf_url="https://arxiv.org/pdf/2405.04434",
         queries=[
             "What is the paper about?",
             "How does mamba architecture compare to other LLM architectures?",
