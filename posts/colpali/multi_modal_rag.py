@@ -41,19 +41,24 @@ def load_images(pdf_url: str, img_idxs: List[int]):
 
 
 @app.function(volumes={"/data": vol}, image=image)
-def answer_questions_with_image_context(pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=512, show_stream=False):
+def answer_questions_with_image_context(pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=1024, show_stream=False):
+    vol.reload()
     pdf_retriever = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
     vision_language_model = modal.Function.lookup("vision-language-model", "VisionLanguageModel.forward")
+    print(f'{queries=}')
+    print(f'{pdf_url=}')
+    print(f'{top_k=}')
     idxs_top_k = pdf_retriever.remote(pdf_url, queries, use_cache=use_cache, top_k=top_k)
-
-    vol.reload()
+    print(f'{idxs_top_k=}')
 
     messages_list = []
     for i, idxs in enumerate(idxs_top_k):
+        print(f'Preparing Iteration {i} for {idxs=}')
         query = queries[i]
         images = load_images(pdf_url, idxs)
         content = [{"type": "image", "image": pil_image_to_data_url(img)} for img in images]
-        content.append({"type": "text", "text": f"Using the provided image(s) as context, answer the following question.\n {query}"})
+        content.append({"type": "text", "text": f"{query}"})
         messages_list.append([{"role": "user", "content": content}])
-
+        print(f'Content of length {len(content)} added to messages list')
+    print(f'Sending {len(messages_list)} messages to the vision language model')
     return vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream)
