@@ -31,7 +31,9 @@ image = (
 )
 
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=5*60, container_idle_timeout=60)
+@app.cls(
+    image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=5 * 60, container_idle_timeout=60
+)
 class VisionLanguageModel:
     @build()
     @enter()
@@ -64,7 +66,7 @@ class VisionLanguageModel:
 
         def messages_inference(messages):
             # Preparation for inference
-            print('pre-processing messages for inference into vision LLM')
+            print("pre-processing messages for inference into vision LLM")
             text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             image_inputs, video_inputs = process_vision_info(messages)
             inputs = self.processor(
@@ -77,7 +79,7 @@ class VisionLanguageModel:
             inputs = inputs.to("cuda")
 
             # Inference: Generation of the output
-            print('generating output with vision LLM')
+            print("generating output with vision LLM")
             if show_stream:
                 print("\n\n-----------------------------------------------------------\n\n")
                 generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, streamer=self.streamer)

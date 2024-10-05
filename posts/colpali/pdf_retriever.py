@@ -99,13 +99,13 @@ class PDFRetriever:
         # Run inference - PDF pages
         ds = self.load_embeddings(pdf_url) if use_cache else None
         if ds is None:
-            print(f'Generating Images for PDF {pdf_url}')
+            print(f"Generating Images for PDF {pdf_url}")
             images = self.pdf_to_images(pdf_url)
-            print(f'Generating Embeddings for PDF {pdf_url}')
+            print(f"Generating Embeddings for PDF {pdf_url}")
             ds = self.forward.local(images)
             self.cache_embeddings(pdf_url, ds)
 
-        print(f'Generating Query Embeddings for PDF {pdf_url} for queries:\n {queries}')
+        print(f"Generating Query Embeddings for PDF {pdf_url} for queries:\n {queries}")
         # Run inference - queries
         qs = self.forward.local(queries)
 
