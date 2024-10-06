@@ -40,7 +40,7 @@ image = (
 vol = modal.Volume.from_name("pdf-retriever-volume", create_if_missing=True)
 
 
-@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=60)
+@app.cls(image=image, secrets=[modal.Secret.from_dotenv()], volumes={"/data": vol}, gpu="a10g", cpu=4, timeout=600, container_idle_timeout=60 * 2)
 class PDFRetriever:
     @build()
     @enter()
