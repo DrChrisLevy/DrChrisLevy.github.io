@@ -11,7 +11,7 @@ app = modal.App("multi-modal-rag")
 vol = modal.Volume.from_name("pdf-retriever-volume", create_if_missing=True)
 
 
-image = modal.Image.debian_slim(python_version="3.10").pip_install("Pillow", "python-dotenv")
+image = modal.Image.debian_slim(python_version="3.10").pip_install("Pillow", "python-dotenv", "openai")
 
 
 def pil_image_to_data_url(pil_image):
@@ -40,25 +40,62 @@ def load_images(pdf_url: str, img_idxs: List[int]):
     return images
 
 
-@app.function(volumes={"/data": vol}, image=image)
-def answer_questions_with_image_context(pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=1024, show_stream=False):
+@app.function(volumes={"/data": vol}, image=image, container_idle_timeout=60 * 3, secrets=[modal.Secret.from_dotenv()])
+def answer_questions_with_image_context(
+    pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=400, show_stream=False, additional_instructions="", model="gpt-4o-mini"
+):
     vol.reload()
     pdf_retriever = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
     vision_language_model = modal.Function.lookup("vision-language-model", "VisionLanguageModel.forward")
     print(f"\n\n----------------\n\n{queries=}")
-    print(f"{pdf_url=}")
-    print(f"{top_k=}")
+    print(f"{model=} {pdf_url=} {top_k=}")
     idxs_top_k = pdf_retriever.remote(pdf_url, queries, use_cache=use_cache, top_k=top_k)
     print(f"{idxs_top_k=}")
 
     messages_list = []
+    all_images_data = []
     for i, idxs in enumerate(idxs_top_k):
-        print(f"Preparing Iteration {i} for {idxs=}")
         query = queries[i]
+        print(f"Processing {query=} for {idxs=}")
+
         images = load_images(pdf_url, idxs)
-        content = [{"type": "image", "image": pil_image_to_data_url(img)} for img in images]
-        content.append({"type": "text", "text": f"{query}"})
+        images_data = [pil_image_to_data_url(img) for img in images]
+        all_images_data.append(images_data)
+
+        if model == "Qwen/Qwen2-VL-7B-Instruct":
+            content = [{"type": "image", "image": img_data} for img_data in images_data]
+        elif model == "gpt-4o-mini":
+            content = [{"type": "image_url", "image_url": {"url": img_data}} for img_data in images_data]
+        else:
+            raise ValueError(f"Model {model} not supported")
+        content.append({"type": "text", "text": f"{additional_instructions}\n\n{query}"})
         messages_list.append([{"role": "user", "content": content}])
-        print(f"Content of length {len(content)} added to messages list")
-    print(f"PDF Retrieval Complete. Sending {len(messages_list)} messages to the vision language model")
-    return vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream)
+
+    print(f"PDF Retrieval Complete. Sending messages to the vision language model: {model}")
+    if model == "Qwen/Qwen2-VL-7B-Instruct":
+        res = vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream), all_images_data
+    elif model == "gpt-4o-mini":
+        res = openai_vision_language_model(messages_list, max_new_tokens), all_images_data
+    else:
+        raise ValueError(f"Model {model} not supported")
+    return res
+
+
+def openai_vision_language_model(messages_list, max_new_tokens):
+    from dotenv import load_dotenv
+    from openai import OpenAI
+
+    load_dotenv()
+
+    client = OpenAI()
+    responses = []
+    for messages in messages_list:
+        print("Calling OpenAI")
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=max_new_tokens,
+        )
+        responses.append(response.choices[0].message.content)
+        print("Done Calling OpenAI")
+    return responses
