@@ -32,7 +32,7 @@ image = (
 
 
 @app.cls(
-    image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=5 * 60, container_idle_timeout=60
+    image=image, secrets=[modal.Secret.from_dotenv()], gpu=modal.gpu.A100(count=1, size="80GB"), cpu=4, timeout=5 * 60, container_idle_timeout=60 * 2
 )
 class VisionLanguageModel:
     @build()
@@ -42,7 +42,7 @@ class VisionLanguageModel:
         from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, TextStreamer
 
         # We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.
-
+        print("Loading Vision Language Model into Memory")
         self.model = Qwen2VLForConditionalGeneration.from_pretrained(
             "Qwen/Qwen2-VL-7B-Instruct",
             torch_dtype=torch.bfloat16,
@@ -59,15 +59,19 @@ class VisionLanguageModel:
         # processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
 
         self.streamer = TextStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
+        print("Vision Language Model Loaded into Memory")
 
     @modal.method()
     def forward(self, messages_list, max_new_tokens=512, show_stream=False):
         from qwen_vl_utils import process_vision_info
 
+        print(f"Forwarding {len(messages_list)} messages through Vision Language Model")
+
         def messages_inference(messages):
             # Preparation for inference
-            print("pre-processing messages for inference into vision LLM")
+            print(f"pre-processing {len(messages)} messages for inference into vision LLM")
             text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            print(f"{text=}")
             image_inputs, video_inputs = process_vision_info(messages)
             inputs = self.processor(
                 text=[text],
@@ -90,4 +94,4 @@ class VisionLanguageModel:
             print("output with vision LLM generated")
             return output_text
 
-        return [messages_inference(messages) for messages in messages_list]
+        return [messages_inference(messages)[0] for messages in messages_list]
