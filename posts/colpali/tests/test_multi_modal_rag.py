@@ -1,7 +1,9 @@
 import modal
+import pytest
 
 
-def test_answer_questions_with_image_context():
+@pytest.mark.parametrize("model", ["Qwen/Qwen2-VL-7B-Instruct", "gpt-4o-mini"])
+def test_answer_questions_with_image_context(model):
     answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
     res, all_images_data = answer_questions_with_image_context.remote(
         pdf_url="https://arxiv.org/pdf/2405.04434",
@@ -12,18 +14,19 @@ def test_answer_questions_with_image_context():
         top_k=5,
         use_cache=True,
         max_new_tokens=1024,
+        model=model,
     )
+
     assert len(res) == 2
-    print(res)
     assert len(all_images_data) == 2
     assert len(all_images_data[0]) == 5 == len(all_images_data[1])
     assert all(["data:image" in img for img in all_images_data[0]])
     assert all(["data:image" in img for img in all_images_data[1]])
-    assert all(t in res[0][0] for t in ["NVLink", "GPU", "NVIDIA", "H800"])
+    assert all(t in res[0] for t in ["NVLink", "GPU", "NVIDIA", "H800"])
     assert all(
-        t in res[1][0]
+        t in res[1]
         for t in [
             "DeepSeek-V2",
-            "128K",
+            "MoE",
         ]
     )
