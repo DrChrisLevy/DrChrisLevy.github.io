@@ -45,6 +45,7 @@ class PDFRetriever:
     @build()
     @enter()
     def setup(self):
+        print("Loading PDFRetriever Model into Memory ")
         import torch
         from colpali_engine.models import ColPali
         from colpali_engine.models.paligemma.colpali.processing_colpali import ColPaliProcessor
@@ -65,6 +66,7 @@ class PDFRetriever:
 
         if not isinstance(self.processor, BaseVisualRetrieverProcessor):
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
+        print("PDFRetriever Model Loaded into Memory")
 
     @modal.method()
     def forward(self, inputs):
