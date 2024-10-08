@@ -1,10 +1,11 @@
 import base64
 import os
+import time
 from io import BytesIO
 from typing import List
 
 import modal
-from utils import generate_unique_folder_name
+from utils import generate_unique_folder_name, log_to_queue
 
 app = modal.App("multi-modal-rag")
 
@@ -26,17 +27,34 @@ def pil_image_to_data_url(pil_image):
     return f"data:image/png;base64,{img_str}"
 
 
-def load_images(pdf_url: str, img_idxs: List[int]):
+def load_images(pdf_url: str, img_idxs: List[int], max_retries=5, retry_delay=1):
     from PIL import Image
 
+    try:
+        vol.reload()
+    except RuntimeError as e:
+        log_to_queue(f"Error reloading volume: {str(e)}. Attempting to continue...")
     cache_dir = generate_unique_folder_name(pdf_url)
     data_type = "pdf_images"
     cache_path = os.path.join(f"/data/{data_type}", f"{cache_dir}")
 
     images = []
     for idx in img_idxs:
+        vol.reload()
         img_path = os.path.join(cache_path, f"{idx}.png")
-        images.append(Image.open(img_path))
+        for attempt in range(max_retries):
+            try:
+                with Image.open(img_path) as image:
+                    image_copy = image.copy()
+                images.append(image_copy)
+                break
+            except FileNotFoundError:
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                else:
+                    log_to_queue(f"Image file not found after {max_retries} attempts: {img_path}. Refresh Page and Try Again.")
+                    raise FileNotFoundError(f"Image file not found after {max_retries} attempts: {img_path}")
+
     return images
 
 
@@ -44,19 +62,16 @@ def load_images(pdf_url: str, img_idxs: List[int]):
 def answer_questions_with_image_context(
     pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=400, show_stream=False, additional_instructions="", model="gpt-4o-mini"
 ):
+    log_to_queue("Entered Multi Modal RAG Container")
     vol.reload()
     pdf_retriever = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
     vision_language_model = modal.Function.lookup("vision-language-model", "VisionLanguageModel.forward")
-    print(f"\n\n----------------\n\n{queries=}")
-    print(f"{model=} {pdf_url=} {top_k=}")
     idxs_top_k = pdf_retriever.remote(pdf_url, queries, use_cache=use_cache, top_k=top_k)
-    print(f"{idxs_top_k=}")
 
     messages_list = []
     all_images_data = []
     for i, idxs in enumerate(idxs_top_k):
         query = queries[i]
-        print(f"Processing {query=} for {idxs=}")
 
         images = load_images(pdf_url, idxs)
         images_data = [pil_image_to_data_url(img) for img in images]
@@ -71,13 +86,14 @@ def answer_questions_with_image_context(
         content.append({"type": "text", "text": f"{additional_instructions}\n\n{query}"})
         messages_list.append([{"role": "user", "content": content}])
 
-    print(f"PDF Retrieval Complete. Sending messages to the vision language model: {model}")
+    log_to_queue("PDF Retrieval Complete. Sending Context and Question to Vision Language Model")
     if model == "Qwen/Qwen2-VL-7B-Instruct":
         res = vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream), all_images_data
     elif model == "gpt-4o-mini":
         res = openai_vision_language_model(messages_list, max_new_tokens), all_images_data
     else:
         raise ValueError(f"Model {model} not supported")
+    log_to_queue("Final Answer Obtained")
     return res
 
 
@@ -90,12 +106,12 @@ def openai_vision_language_model(messages_list, max_new_tokens):
     client = OpenAI()
     responses = []
     for messages in messages_list:
-        print("Calling OpenAI")
+        log_to_queue("Calling OpenAI . . .")
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
             max_tokens=max_new_tokens,
         )
         responses.append(response.choices[0].message.content)
-        print("Done Calling OpenAI")
+        log_to_queue("Done Calling OpenAI")
     return responses
