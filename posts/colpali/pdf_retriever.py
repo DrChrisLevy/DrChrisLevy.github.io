@@ -7,7 +7,7 @@ from typing import List, cast
 import modal
 from dotenv import load_dotenv
 from modal import build, enter
-from utils import generate_unique_folder_name
+from utils import generate_unique_folder_name, log_to_queue
 
 load_dotenv()
 app = modal.App("pdf-retriever")
@@ -45,7 +45,7 @@ class PDFRetriever:
     @build()
     @enter()
     def setup(self):
-        print("Loading PDFRetriever Model into Memory ")
+        log_to_queue("Starting PDF Retriever Container . . .")
         import torch
         from colpali_engine.models import ColPali
         from colpali_engine.models.paligemma.colpali.processing_colpali import ColPaliProcessor
@@ -66,14 +66,13 @@ class PDFRetriever:
 
         if not isinstance(self.processor, BaseVisualRetrieverProcessor):
             raise ValueError("Processor should be a BaseVisualRetrieverProcessor")
-        print("PDFRetriever Model Loaded into Memory")
+        log_to_queue("Finished Creation of PDF Retriever Container")
 
     @modal.method()
     def forward(self, inputs):
         import torch
         from colpali_engine.utils.torch_utils import ListDataset
         from torch.utils.data import DataLoader
-        from tqdm import tqdm
 
         if type(inputs[0]) == str:
             process_fn = self.processor.process_queries
@@ -87,11 +86,17 @@ class PDFRetriever:
             collate_fn=lambda x: process_fn(x),
         )
         ds: List[torch.Tensor] = []
-        for batch_doc in tqdm(dataloader):
+        total_batches = len(dataloader)
+        for batch_idx, batch_doc in enumerate(dataloader):
             with torch.no_grad():
                 batch_doc = {k: v.to(self.model.device) for k, v in batch_doc.items()}
                 embeddings_doc = self.model(**batch_doc)
             ds.extend(list(torch.unbind(embeddings_doc.to("cpu"))))
+
+            # Log the number of pages left
+            pages_left = (total_batches - batch_idx - 1) * batch_size
+            log_to_queue(f"Processed batch {batch_idx + 1}/{total_batches}. Approximately {pages_left} pages left.")
+
         return ds
 
     @modal.method()
@@ -101,20 +106,26 @@ class PDFRetriever:
         # Run inference - PDF pages
         ds = self.load_embeddings(pdf_url) if use_cache else None
         if ds is None:
-            print(f"Generating Images for PDF {pdf_url}")
+            log_to_queue(f"New PDF Source Detected: {pdf_url}")
+            log_to_queue("Processing will take longer this first time but subsequent calls will use cached results.")
+            log_to_queue("Generating Images for PDF . . .")
             images = self.pdf_to_images(pdf_url)
-            print(f"Generating Embeddings for PDF {pdf_url}")
+            log_to_queue("Images Generated for PDF")
+            log_to_queue("Generating Embeddings for PDF . . .")
             ds = self.forward.local(images)
             self.cache_embeddings(pdf_url, ds)
+            log_to_queue("Embeddings Generated for PDF and cached")
 
-        print(f"Generating Query Embeddings for PDF {pdf_url} for queries:\n {queries}")
+        log_to_queue("Generating Query Embeddings and Ranking Pages")
         # Run inference - queries
         qs = self.forward.local(queries)
 
         # Run scoring
         scores = self.processor.score(qs, ds).cpu().numpy()
+        res = np.argsort(scores, axis=-1)[:, -top_k:][:, ::-1].tolist()
         # The top k indices for each query
-        return np.argsort(scores, axis=-1)[:, -top_k:][:, ::-1].tolist()
+        log_to_queue(f"Finished Ranking Pages and Found Top Pages: {res}")
+        return res
 
     def pdf_to_images(self, pdf_url):
         import requests
