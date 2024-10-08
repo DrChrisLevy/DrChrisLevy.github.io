@@ -1,4 +1,6 @@
+import modal
 from fasthtml.common import *
+from utils import log_to_queue, read_from_queue
 
 picocss = "https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.indigo.min.css"
 picolink = (Link(rel="stylesheet", href=picocss), Style(":root { --pico-font-size: 100%; }"))
@@ -9,42 +11,51 @@ app, rt = fast_app(hdrs=(MarkdownJS(), *picolink))
 def get():
     return Titled(
         "Ask Questions about any PDF Document",
-        Form(hx_post="/process", hx_target="#results", hx_swap="innerHTML")(
-            Group(
-                Label("PDF URL:", Input(name="pdf_url", type="url", required=True, value="https://arxiv.org/pdf/2410.02525")),
-                Label(
-                    "Number of Pages for Context",
-                    Select(name="top_k", required=True)(
-                        Option("1", value="1", selected=True),
-                        Option("2", value="2"),
-                        Option("3", value="3"),
-                        Option("4", value="4"),
-                        Option("5", value="5"),
+        Grid(
+            Div(
+                Form(hx_post="/process", hx_target="#results", hx_swap="innerHTML")(
+                    Group(
+                        Label("PDF URL:", Input(name="pdf_url", type="url", required=True, value="https://arxiv.org/pdf/2410.02525")),
+                        Label(
+                            "Number of Pages for Context",
+                            Select(name="top_k", required=True)(
+                                Option("1", value="1", selected=True),
+                                Option("2", value="2"),
+                                Option("3", value="3"),
+                                Option("4", value="4"),
+                                Option("5", value="5"),
+                            ),
+                        ),
                     ),
-                ),
+                    Label(
+                        "Additional Instructions (Optional)",
+                        Textarea(name="additional_instructions", required=False, type="text")(
+                            "Use markdown headers and bullet points in your responses."
+                        ),
+                    ),
+                    Label(
+                        "Question",
+                        Input(name="question", required=True, type="text", value="What is this paper about? Give me a detailed summary"),
+                    ),
+                    Button("Submit", type="submit"),
+                )
             ),
-            Label(
-                "Additional Instructions (Optional)",
-                Textarea(name="additional_instructions", required=False, type="text")("Use markdown headers and bullet points in your responses."),
+            Div(
+                id="terminal",
+                style="background-color: rgba(26, 26, 26, 0.8); color: #00ff00; font-family: 'Courier New', monospace; height: 362px; overflow-y: auto; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); backdrop-filter: blur(5px);",
+                hx_get="/poll-queue",
+                hx_trigger="every 0.1s",
+                hx_swap="beforeend",
             ),
-            Label(
-                "Question",
-                Input(name="question", required=True, type="text", value="What is this paper about? Give me a detailed summary"),
-            ),
-            Button("Submit", type="submit"),
         ),
-        Div(id="results"),
+        Div(H1("Answer:"), id="results"),
     )
 
 
 @rt("/process")
 def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
-    import modal
-
-    print(f"{pdf_url=}")
-    print(f"{question=}")
-    print(f"{top_k=}")
     answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
+    log_to_queue("Starting Multi Modal RAG")
     res, all_images_data = answer_questions_with_image_context.remote(
         pdf_url=pdf_url,
         queries=[question],
@@ -65,7 +76,16 @@ def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
             for im in all_images_data[0]
         )
     )
-    return Div(H2("Answer"), *(Div(r, cls="marked") for r in res), H2("Pages Used for Context"), image_elements)
+    #
+    return Div(H1("Answer:"), *(Div(r, cls="marked") for r in res), H1("Pages Used for Context"), image_elements)
+
+
+@rt("/poll-queue")
+def poll_queue():
+    message = read_from_queue()
+    if message:
+        return Div(f"{message}")
+    return ""
 
 
 serve()

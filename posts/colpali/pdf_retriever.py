@@ -131,6 +131,7 @@ class PDFRetriever:
         import requests
         from pdf2image import convert_from_bytes, pdfinfo_from_bytes
 
+        log_to_queue(f"Downloading PDF from {pdf_url}")
         response = requests.get(pdf_url)
         if response.status_code != 200:
             raise Exception(f"Failed to download PDF from {pdf_url}")
@@ -138,16 +139,25 @@ class PDFRetriever:
         pdf_bytes = BytesIO(response.content)
         pdf_info = pdfinfo_from_bytes(pdf_bytes.getvalue())
         num_pages = pdf_info["Pages"]
+        log_to_queue(f"PDF downloaded successfully. Total pages: {num_pages}")
 
         def process_page(page_num):
             page_images = convert_from_bytes(pdf_bytes.getvalue(), first_page=page_num, last_page=page_num)
+            log_to_queue(f"Processed page {page_num}/{num_pages}")
             return page_images[0]
 
+        log_to_queue("Starting page processing...")
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = [executor.submit(process_page, page_num) for page_num in range(1, num_pages + 1)]
-            images = [future.result() for future in futures]
+            images = []
+            for future in futures:
+                images.append(future.result())
+                completed = len(images)
+                log_to_queue(f"Progress: {completed}/{num_pages} pages processed")
 
+        log_to_queue("All pages processed. Caching PDF images...")
         self.cache_pdf_images(pdf_url, images)
+        log_to_queue("PDF images cached successfully")
         return images
 
     def cache_pdf_images(self, pdf_url: str, images: list):
