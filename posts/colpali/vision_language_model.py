@@ -3,6 +3,7 @@ import os
 import modal
 from dotenv import load_dotenv
 from modal import build, enter
+from utils import log_to_queue
 
 load_dotenv()
 app = modal.App("vision-language-model")
@@ -42,7 +43,7 @@ class VisionLanguageModel:
         from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, TextStreamer
 
         # We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.
-        print("Loading Vision Language Model into Memory")
+        log_to_queue("Creating Vision Language Model Container and Loading Model into Memory")
         self.model = Qwen2VLForConditionalGeneration.from_pretrained(
             "Qwen/Qwen2-VL-7B-Instruct",
             torch_dtype=torch.bfloat16,
@@ -59,19 +60,17 @@ class VisionLanguageModel:
         # processor = AutoProcessor.from_pretrained("Qwen/Qwen2-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
 
         self.streamer = TextStreamer(self.processor, skip_prompt=True, skip_special_tokens=True)
-        print("Vision Language Model Loaded into Memory")
+        log_to_queue("Vision Language Model Loaded into Memory")
 
     @modal.method()
     def forward(self, messages_list, max_new_tokens=512, show_stream=False):
         from qwen_vl_utils import process_vision_info
 
-        print(f"Forwarding {len(messages_list)} messages through Vision Language Model")
+        log_to_queue("Running Inference with Self-Hosted Vision Language Model")
 
         def messages_inference(messages):
             # Preparation for inference
-            print(f"pre-processing {len(messages)} messages for inference into vision LLM")
             text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-            print(f"{text=}")
             image_inputs, video_inputs = process_vision_info(messages)
             inputs = self.processor(
                 text=[text],
@@ -83,15 +82,13 @@ class VisionLanguageModel:
             inputs = inputs.to("cuda")
 
             # Inference: Generation of the output
-            print("generating output with vision LLM")
             if show_stream:
-                print("\n\n-----------------------------------------------------------\n\n")
                 generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens, streamer=self.streamer)
             else:
                 generated_ids = self.model.generate(**inputs, max_new_tokens=max_new_tokens)
             generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)]
             output_text = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-            print("output with vision LLM generated")
+            log_to_queue("output with vision LLM generated")
             return output_text
 
         return [messages_inference(messages)[0] for messages in messages_list]
