@@ -45,7 +45,7 @@ class PDFRetriever:
     @build()
     @enter()
     def setup(self):
-        log_to_queue("Starting PDF Retriever Container . . .")
+        log_to_queue("Starting PDF Retriever Container and Loading Model . . .")
         import torch
         from colpali_engine.models import ColPali
         from colpali_engine.models.paligemma.colpali.processing_colpali import ColPaliProcessor
