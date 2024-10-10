@@ -86,7 +86,7 @@ def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
 shutdown_event = signal_shutdown()
 
 
-async def time_generator():
+async def terminal_log_generator():
     while not shutdown_event.is_set():
         message = read_from_queue()
         if message:
@@ -97,7 +97,7 @@ async def time_generator():
 @rt("/poll-queue")
 async def get():
     "Send time to all connected clients every second"
-    return EventStream(time_generator())
+    return EventStream(terminal_log_generator())
 
 
 serve()
