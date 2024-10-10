@@ -1,10 +1,12 @@
+from asyncio import sleep
+
 import modal
 from fasthtml.common import *
 from utils import log_to_queue, read_from_queue
 
 picocss = "https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.indigo.min.css"
 picolink = (Link(rel="stylesheet", href=picocss), Style(":root { --pico-font-size: 100%; }"))
-app, rt = fast_app(hdrs=(MarkdownJS(), *picolink))
+app, rt = fast_app(hdrs=(MarkdownJS(), *picolink, Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")))
 
 
 @rt("/")
@@ -41,11 +43,12 @@ def get():
                 )
             ),
             Div(
-                id="terminal",
+                id="terminal_stream",
                 style="background-color: rgba(26, 26, 26, 0.8); color: #00ff00; font-family: 'Courier New', monospace; height: 362px; overflow-y: auto; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); backdrop-filter: blur(5px);",
-                hx_get="/poll-queue",
-                hx_trigger="every 0.1s",
+                hx_ext="sse",
+                sse_connect="/poll-queue",
                 hx_swap="beforeend",
+                sse_swap="message",
             ),
         ),
         Div(H1("Answer:"), id="results"),
@@ -80,12 +83,21 @@ def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
     return Div(H1("Answer:"), *(Div(r, cls="marked") for r in res), H1("Pages Used for Context"), image_elements)
 
 
+shutdown_event = signal_shutdown()
+
+
+async def time_generator():
+    while not shutdown_event.is_set():
+        message = read_from_queue()
+        if message:
+            yield sse_message(Div(message, style="white-space: pre-wrap;"))
+        await sleep(0.1)
+
+
 @rt("/poll-queue")
-def poll_queue():
-    message = read_from_queue()
-    if message:
-        return Div(f"{message}")
-    return ""
+async def get():
+    "Send time to all connected clients every second"
+    return EventStream(time_generator())
 
 
 serve()
