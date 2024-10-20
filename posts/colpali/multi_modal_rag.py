@@ -60,12 +60,12 @@ def load_images(pdf_url: str, img_idxs: List[int], max_retries=5, retry_delay=1)
 
 @app.function(volumes={"/data": vol}, image=image, container_idle_timeout=60 * 3, secrets=[modal.Secret.from_dotenv()])
 def answer_questions_with_image_context(
-    pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=400, show_stream=False, additional_instructions="", model="gpt-4o-mini"
+    pdf_url, queries, top_k=1, use_cache=True, max_new_tokens=400, additional_instructions="", model="gpt-4o-mini"
 ):
     log_to_queue("Entered Multi Modal RAG Container")
     vol.reload()
     pdf_retriever = modal.Function.lookup("pdf-retriever", "PDFRetriever.top_pages")
-    vision_language_model = modal.Function.lookup("vision-language-model", "VisionLanguageModel.forward")
+    # vision_language_model = modal.Function.lookup("vision-language-model", "VisionLanguageModel.forward")
     idxs_top_k = pdf_retriever.remote(pdf_url, queries, use_cache=use_cache, top_k=top_k)
 
     messages_list = []
@@ -88,13 +88,17 @@ def answer_questions_with_image_context(
 
     log_to_queue("PDF Retrieval Complete. Sending Context and Question to Vision Language Model")
     if model == "Qwen/Qwen2-VL-7B-Instruct":
-        res = vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=show_stream), all_images_data
+        raise (Exception("Qwen/Qwen2-VL-7B-Instruct not supported yet"))
+        # res = vision_language_model.remote(messages_list, max_new_tokens=max_new_tokens, show_stream=True), all_images_data
     elif model == "gpt-4o-mini":
-        res = openai_vision_language_model(messages_list, max_new_tokens), all_images_data
+        resp_gen = openai_vision_language_model(messages_list, max_new_tokens)
+        for chunk in resp_gen:
+            if chunk.choices[0].delta.content is not None:
+                content = chunk.choices[0].delta.content
+                yield content
+        yield all_images_data
     else:
         raise ValueError(f"Model {model} not supported")
-    log_to_queue("Final Answer Obtained")
-    return res
 
 
 def openai_vision_language_model(messages_list, max_new_tokens):
@@ -104,14 +108,12 @@ def openai_vision_language_model(messages_list, max_new_tokens):
     load_dotenv()
 
     client = OpenAI()
-    responses = []
-    for messages in messages_list:
-        log_to_queue("Calling OpenAI . . .")
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,
-            max_tokens=max_new_tokens,
-        )
-        responses.append(response.choices[0].message.content)
-        log_to_queue("Done Calling OpenAI")
-    return responses
+    messages = messages_list[0]  # TODO: Assuming messages_list is length 1
+    log_to_queue("Calling OpenAI . . .")
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        max_tokens=max_new_tokens,
+        stream=True,
+    )
+    return response
