@@ -1,12 +1,16 @@
 from asyncio import sleep
 
+import marko
 import modal
 from fasthtml.common import *
 from utils import log_to_queue, read_from_queue
 
 picocss = "https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.indigo.min.css"
 picolink = (Link(rel="stylesheet", href=picocss), Style(":root { --pico-font-size: 100%; }"))
-app, rt = fast_app(hdrs=(MarkdownJS(), *picolink, Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")))
+md = Script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js")
+app, rt = fast_app(hdrs=(md, MarkdownJS(), *picolink, Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")))
+
+chunks = []
 
 
 @rt("/")
@@ -15,7 +19,7 @@ def get():
         "Ask Questions about any PDF Document",
         Grid(
             Div(
-                Form(hx_post="/process", hx_target="#results", hx_swap="innerHTML")(
+                Form(hx_post="/process", hx_target="#images_used", hx_swap="innerHTML")(
                     Group(
                         Label("PDF URL:", Input(name="pdf_url", type="url", required=True, value="https://arxiv.org/pdf/2410.02525")),
                         Label(
@@ -51,23 +55,42 @@ def get():
                 sse_swap="message",
             ),
         ),
-        Div(H1("Answer:"), id="results"),
+        Div(H1("Answer:")),
+        Div(
+            Div(
+                id="stream-container",
+            ),
+            hx_ext="sse",
+            sse_connect="/call-openai",
+            # sse_close="completed",
+            sse_swap="message",
+            hx_swap="show:#stream-container:bottom",
+        ),
+        Div(H1("Pages Used for Context:"), id="images_used"),
     )
 
 
 @rt("/process")
 def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
+    global chunks
+    chunks = []
     answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
     log_to_queue("Starting Multi Modal RAG")
-    res, all_images_data = answer_questions_with_image_context.remote(
+    res = answer_questions_with_image_context.remote_gen(
         pdf_url=pdf_url,
         queries=[question],
         top_k=top_k,
         use_cache=True,
         max_new_tokens=8000,
         additional_instructions=additional_instructions,
-        model="gpt-4o-mini",  # "gpt-4o-mini" or ="Qwen/Qwen2-VL-7B-Instruct"
+        model="gpt-4o-mini",
     )
+    for r in res:
+        if isinstance(r, str):
+            chunks.append(r)
+        else:
+            all_images_data = r
+    log_to_queue("Done Calling OpenAI")
     image_elements = Grid(
         *(
             Div(
@@ -79,14 +102,16 @@ def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
             for im in all_images_data[0]
         )
     )
-    #
-    return Div(H1("Answer:"), *(Div(r, cls="marked") for r in res), H1("Pages Used for Context"), image_elements)
+    final_html = H1("Pages Used for Context:"), Div(image_elements)
+    chunks = []
+    return final_html
 
 
 shutdown_event = signal_shutdown()
 
 
 async def terminal_log_generator():
+    print("Opening SSE for Terminal Logs")
     while not shutdown_event.is_set():
         message = read_from_queue()
         if message:
@@ -96,8 +121,25 @@ async def terminal_log_generator():
 
 @rt("/poll-queue")
 async def get():
-    "Send time to all connected clients every second"
     return EventStream(terminal_log_generator())
+
+
+async def call_openai():
+    print("Opening SSE for OpenAI")
+    global chunks
+    while not shutdown_event.is_set():
+        if not chunks:
+            # yield sse_message(" ", event="completed")
+            await sleep(0.05)
+            continue
+        chunks_stream = "".join([c for c in chunks if isinstance(c, str)])
+        yield sse_message(Div(NotStr(marko.convert("".join(chunks_stream))), id="stream-container"))
+        await sleep(0.01)
+
+
+@rt("/call-openai")
+async def get():
+    return EventStream(call_openai())
 
 
 serve()
