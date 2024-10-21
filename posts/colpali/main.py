@@ -74,22 +74,21 @@ def get():
 def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
     global chunks
     chunks = []
-    answer_questions_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_questions_with_image_context")
+    answer_question_with_image_context = modal.Function.lookup("multi-modal-rag", "answer_question_with_image_context")
     log_to_queue("Starting Multi Modal RAG")
-    res = answer_questions_with_image_context.remote_gen(
+    res = answer_question_with_image_context.remote_gen(
         pdf_url=pdf_url,
-        queries=[question],
+        query=question,
         top_k=top_k,
         use_cache=True,
         max_new_tokens=8000,
         additional_instructions=additional_instructions,
-        model="gpt-4o-mini",
     )
     for r in res:
         if isinstance(r, str):
             chunks.append(r)
         else:
-            all_images_data = r
+            images_data = r
     log_to_queue("Done Calling OpenAI")
     image_elements = Grid(
         *(
@@ -99,7 +98,7 @@ def post(pdf_url: str, question: str, top_k: int, additional_instructions: str):
                     style="width: 100%; height: auto;",
                 )
             )
-            for im in all_images_data[0]
+            for im in images_data
         )
     )
     final_html = H1("Pages Used for Context:"), Div(image_elements)
