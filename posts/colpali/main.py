@@ -124,7 +124,7 @@ async def get():
     return EventStream(terminal_log_generator())
 
 
-async def call_openai():
+async def stream_chunks():
     print("Opening SSE for OpenAI")
     global chunks
     while not shutdown_event.is_set():
@@ -139,7 +139,7 @@ async def call_openai():
 
 @rt("/call-openai")
 async def get():
-    return EventStream(call_openai())
+    return EventStream(stream_chunks())
 
 
 serve()
