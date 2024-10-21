@@ -35,4 +35,4 @@ def __main__():
         if isinstance(chunk, str):
             print(chunk)
         else:
-            print(f'The final answer is {chunk}')
+            print(f"The final answer is {chunk}")
