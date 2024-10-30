@@ -29,11 +29,19 @@ modal deploy multi_modal_rag.py
 modal deploy pdf_retriever.py
 ```
 
-# Tests
+# Testing Modal Backend
+
 This will run the backend tests directly on Modal.
 If these pass it means you have successfully deployed the backend Modal apps.
+
 ```
 pytest -n 10 tests
+```
+
+# Running the FastHTML App
+
+```
+python main.py
 ```
 
 # Lint
