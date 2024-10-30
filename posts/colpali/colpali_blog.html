@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-10-30">
+
+<title>Chris Levy - Chat with PDF App using ColPali, Modal, and FastHTML</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">Chat with PDF App using ColPali, Modal, and FastHTML</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 30, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">October 30, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a></li>
+  <li><a href="#colpali" id="toc-colpali" class="nav-link" data-scroll-target="#colpali">ColPali</a></li>
+  <li><a href="#generating-the-answer" id="toc-generating-the-answer" class="nav-link" data-scroll-target="#generating-the-answer">Generating the Answer</a></li>
+  <li><a href="#fasthtml-app" id="toc-fasthtml-app" class="nav-link" data-scroll-target="#fasthtml-app">FastHTML App</a></li>
+  <li><a href="#highlights" id="toc-highlights" class="nav-link" data-scroll-target="#highlights">Highlights</a></li>
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions">Conclusions</a></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="intro" class="level1">
+<h1>Intro</h1>
+<p>Lately, I’ve been following <a href="https://about.fastht.ml/">FastHTML</a> from a distance. As someone who sticks to backend Python development, frontend development has always been a bit foreign to me, but I’m interested in giving it a shot. FastHTML feels like a good way to get started with some basics by building small apps.</p>
+<p>I’ve also noticed a lot of chatter on X about <a href="https://github.com/illuin-tech/colpali">Colpali</a> and document retrieval with vision language models, which caught my attention. I like exploring new stuff so I want to see what that is all about.</p>
+<p>On top of that, I’m still enjoying <a href="https://modal.com/">Modal</a>, which I’ve written about before <a href="https://drchrislevy.github.io/posts/modal_fun/modal_blog.html">here</a> and <a href="https://drchrislevy.github.io/posts/intro_modal/intro_modal.html">here</a>. I thought it would be fun to combine these tools into a simple app and see what I can learn from it.</p>
+<p>All the code for this project is in this <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/README.md">folder</a>. The main code is the following:</p>
+<ul>
+<li><a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/multi_modal_rag.py">multi_modal_rag.py</a> - A Modal app running on CPU that runs the multimodal retrieval logic.</li>
+<li><a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/pdf_retriever.py">pdf_retriever.py</a> - A Modal app running on GPU which processes and caches images/embeddings for each PDF and runs inference for ColPali.</li>
+<li><a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/utils.py">utils.py</a> - some simple utility functions for logging and generating unique folder names in the Modal Volumes.</li>
+<li><a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/main.py">main.py</a> - the FastHTML app that runs the frontend.</li>
+<li><a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/colpali_blog.ipynb">colpali_blog.ipynb</a> - a notebook that I used to generate the blog post for this project.</li>
+</ul>
+<p>See the <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/README.md">README</a> for more details.</p>
+</section>
+<section id="colpali" class="level1">
+<h1>ColPali</h1>
+<p>There are already so many great resources out there about ColPali. Checkout the resources <a href="#resources">below</a> for more information. I will give a quick overview.</p>
+<p>I have already deployed ColPali to Modal as a remote function I can call, running on an A10 GPU.</p>
+<pre><code>modal deploy pdf_retriever.py</code></pre>
+<p>Remember that with Modal, you only pay for compute when running requests in active containers. My deployed app can sit there idle without costing me anything!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/colpali_modal.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">ColPali Model Deployed on Modal</figcaption>
+</figure>
+</div>
+<p>There are a couple functions I have decorated with <code>@modal.method()</code> within the <code>PDFRetriever</code> class:</p>
+<ul>
+<li><code>def forward(self, inputs)</code> –&gt; <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/pdf_retriever.py#L72">here</a></li>
+<li><code>def top_pages(self, pdf_url, queries, use_cache=True, top_k=1)</code> –&gt; <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/pdf_retriever.py#L103">here</a></li>
+</ul>
+<p>Let’s look at the <code>forward</code> function first as it can be used to run inference on a list of strings or images to get the embeddings.</p>
+<p>First we will pass in text inputs to ColPali.</p>
+<div class="cell" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>forward <span class="op">=</span> modal.Function.lookup(<span class="st">"pdf-retriever"</span>, <span class="st">"PDFRetriever.forward"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>embeddings_batch <span class="op">=</span> forward.remote([<span class="st">"How does the latency between ColPali and standard retrieval methods compare?"</span>])</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(embeddings_batch) <span class="op">==</span> <span class="dv">1</span>  <span class="co"># we passed in one document i.e. batch size of 1</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> embeddings_batch[<span class="dv">0</span>]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(embeddings.shape)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>embeddings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([28, 128])</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>tensor([[ 0.1572, -0.0240,  0.0942,  ..., -0.0278, -0.0791, -0.0129],
+        [-0.0688, -0.1260,  0.0038,  ..., -0.0073, -0.1162,  0.0962],
+        [ 0.0413, -0.1055, -0.1055,  ..., -0.0055, -0.2178,  0.1406],
+        ...,
+        [-0.0825, -0.0444, -0.0674,  ..., -0.0327, -0.1504,  0.1670],
+        [ 0.1465,  0.0016, -0.1338,  ...,  0.0127, -0.2119,  0.1191],
+        [ 0.1641, -0.0405, -0.1338,  ...,  0.0175, -0.2080,  0.1177]],
+       dtype=torch.bfloat16)</code></pre>
+</div>
+</div>
+<p>The first thing to note is that we don’t get a single dense embedding vector. Traditionally that is the case where a single vector is used to represent one input. But ColPali is generating ColBERT-style multi-vector representations of the input. With the late interaction paradigm you get back multiple embeddings, one per input <strong>token</strong>. Each embedding is 128-dimensional.</p>
+<p>ColPali is trained to take image documents as input. It was trained on query-document pairs where each document is a page of a PDF. Each PDF page (“document”) is treated as an image. It uses a vision language model to create multi-vector embeddings purely from visual document features.</p>
+<p>Consider the following image of a PDF page from the ColPali paper:</p>
+<p><img src="imgs/colpali_paper_page_sample.png" class="img-fluid" alt="ColPali Paper PDF Page 2"> We can pass this image to the <code>forward</code> function and get the embeddings back. The ColPali model divides each page image into a 32 x 32 = 1024 patches. In addition to the image grid patches, ColPali includes 6 instruction text tokens that are prepended to the image input. These tokens represent the text: “Describe the image.” Combining the image grid patches and the instruction tokens, we get: 1024 (image patches) + 6 (instruction tokens) = 1030 total patches/embeddings.</p>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>img <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">"imgs/colpali_paper_page_sample.png"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> forward.remote([img])[<span class="dv">0</span>]</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(embeddings.shape)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>embeddings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([1030, 128])</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>tensor([[-0.1562, -0.0396, -0.0908,  ...,  0.1426, -0.1113,  0.1079],
+        [-0.1260,  0.0427,  0.0991,  ..., -0.0286, -0.0170,  0.0786],
+        [-0.1621,  0.0297,  0.0874,  ..., -0.0255, -0.0168,  0.0625],
+        ...,
+        [ 0.1045, -0.0178,  0.0522,  ..., -0.0986, -0.1011, -0.0366],
+        [ 0.0078,  0.0674,  0.0674,  ..., -0.0226, -0.0479, -0.0908],
+        [ 0.0062,  0.0623,  0.1396,  ...,  0.0264, -0.1699, -0.1533]],
+       dtype=torch.bfloat16)</code></pre>
+</div>
+</div>
+<p>Using the ColPali model we produce multi-vector embeddings per page which can be indexed. At query time, we use the same model to generate multi-vector embeddings for the query. So both queries and documents are represented as sets of vectors rather than single vector.</p>
+<p>The MaxSim (Maximum Similarity) scoring function is used to compute the similarity between query embeddings and document embeddings. The scoring function performs the following steps:</p>
+<ul>
+<li>Computes dot products between all query token embeddings and all document page patch embeddings</li>
+<li>Applies a max reduce operation over the patch dimension</li>
+<li>Performs a sum reduce operation over the query tokens</li>
+</ul>
+<p>There is a great and simple explanation in this <a href="Both queries and documents are represented as sets of vectors rather than single vector.">blog post</a></p>
+<p>I have wrapped the logic for a given PDF url and query/question within the deployed Modal function</p>
+<p><code>def top_pages(self, pdf_url, queries, use_cache=True, top_k=1)</code>.</p>
+<p>The function takes a <code>pdf_url</code> and a list of <code>queries</code> (questions) and returns the top <code>top_k</code> pages for each query/question. The use of ColPali and the MaxSim scoring function allows us to retrieve the most relevant pages from the PDF that will assist in answering the question</p>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>get_top_pages <span class="op">=</span> modal.Function.lookup(<span class="st">"pdf-retriever"</span>, <span class="st">"PDFRetriever.top_pages"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pdf_url <span class="op">=</span> <span class="st">"https://arxiv.org/pdf/2407.01449"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>top_pages <span class="op">=</span> get_top_pages.remote(pdf_url, queries<span class="op">=</span>[<span class="st">"How does the latency between ColPali and standard retrieval methods compare?"</span>], top_k<span class="op">=</span><span class="dv">3</span>)[<span class="dv">0</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>top_pages</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>[1, 0, 4]</code></pre>
+</div>
+</div>
+<p>This first returned index page <code>1</code> is actually the second page of the PDF since we start counting from <code>0</code>. And that page being returned is the image we saw earlier from the ColPali paper. It’s really cool because the answer is found in the figure on that page.</p>
+</section>
+<section id="generating-the-answer" class="level1">
+<h1>Generating the Answer</h1>
+<p>Once we have the top pages/images as context, we can pass them along with the query/question to a vision language model to generate an answer. The images are passed as the context and the question/query is passed as text. I have this logic deployed in a Modal Application as well running on CPU. It communicates with the other deployed ColPali Modal app running on the GPU when it needs to compute the embeddings. I am using OpenAI’s <code>gpt-4o-mini</code> for the vision language model to generate the answer with the provided image context and question.</p>
+<pre><code>modal deploy multi_modal_rag.py</code></pre>
+<p>The deployed Modal function <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/multi_modal_rag.py#L62">here</a> is</p>
+<pre><code>def answer_question_with_image_context(pdf_url, query, top_k=1, use_cache=True, max_new_tokens=2000, additional_instructions=""):</code></pre>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>answer_question_with_image_context <span class="op">=</span> modal.Function.lookup(<span class="st">"multi-modal-rag"</span>, <span class="st">"answer_question_with_image_context"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> answer_question_with_image_context.remote_gen(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    pdf_url<span class="op">=</span><span class="st">"https://arxiv.org/pdf/2407.01449"</span>, query<span class="op">=</span><span class="st">"How does the latency between ColPali and standard retrieval methods compare?"</span>, top_k<span class="op">=</span><span class="dv">5</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> <span class="st">""</span>.join([chunk <span class="cf">for</span> chunk <span class="kw">in</span> res <span class="cf">if</span> <span class="bu">type</span>(chunk) <span class="op">==</span> <span class="bu">str</span>])</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(answer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>The latency comparison between ColPali and standard retrieval methods indicates that ColPali is significantly faster. Specifically:
+
+- **ColPali**: 0.39 seconds per page.
+- **Standard Retrieval**: 7.22 seconds per page.
+
+This demonstrates that ColPali achieves better performance in terms of latency while maintaining a stronger relevance score in document retrieval tasks.</code></pre>
+</div>
+</div>
+</section>
+<section id="fasthtml-app" class="level1">
+<h1>FastHTML App</h1>
+<p>To demo the FastHTML App I created, I will share images and videos of running it locally. The entire app is in the code <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/main.py">main.py</a>.</p>
+<pre><code>python main.py</code></pre>
+<p>Here is what the app looks like when you first load it up:</p>
+<p><img src="imgs/fasthtml_demo1.png" class="img-fluid"></p>
+<p>Here are two videos of running the app and asking questions about the ColPali paper.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/YoXkFCA0qC8" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/AR7h95IppMU" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>This PDF url of the ColPali paper was already processed and cached which means I already stored the embeddings and images inside volumes on Modal. So it loads the document embeddings and images very quickly. Also, the Modal container was warm and running so there were no cold start delays.</p>
+<p>In this next video I will demo the app with a new PDF url that was not processed and cached yet. I will also send the requests to the backend when the Modal containers are idle. These requests will trigger the Modal containers to start up and run the inference. It will take longer but you will see how everything is logged from the backend in the terminal window I created. It uses server-sent events (SSE) to stream the logs to the frontend so you can see what is happening in the backend. This example will use a longer PDF from Meta, <a href="https://ai.meta.com/static-resource/movie-gen-research-paper">Movie Gen: A Cast of Media Foundation Models</a>, which is 92 pages.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/Eu6QJjD73N0" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+<p>This next video runs the same PDF and question a second time. Now that all the images and document embeddings are cached in a volume on Modal, everything is much faster. This is also using a warm Modal container so there were no cold start delays. Most of the time is spent in the OpenAI API call which takes five images as input and streams back the text response.</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/Z-EOqVBibSY" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="highlights" class="level1">
+<h1>Highlights</h1>
+<p>There are a few highlights I want to call out. The first is the use of server-sent events (SSE) to stream the logs to the frontend. The backend code is running in the cloud on Modal’s infrastructure. In the frontend code I created the terminal looking window with this <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/main.py#L54-L60">code</a>. It continually calls the <code>/poll-queue</code> endpoint to get the latest logs from Modal and streams them via SSE. In Modal I am using a Queue to collect the logs. Throughout my Modal application code I use these <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/utils.py#L18-L29">functions</a>. Anytime I want to log a message I just call <code>log_to_queue</code>. It gets placed on the queue and then <code>read_from_queue</code> is used to pop the message off the queue and display it. It’s a fun and neat way to provide more visibility to the frontend about what the backend is doing. It’s also neat since messages are being logged from multiple containers.</p>
+<p><img src="imgs/fasthtml_demo2.png" class="img-fluid"></p>
+<p>Another highlight is the use of Modal’s volume functionality. I use a volume to store the images and document embeddings for each PDF that is processed. This way if the PDF is used a second time, the images and embeddings are stored to the Volume for fast retrieval. This avoids having to call ColPali processing and PDF processing for each question/query related to the same document.</p>
+<p><img src="imgs/modal_volumes1.png" class="img-fluid"></p>
+<p>There is a folder for each PDF processed (for images and embeddings).</p>
+<p><img src="imgs/modal_volumes2.png" class="img-fluid"></p>
+<p><img src="imgs/modal_volumes3.png" class="img-fluid"></p>
+<p>Each image for each page is stored in the volume like this: <img src="imgs/modal_volumes4.png" class="img-fluid"></p>
+<p>And all the document embeddings, for a single PDF, are stored in Pickle format in a file called <code>embeddings.pkl</code>. One <code>.pkl</code> file per PDF. <img src="imgs/modal_volumes5.png" class="img-fluid"></p>
+<p>Since I am only allowing to ask questions about a single PDF at a time, there is no need for fancy vector DBs etc. The embeddings for a specific PDF are cached and can be loaded into memory very quickly when needed. When a new PDF comes along that is not cached, we process it, and then store the images and embeddings in the volume. You can see all the details about PDF processing and ColPali inference in the <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/pdf_retriever.py">PDFRetriever class</a>.</p>
+<p>One final highlight was streaming the OpenAI response back to the frontend in markdown format via SSE. This took me a while to figure out how to do. On the frontend I did <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/main.py#L131">this</a>. There could be better ways to do this but it works for now. Big shout out to <code>@Frax</code> and <code>@Phi</code> from the <a href="https://discord.com/channels/689892369998676007/1296050761414742127">FastHTML Discord channel</a> for helping me out with that. Streaming from Modal was really easy. I just made used of <code>yield</code> <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/multi_modal_rag.py#L78-82">here</a> and <code>remote_gen</code> <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/colpali/main.py#L84">here</a>.</p>
+</section>
+<section id="conclusions" class="level1">
+<h1>Conclusions</h1>
+<p>This was really fun to build. I am such a noob with FastHTML and look forward to the documentation and community expanding. Some improvements to this app could be:</p>
+<ul>
+<li>when clicking the <strong>submit</strong> button, it would clear the log terminal window/div and answer window/div.</li>
+<li>Adding the heatmaps to the PDF page images which highlight which sections/tokens are most relevant to the query.</li>
+<li>adding sessions, authentication and authorization</li>
+</ul>
+</section>
+<section id="resources" class="level1">
+<h1>Resources</h1>
+<p>In no particular order:</p>
+<ul>
+<li><a href="https://arxiv.org/pdf/2407.01449v2">Colpali paper</a></li>
+<li><a href="https://arxiv.org/pdf/2004.12832">Colbert paper</a></li>
+<li><a href="https://arxiv.org/pdf/2112.01488">Colbert V2 paper</a></li>
+<li><a href="https://arxiv.org/pdf/2407.07726">PaliGemma</a></li>
+<li><a href="https://www.answer.ai/posts/colbert-pooling.html">A little pooling goes a long way for multi-vector representations: Blog answer.ai</a>
+<ul>
+<li><a href="https://arxiv.org/pdf/2409.14683">Reducing the Footprint of Multi-Vector Retrieval with Minimal Performance Impact via Token Pooling, Paper</a></li>
+</ul></li>
+<li><a href="https://arxiv.org/pdf/2205.09707">PLAID paper</a></li>
+<li><a href="https://www.youtube.com/watch?v=0nA5QG3087g">Beyond the Basics of Retrieval for Augmenting Generation (w/ Ben Clavié), Youtube Talk</a></li>
+<li><a href="https://docs.google.com/presentation/d/1Zczs5Sk3FsCO06ZLDznqkOOhbTe96PwJa4_7FwyMBrA/edit#slide=id.p">RAG is more than dense embedding, Google Slides, Ben Clavié</a></li>
+<li>The quick start in the README <a href="https://github.com/illuin-tech/colpali">Original ColPali Repo</a> as well as the sample <a href="https://github.com/illuin-tech/colpali/blob/main/scripts/infer/run_inference_with_python.py">inference code</a></li>
+<li><a href="https://huggingface.co/vidore/colpali-v1.2">Hugging Face Model Cards</a></li>
+<li><a href="https://mcplusa.com/the-future-of-search-vision-models-and-the-rise-of-multi-model-retrieval/">The Future of Search: Vision Models and the Rise of Multi-Model Retrieval</a></li>
+<li><a href="https://blog.vespa.ai/scaling-colpali-to-billions/">Scaling ColPali to billions of PDFs with Vespa</a></li>
+<li><a href="https://blog.vespa.ai/the-rise-of-vision-driven-document-retrieval-for-rag/">Beyond Text: The Rise of Vision-Driven Document Retrieval for RAG</a></li>
+<li><a href="https://huggingface.co/blog/vlms">Vision Language Models Explained</a></li>
+<li><a href="https://huggingface.co/blog/fsommers/document-similarity-colpali">Document Similarity Search with ColPali</a></li>
+<li><a href="https://x.com/jobergum">Jo Kristian Bergum: X</a></li>
+<li><a href="https://x.com/ManuelFaysse">Manuel Faysse: X</a></li>
+<li><a href="https://x.com/tonywu_71">Tony Wu: X</a></li>
+<li><a href="https://x.com/lateinteraction?lang=en">Omar Khattab: X</a></li>
+<li><a href="https://about.fastht.ml/">fastHTML</a></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

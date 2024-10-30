@@ -2,54 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://DrChrisLevy.github.io/blog.html</loc>
-    <lastmod>2024-09-13T14:48:50.993Z</lastmod>
+    <lastmod>2024-10-30T16:31:07.681Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_lunch_talk/llm_talk_slides.html</loc>
-    <lastmod>2024-09-13T14:48:49.990Z</lastmod>
+    <lastmod>2024-10-30T16:31:06.763Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/anthropic/anthropic.html</loc>
-    <lastmod>2024-09-13T14:48:48.591Z</lastmod>
+    <lastmod>2024-10-30T16:31:05.507Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
-    <lastmod>2024-09-13T14:48:46.331Z</lastmod>
+    <lastmod>2024-10-30T16:31:03.464Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/colpali/colpali_blog.html</loc>
+    <lastmod>2024-10-30T16:31:02.292Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
-    <lastmod>2024-09-13T14:48:44.004Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/bits_and_bytes/bits_bytes.html</loc>
-    <lastmod>2024-09-13T14:48:41.842Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
-    <lastmod>2024-09-13T14:48:41.114Z</lastmod>
+    <lastmod>2024-10-30T16:31:01.182Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/modal_fun/modal_blog.html</loc>
-    <lastmod>2024-09-13T14:48:43.143Z</lastmod>
+    <lastmod>2024-10-30T16:30:59.765Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
+    <lastmod>2024-10-30T16:30:57.973Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/bits_and_bytes/bits_bytes.html</loc>
+    <lastmod>2024-10-30T16:30:58.629Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/y2k_llm/y2k.html</loc>
+    <lastmod>2024-10-30T16:31:00.448Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/intro_modal/intro_modal.html</loc>
-    <lastmod>2024-09-13T14:48:44.498Z</lastmod>
+    <lastmod>2024-10-30T16:31:01.629Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/fine_tune_jarvis/fine_tune_jarvis.html</loc>
-    <lastmod>2024-09-13T14:48:45.458Z</lastmod>
+    <lastmod>2024-10-30T16:31:02.746Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_inference_class/llm_inference.html</loc>
-    <lastmod>2024-09-13T14:48:47.004Z</lastmod>
+    <lastmod>2024-10-30T16:31:04.038Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/open_hermes_pro/open_hermes.html</loc>
-    <lastmod>2024-09-13T14:48:49.219Z</lastmod>
+    <lastmod>2024-10-30T16:31:06.093Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/index.html</loc>
-    <lastmod>2024-09-13T14:48:50.285Z</lastmod>
+    <lastmod>2024-10-30T16:31:07.035Z</lastmod>
   </url>
 </urlset>
