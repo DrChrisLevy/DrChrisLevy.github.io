@@ -1,7 +1,11 @@
 # Multimodal Retrieval with ColPali, Modal, and FastHTML
 
+![](imgs/intro.png)
+
 This was a project to force myself to build my first FastHTML app.
 It used Modal for the backend and FastHTML for the frontend.
+
+![](imgs/fasthtml_demo1.png)
 
 The main code is the following:
 
