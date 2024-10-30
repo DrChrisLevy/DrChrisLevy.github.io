@@ -41,7 +41,12 @@ def get():
                     ),
                     Label(
                         "Question",
-                        Input(name="question", required=True, type="text", value="How does the latency between ColPali and standard retrieval methods compare?"),
+                        Input(
+                            name="question",
+                            required=True,
+                            type="text",
+                            value="How does the latency between ColPali and standard retrieval methods compare?",
+                        ),
                     ),
                     Button("Submit", type="submit"),
                 )
