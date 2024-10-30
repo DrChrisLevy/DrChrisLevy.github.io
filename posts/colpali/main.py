@@ -21,7 +21,7 @@ def get():
             Div(
                 Form(hx_post="/process", hx_target="#images_used", hx_swap="innerHTML")(
                     Group(
-                        Label("PDF URL:", Input(name="pdf_url", type="url", required=True, value="https://arxiv.org/pdf/2410.02525")),
+                        Label("PDF URL:", Input(name="pdf_url", type="url", required=True, value="https://arxiv.org/pdf/2407.01449")),
                         Label(
                             "Number of Pages for Context",
                             Select(name="top_k", required=True)(
@@ -41,7 +41,7 @@ def get():
                     ),
                     Label(
                         "Question",
-                        Input(name="question", required=True, type="text", value="What is this paper about? Give me a detailed summary"),
+                        Input(name="question", required=True, type="text", value="How does the latency between ColPali and standard retrieval methods compare?"),
                     ),
                     Button("Submit", type="submit"),
                 )
