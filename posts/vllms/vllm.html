@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-12-05">
+
+<title>Chris Levy - Passing Images into LLMs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">Passing Images into LLMs</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 5, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">December 5, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#high-level-overview" id="toc-high-level-overview" class="nav-link" data-scroll-target="#high-level-overview">High Level Overview</a></li>
+  </ul></li>
+  <li><a href="#recap-of-transformer-architecture-for-text-inputs" id="toc-recap-of-transformer-architecture-for-text-inputs" class="nav-link" data-scroll-target="#recap-of-transformer-architecture-for-text-inputs">Recap of Transformer Architecture for Text Inputs</a>
+  <ul class="collapse">
+  <li><a href="#decoder-style-llms" id="toc-decoder-style-llms" class="nav-link" data-scroll-target="#decoder-style-llms">Decoder Style LLMs</a></li>
+  <li><a href="#encoder-models" id="toc-encoder-models" class="nav-link" data-scroll-target="#encoder-models">Encoder Models</a></li>
+  </ul></li>
+  <li><a href="#introducing-images-into-transformers-and-llms" id="toc-introducing-images-into-transformers-and-llms" class="nav-link" data-scroll-target="#introducing-images-into-transformers-and-llms">Introducing Images into Transformers and LLMs</a>
+  <ul class="collapse">
+  <li><a href="#vision-transformers-vit" id="toc-vision-transformers-vit" class="nav-link" data-scroll-target="#vision-transformers-vit">Vision Transformers (ViT)</a>
+  <ul class="collapse">
+  <li><a href="#the-first-vision-transformer" id="toc-the-first-vision-transformer" class="nav-link" data-scroll-target="#the-first-vision-transformer">The First Vision Transformer</a></li>
+  <li><a href="#clip" id="toc-clip" class="nav-link" data-scroll-target="#clip">CLIP</a></li>
+  <li><a href="#siglip-an-improved-version-of-clip" id="toc-siglip-an-improved-version-of-clip" class="nav-link" data-scroll-target="#siglip-an-improved-version-of-clip">SigLIP: an improved version of CLIP</a></li>
+  </ul></li>
+  <li><a href="#vision-language-models" id="toc-vision-language-models" class="nav-link" data-scroll-target="#vision-language-models">Vision Language Models</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#resources-in-no-particular-order" id="toc-resources-in-no-particular-order" class="nav-link" data-scroll-target="#resources-in-no-particular-order">Resources (in no particular order)</a>
+  <ul class="collapse">
+  <li><a href="#multimodal-llms" id="toc-multimodal-llms" class="nav-link" data-scroll-target="#multimodal-llms">Multimodal LLMs</a></li>
+  <li><a href="#vision-transformer-vit" id="toc-vision-transformer-vit" class="nav-link" data-scroll-target="#vision-transformer-vit">Vision Transformer (ViT)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Often when I work with LLMs it is with text inputs, but I also use image inputs too sometimes. I continue to spend time learning the internals of the transformer architecture used in decoder style LLMs. But most of my studying has been with text inputs. I was always a little curious, and confused, on how images were passed into LLMs. I just never took the time to dig into it more. Now I am finally getting around to it. This blog post is some notes I’m taking as I learn more about this topic. I write about things so I can better understand them, and my future self is always grateful.</p>
+<p>The main motivation for this post was Sebastian Raschka’s recent blog post <a href="https://magazine.sebastianraschka.com/p/understanding-multimodal-llms?utm_source=post-email-title&amp;publication_id=1174659&amp;post_id=151078631&amp;utm_campaign=email-post-title&amp;isFreemail=true&amp;r=1urfra&amp;triedRedirect=true&amp;utm_medium=email">Understanding Multimodal LLMs</a>. I highly recommend reading it. I’m going to focus on learning a subset of the topics that his blog post discusses. I am starting with focusing on what he refers to as <em>Method A: Unified Embedding Decoder Architecture</em>. I may go deeper on other topics in other blog posts, but for now this is a good start for me.</p>
+<section id="high-level-overview" class="level2">
+<h2 class="anchored" data-anchor-id="high-level-overview">High Level Overview</h2>
+<p>Large Language Models (LLMs) have revolutionized the way we interact with text, enabling capabilities like natural language generation, reasoning, and conversation. However, their utility isn’t limited to text alone. Modern multimodal models can also understand and process images. How exactly are images passed into these models? That’s what this post aims to clarify.</p>
+<p>This post starts with a recap of how transformer-based LLMs process text inputs. We then transition to how images can be converted into sequences of embeddings (just like tokens in text) and fed into LLMs. We’ll look at Vision Transformers (ViT), show how they encode images, and finally explain how these embeddings can be integrated into decoder-style LLMs for multimodal tasks such as image captioning and visual question answering.</p>
+<p><strong>Key Takeaways:</strong></p>
+<ul>
+<li>Transformers fundamentally operate on sequences of embeddings—be it text tokens or image patches.</li>
+<li>Images are typically processed by a specialized transformer-based image encoder (like ViT) into a sequence of patch embeddings.</li>
+<li>These image patch embeddings can then be projected into the decoder LLM’s embedding space, allowing the LLM to accept and reason over both text and images.</li>
+<li>Text → tokens → embeddings → transformer</li>
+<li>Images → patches → embeddings → transformer</li>
+</ul>
+</section>
+</section>
+<section id="recap-of-transformer-architecture-for-text-inputs" class="level1">
+<h1>Recap of Transformer Architecture for Text Inputs</h1>
+<section id="decoder-style-llms" class="level2">
+<h2 class="anchored" data-anchor-id="decoder-style-llms">Decoder Style LLMs</h2>
+<p>We first need to have an understanding of the transformer architecture used in decoder style LLMs. Earlier this year I wrote my first blog post with some notes on the <a href="https://drchrislevy.github.io/posts/basic_transformer_notes/transformers.html">transformer architecture</a>. To get the most out of this post, it would be good to have some familiarity with the transformer architecture. We will give a quick reminder of some basic concepts.</p>
+<p>Most LLMs you interact with (like GPT-style models) are decoder-only transformers. In a decoder transformer:</p>
+<ul>
+<li>Input text is first tokenized into discrete tokens.</li>
+<li>Each token is mapped to an embedding vector from a learned embedding lookup table.</li>
+<li>A sequence of token embeddings is passed through the transformer layers (which use self-attention and feed-forward layers).</li>
+<li>The model outputs a hidden state for each token, which is then passed through a classification head to predict the probability distribution over the next token.</li>
+</ul>
+<p>We will load one of the <a href="https://huggingface.co/collections/HuggingFaceTB/smollm2-6723884218bcda64b34d7db9">SmolLM2 LLM models</a> created by the Hugging Face team. This is not the instruction fine tuned model, but rather the base pre-trained model. This model may not be as well known as some of the other models, but it is a good model to start with since it is really small and easy to run locally.</p>
+<div class="cell" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModelForCausalLM, AutoTokenizer</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">"HuggingFaceTB/SmolLM2-135M"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModelForCausalLM.from_pretrained(<span class="st">"HuggingFaceTB/SmolLM2-135M"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>LlamaForCausalLM(
+  (model): LlamaModel(
+    (embed_tokens): Embedding(49152, 576)
+    (layers): ModuleList(
+      (0-29): 30 x LlamaDecoderLayer(
+        (self_attn): LlamaSdpaAttention(
+          (q_proj): Linear(in_features=576, out_features=576, bias=False)
+          (k_proj): Linear(in_features=576, out_features=192, bias=False)
+          (v_proj): Linear(in_features=576, out_features=192, bias=False)
+          (o_proj): Linear(in_features=576, out_features=576, bias=False)
+          (rotary_emb): LlamaRotaryEmbedding()
+        )
+        (mlp): LlamaMLP(
+          (gate_proj): Linear(in_features=576, out_features=1536, bias=False)
+          (up_proj): Linear(in_features=576, out_features=1536, bias=False)
+          (down_proj): Linear(in_features=1536, out_features=576, bias=False)
+          (act_fn): SiLU()
+        )
+        (input_layernorm): LlamaRMSNorm((576,), eps=1e-05)
+        (post_attention_layernorm): LlamaRMSNorm((576,), eps=1e-05)
+      )
+    )
+    (norm): LlamaRMSNorm((576,), eps=1e-05)
+    (rotary_emb): LlamaRotaryEmbedding()
+  )
+  (lm_head): Linear(in_features=576, out_features=49152, bias=False)
+)</code></pre>
+</div>
+</div>
+<p>The input to the transformer layers is a <strong>sequence of embeddings</strong>. In the case of text inputs, the input first gets converted into a sequence of tokens. Then each token is converted into an embedding vector.</p>
+<p>Here is the conversion of the input text to tokens ids.</p>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer([<span class="st">"The dog jumped over the"</span>], return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>input_ids <span class="op">=</span> inputs.input_ids</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(inputs)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(input_ids.shape)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(input_ids)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'input_ids': tensor([[  504,  2767, 25437,   690,   260]]), 'attention_mask': tensor([[1, 1, 1, 1, 1]])}
+torch.Size([1, 5])
+tensor([[  504,  2767, 25437,   690,   260]])</code></pre>
+</div>
+</div>
+<p>Each token id has an associated embedding vector. In the case of this SmolLM2 model, the embedding dimension is 576 and there are 49152 tokens in the vocabulary.</p>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>embedding_lkp <span class="op">=</span> model.model.embed_tokens</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(embedding_lkp.weight.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([49152, 576])</code></pre>
+</div>
+</div>
+<p>We can get the token embeddings by passing the token ids to the embedding lookup table. Each row of the returned tensor, ignoring the batch dimension, is a vector representation of a token.</p>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>embedding_vectors <span class="op">=</span> embedding_lkp(input_ids)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(embedding_vectors.shape)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(embedding_vectors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([1, 5, 576])
+tensor([[[ 0.1177,  0.0199, -0.0942,  ...,  0.0405,  0.1182,  0.0762],
+         [-0.0356,  0.1338,  0.0050,  ...,  0.0996,  0.0791,  0.0791],
+         [-0.0093,  0.0122,  0.0197,  ...,  0.0613, -0.1021, -0.0923],
+         [-0.0339,  0.0825, -0.1562,  ...,  0.0349,  0.1172, -0.0752],
+         [-0.1514,  0.0181, -0.0742,  ...,  0.0430,  0.0986,  0.0664]]],
+       grad_fn=&lt;EmbeddingBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>It is this sequence of embedding vectors that flows through the transformer layers. The input shape to the transformer layers is <code>(batch_size, sequence_length, embedding_dim)</code> and the output shape is <code>(batch_size, sequence_length, hidden_size)</code>. You can get the last hidden state by passing the inputs to the model, excluding the final classification head.</p>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>last_hidden_state <span class="op">=</span> model.model(<span class="op">**</span>inputs).last_hidden_state</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(last_hidden_state.shape)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>last_hidden_state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([1, 5, 576])</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>tensor([[[ 0.3476,  0.7350,  0.1515,  ..., -0.0168,  0.8690,  1.1515],
+         [ 0.0334,  0.6300,  0.7636,  ..., -0.6490,  0.0102, -0.2357],
+         [-1.0193,  0.9439,  0.1579,  ..., -0.3536, -2.4959,  1.6141],
+         [-2.0151, -0.3402, -0.6598,  ...,  1.7252, -1.6691,  1.4883],
+         [-0.6080, -0.9785, -0.8922,  ...,  3.4061, -0.1228, -0.6294]]],
+       grad_fn=&lt;MulBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Then this final transformer output is passed to the classification head. The classification head is a single linear layer that maps the hidden state to the logits for the next token. The output shape of the classification head is <code>(batch_size, sequence_length, vocab_size)</code>.</p>
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> model.lm_head(last_hidden_state)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.allclose(logits, model(<span class="op">**</span>inputs).logits)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>logits.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>torch.Size([1, 5, 49152])</code></pre>
+</div>
+</div>
+<p>Next we convert the logits to probabilities using the softmax function. While this is useful for visualization and inference, during training we typically use the raw logits directly with CrossEntropyLoss for better numerical stability. Note that we get logits (and after softmax, probabilities) for the next token at <strong>each position</strong> in the sequence. During inference, we typically only care about the last position’s values since that’s where we’ll generate the next token.</p>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> F.softmax(logits, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>probs.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>torch.Size([1, 5, 49152])</code></pre>
+</div>
+</div>
+<p>This next code block shows that at inference time we get the probabilities for the next token at <strong>each position</strong> in the sequence. It prints the top 5 predictions for each token in the sequence.</p>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> <span class="dv">5</span>  <span class="co"># Number of top predictions to show</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>top_probs, top_indices <span class="op">=</span> torch.topk(probs[<span class="dv">0</span>], k<span class="op">=</span>K, dim<span class="op">=-</span><span class="dv">1</span>)  <span class="co"># Remove batch dim and get top K</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert token indices to actual tokens and print predictions for each position</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>input_text <span class="op">=</span> tokenizer.decode(input_ids[<span class="dv">0</span>])  <span class="co"># Original text</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Original text: </span><span class="sc">{</span>input_text<span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> pos <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(input_ids[<span class="dv">0</span>])):</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    token <span class="op">=</span> tokenizer.decode(input_ids[<span class="dv">0</span>][pos])</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"After token: '</span><span class="sc">{</span>token<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Top </span><span class="sc">{</span>K<span class="sc">}</span><span class="ss"> predicted next tokens:"</span>)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> prob, idx <span class="kw">in</span> <span class="bu">zip</span>(top_probs[pos], top_indices[pos]):</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        predicted_token <span class="op">=</span> tokenizer.decode(idx)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>predicted_token<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>prob<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Original text: The dog jumped over the
+
+After token: 'The'
+Top 5 predicted next tokens:
+   first: 0.022
+   same: 0.015
+   most: 0.012
+   world: 0.011
+   last: 0.006
+
+After token: ' dog'
+Top 5 predicted next tokens:
+   was: 0.063
+   is: 0.062
+  's: 0.047
+  ’: 0.039
+  ,: 0.031
+
+After token: ' jumped'
+Top 5 predicted next tokens:
+   up: 0.200
+   on: 0.135
+   into: 0.068
+   over: 0.063
+   out: 0.062
+
+After token: ' over'
+Top 5 predicted next tokens:
+   the: 0.793
+   a: 0.032
+   it: 0.030
+   and: 0.017
+   him: 0.013
+
+After token: ' the'
+Top 5 predicted next tokens:
+   fence: 0.408
+   wall: 0.029
+   top: 0.017
+   bridge: 0.017
+   table: 0.013
+</code></pre>
+</div>
+</div>
+<p>In summary, the input to the transformer layers is a sequence of embeddings, of shape <code>(batch_size, sequence_length, embedding_dim)</code>. The transformer layers process this sequence and return a new sequence of hidden states, of shape <code>(batch_size, sequence_length, hidden_size)</code>. It is often the case that the hidden size is the same as the embedding dimension, but this is not a requirement. Even if you forget the details of the inner workings of the transformer layers (self attention, etc.), this is a useful mental model to keep in mind. The final classifier layer returns a probability distribution over the next token for each position in the sequence, of shape <code>(batch_size, sequence_length, vocab_size)</code>.</p>
+</section>
+<section id="encoder-models" class="level2">
+<h2 class="anchored" data-anchor-id="encoder-models">Encoder Models</h2>
+<p>In contrast, encoder-only models like BERT process the entire input sequence at once without causal masking. They often use a special <code>[CLS]</code> token at the start of the sequence, whose final embedding serves as a global representation of the entire input for tasks like classification. Here are some of the key differences between decoder and encoder models:</p>
+<ul>
+<li>Attention Masking:
+<ul>
+<li>Decoder: Uses causal (or triangular) masked attention to ensure that each position can only attend to previous positions, enforcing an autoregressive quality. This prevents the model from “seeing the future,” which is essential for tasks like text generation.</li>
+<li>Encoder: Doesn’t require causal masking because it processes the entire input sequence at once. Each token can attend to every other token in the sequence, providing a comprehensive context.</li>
+</ul></li>
+<li>Purpose and Data Flow:
+<ul>
+<li>Decoder: Designed for autoregressive tasks, where each output token is generated one by one, conditioning on previously generated tokens. This step-by-step generation is central to tasks like text generation, where each token “builds” upon the preceding tokens.</li>
+<li>Encoder: Designed to encode the entire input sequence into a contextualized representation in one shot, capturing relationships across the whole sequence. It’s typically used in understanding or embedding tasks and classification tasks, where the model needs a holistic view of the input.</li>
+</ul></li>
+</ul>
+<p>Let’s load a simple encoder model to illustrate some points.</p>
+<div class="cell" data-execution_count="9">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModel</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">"distilbert-base-uncased"</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModel.from_pretrained(<span class="st">"distilbert-base-uncased"</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>DistilBertModel(
+  (embeddings): Embeddings(
+    (word_embeddings): Embedding(30522, 768, padding_idx=0)
+    (position_embeddings): Embedding(512, 768)
+    (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+  (transformer): Transformer(
+    (layer): ModuleList(
+      (0-5): 6 x TransformerBlock(
+        (attention): DistilBertSdpaAttention(
+          (dropout): Dropout(p=0.1, inplace=False)
+          (q_lin): Linear(in_features=768, out_features=768, bias=True)
+          (k_lin): Linear(in_features=768, out_features=768, bias=True)
+          (v_lin): Linear(in_features=768, out_features=768, bias=True)
+          (out_lin): Linear(in_features=768, out_features=768, bias=True)
+        )
+        (sa_layer_norm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        (ffn): FFN(
+          (dropout): Dropout(p=0.1, inplace=False)
+          (lin1): Linear(in_features=768, out_features=3072, bias=True)
+          (lin2): Linear(in_features=3072, out_features=768, bias=True)
+          (activation): GELUActivation()
+        )
+        (output_layer_norm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+      )
+    )
+  )
+)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="10">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer([<span class="st">"The dog jumped over the"</span>], return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>input_ids <span class="op">=</span> inputs.input_ids</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(input_ids)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(tokenizer.decode(input_ids[<span class="dv">0</span>]))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>last_hidden_state <span class="op">=</span> model(<span class="op">**</span>inputs).last_hidden_state</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(last_hidden_state.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>tensor([[ 101, 1996, 3899, 5598, 2058, 1996,  102]])
+[CLS] the dog jumped over the [SEP]
+torch.Size([1, 7, 768])</code></pre>
+</div>
+</div>
+<p>In the case of encoder models, the output shape is <code>(batch_size, sequence_length, hidden_size)</code>. In the case of Bert, the hidden size is 768 and a 768 dimensional vector is returned for each token in the input sequence.</p>
+<p>When using the encoder output for other tasks, such as classification, we typically take the <code>[CLS]</code> token embedding, which is the embedding for the first token.</p>
+<div class="cell" data-execution_count="11">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>last_hidden_state[:, <span class="dv">0</span>, :].shape  <span class="co"># `[CLS]` token embedding,</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>torch.Size([1, 768])</code></pre>
+</div>
+</div>
+<p>I think it’s worth elaborating on the importance of the <code>[CLS]</code> token. Why Use the <code>[CLS]</code>token embedding as the final representation?</p>
+<p>When processing text with transformer-based models, each input sequence usually begins with a special token, in this case the <code>[CLS]</code> token. This token doesn’t represent a word or phrase from the input but acts as a placeholder for capturing information about the entire sequence. During training, the <code>[CLS]</code> token is specifically optimized for sequence-level tasks like classification. For example, in sentiment analysis, the model learns to encode the overall sentiment of the input sequence into the <code>[CLS]</code> token embedding. As a result, the <code>[CLS]</code> token becomes a rich summary representation of the entire input sequence. Self-attention mechanisms allow the <code>[CLS]</code> token to attend to all other tokens in the sequence. This means it “sees” the entire context of the input. Recall that we typically don’t use the masked attention in the encoder model. Through this process:</p>
+<ul>
+<li>The <code>[CLS]</code> token learns to aggregate information from all other tokens.</li>
+<li>It serves as a global representation, capturing both local token-level features and high-level semantic patterns.</li>
+<li>Adapts dynamically to the task during fine-tuning.</li>
+</ul>
+<p>Using the <code>[CLS]</code> token provides a single, fixed-size vector (e.g., 768 dimensions for BERT) that can directly feed into a classifier or other downstream layers. These concepts are useful to keep in mind when we discuss image encoders later on.</p>
+<p><img src="imgs/transformer_seq_diagram1.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="introducing-images-into-transformers-and-llms" class="level1">
+<h1>Introducing Images into Transformers and LLMs</h1>
+<p>Now that we’ve revisited how transformers handle text inputs, let’s explore how images can be incorporated into transformers. Our eventual goal is to understand how to pass images into decoder style LLMs, along side text, to generate text outputs. If you remember that the input to the transformer layers is a sequence of embeddings, then passing in images is no different. We just need to convert the images into a sequence of embeddings suitable for the transformer layers. The fundamental idea: Transformers work on sequences of embeddings. Text tokens are straightforward; they map directly from discrete tokens to embeddings via lookup tables. Images, on the other hand, must be transformed into a sequence of patch embeddings.</p>
+<p><strong>Key Insight:</strong></p>
+<ul>
+<li>Text → tokens → embeddings → transformer</li>
+<li>Image → patches → embeddings → transformer</li>
+</ul>
+<p>By treating images as a sequence of flattened patches, we can feed them into a transformer architecture—just like we feed tokens into a text transformer.</p>
+<p>We’ll first look at how images are handled by Vision Transformers (ViT). Then we’ll explore models like CLIP, which bridge text and image embeddings, and finally see how these image embeddings are integrated into LLMs for multimodal tasks.</p>
+<section id="vision-transformers-vit" class="level2">
+<h2 class="anchored" data-anchor-id="vision-transformers-vit">Vision Transformers (ViT)</h2>
+<p>The first architecture we will focus on is transformer-based image encoders. Specifically, we will examine the Vision Transformer (ViT), a model that adapts the transformer architecture from natural language processing to computer vision tasks. The ViT processes images by dividing them into fixed-size patches, embedding these patches as input tokens, and applying a transformer encoder to learn meaningful representations of the input image. Just like the transformer layers process a sequence of token embeddings, the ViT processes a sequence of image patch embeddings, and returns a sequence of hidden states.</p>
+<p><strong>Key Steps for ViT:</strong></p>
+<ul>
+<li>Patch Extraction: Divide the image into non-overlapping patches (e.g., 16x16).</li>
+<li>Flatten + Project: Flatten each patch and apply a linear projection to get a 1D embedding vector.</li>
+<li>Positional Embeddings: Add positional embeddings so the model knows each patch’s location.</li>
+<li><code>[CLS]</code> Token: Prepend a learnable <code>[CLS]</code> token to represent the entire image.</li>
+<li>Transformer Encoder: Pass this sequence (patch embeddings + <code>[CLS]</code>) through the encoder layers.</li>
+<li>Global Representation: The final hidden state corresponding to the <code>[CLS]</code> token serves as a global image representation.</li>
+</ul>
+<section id="the-first-vision-transformer" class="level3">
+<h3 class="anchored" data-anchor-id="the-first-vision-transformer">The First Vision Transformer</h3>
+<p>The first Vision Transformer was introduced in the paper <a href="https://arxiv.org/pdf/2010.11929">AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE</a>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/first_vit_paper.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure 1 from the ViT paper: AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE</figcaption>
+</figure>
+</div>
+<p><img src="imgs/vit1.png" class="img-fluid"></p>
+<ul>
+<li>Split the image into equal sized patches of size 16x16x3 pixels.</li>
+<li>Flatten each patch into a 1D vector of size 16x16x3 = 768.</li>
+<li>Put each flattened patch representation through a linear projection layer to embed each patch into a vector of size 768.
+<ul>
+<li>This is the patch embedding.</li>
+<li>Add a learnable positional embedding to each patch embedding. The positional embeddings help the model understand the spatial relationships between patches</li>
+<li>Also add a <code>[CLS]</code> token embedding to start of the sequence.</li>
+</ul></li>
+<li>Pass the sequence of patch embeddings and <code>[CLS]</code> token embedding, which is a sequence length of 197, through the transformer layers (encoder) to produce a new sequence of hidden states.</li>
+<li>The transformed <code>[CLS]</code> token representation (the first position in the final hidden states) serves as a representation of the entire image and can be used as input to a classifier for downstream tasks.</li>
+</ul>
+<p>We can load such a pre-trained ViT model from Hugging Face.</p>
+<div class="cell" data-execution_count="12">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">'imgs/underwater.png'</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>image</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<p><img src="vllm_files/figure-html/cell-13-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="13">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> ViTImageProcessor, ViTModel</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>processor <span class="op">=</span> ViTImageProcessor.from_pretrained(<span class="st">"google/vit-base-patch16-224-in21k"</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ViTModel.from_pretrained(<span class="st">"google/vit-base-patch16-224-in21k"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>ViTModel(
+  (embeddings): ViTEmbeddings(
+    (patch_embeddings): ViTPatchEmbeddings(
+      (projection): Conv2d(3, 768, kernel_size=(16, 16), stride=(16, 16))
+    )
+    (dropout): Dropout(p=0.0, inplace=False)
+  )
+  (encoder): ViTEncoder(
+    (layer): ModuleList(
+      (0-11): 12 x ViTLayer(
+        (attention): ViTSdpaAttention(
+          (attention): ViTSdpaSelfAttention(
+            (query): Linear(in_features=768, out_features=768, bias=True)
+            (key): Linear(in_features=768, out_features=768, bias=True)
+            (value): Linear(in_features=768, out_features=768, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+          (output): ViTSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (dropout): Dropout(p=0.0, inplace=False)
+          )
+        )
+        (intermediate): ViTIntermediate(
+          (dense): Linear(in_features=768, out_features=3072, bias=True)
+          (intermediate_act_fn): GELUActivation()
+        )
+        (output): ViTOutput(
+          (dense): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.0, inplace=False)
+        )
+        (layernorm_before): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        (layernorm_after): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+      )
+    )
+  )
+  (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+  (pooler): ViTPooler(
+    (dense): Linear(in_features=768, out_features=768, bias=True)
+    (activation): Tanh()
+  )
+)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="14">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> processor(images<span class="op">=</span>image, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>inputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>dict_keys(['pixel_values'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>inputs.pixel_values.shape  <span class="co"># (batch_size, num_channels, height, width)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>torch.Size([1, 3, 224, 224])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="16">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create patch embeddings from image</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>patch_embeddings <span class="op">=</span> model.embeddings.patch_embeddings(inputs.pixel_values)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>patch_embeddings.shape  <span class="co"># [1, 196, 768]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>torch.Size([1, 196, 768])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="17">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get complete input embeddings and pass through encoder manually.</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># These embeddings are the patch embeddings plus the positional embeddings.</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># As well as the `[CLS]` token embedding.</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>full_input_embeddings <span class="op">=</span> model.embeddings(inputs.pixel_values)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>encoder_outputs <span class="op">=</span> model.encoder(full_input_embeddings)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>manual_output <span class="op">=</span> model.layernorm(encoder_outputs.last_hidden_state)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Get output using full model forward pass</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    model_outputs <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    full_model_output <span class="op">=</span> model_outputs.last_hidden_state</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify shapes match</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> manual_output.shape <span class="op">==</span> full_model_output.shape</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify outputs are identical</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> torch.allclose(manual_output, full_model_output, atol<span class="op">=</span><span class="fl">1e-6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell" data-execution_count="18">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>model_outputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>odict_keys(['last_hidden_state', 'pooler_output'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="19">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>model_outputs.last_hidden_state.shape  <span class="co"># (batch_size, sequence_length, hidden_size)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>torch.Size([1, 197, 768])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="20">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>model_outputs.last_hidden_state[:, <span class="dv">0</span>, :].shape  <span class="co"># `[CLS]` token embedding</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>torch.Size([1, 768])</code></pre>
+</div>
+</div>
+<p>In the case of the ViT encoder model, followed by a classification task/head, it is this <code>[CLS]</code> token embedding that we will use as the image representation for downstream tasks. Just like in text encoders, the <code>[CLS]</code> token in ViT learns to aggregate information from all the image patches through self-attention. During training, this token’s representation is optimized to capture the global features needed for image classification. However, it’s important to note that this <code>[CLS]</code> token approach is specific to encoder-based vision transformers used for classification tasks. When we later discuss feeding images into decoder style LLMs for tasks like image captioning or visual question-answering, we’ll see a different approach where the sequence of patch embeddings themselves are used directly, without needing a <code>[CLS]</code> token.</p>
+<p>We’ve now seen how Vision Transformers process images in a way that’s analogous to how text transformers process words. The image is divided into patches (like words in a sentence), each patch is flattened from a 16x16x3 grid of pixels into a 768-dimensional vector, then transformed through a learned linear projection layer to create patch embeddings (like word embeddings). Positional embeddings are added to maintain spatial information (like position encodings in text). The key insight is that both text and image transformers fundamentally operate on sequences of embeddings - the main difference is just in how we create these embeddings from the raw input. For ViT, it’s through patch extraction, flattening, and linear projection; for text, it’s through token lookup tables.</p>
+</section>
+<section id="clip" class="level3">
+<h3 class="anchored" data-anchor-id="clip">CLIP</h3>
+<p><a href="https://arxiv.org/pdf/2103.00020">CLIP</a> (Contrastive Language-Image Pre-training) represents a significant milestone in connecting visual and textual understanding. Unlike the original ViT which focused solely on image classification, CLIP learns to understand the relationship between images and their natural language descriptions. <a href="https://openai.com/index/clip/">CLIP</a> was created by OpenAI.</p>
+<p>CLIP’s architecture consists of two encoders working in parallel:</p>
+<p>A text encoder (transformer) that:</p>
+<ul>
+<li>Processes sequences of text tokens</li>
+<li>Produces a final representation using the <code>[CLS]</code> token</li>
+<li>Projects this representation into a normalized embedding space</li>
+</ul>
+<p>An image encoder (can be ViT or other CNN architecture but let’s focus on ViT) that:</p>
+<ul>
+<li>Processes images as sequences of patch embeddings</li>
+<li>Transforms these through transformer layers</li>
+<li>Uses the <code>[CLS]</code> token for final representation</li>
+<li>Projects into the same normalized embedding space (Note: While CLIP can also use ResNet CNN architectures that don’t use patches, we’re focusing on the ViT version)</li>
+</ul>
+<p>The key innovation is the contrastive learning process:</p>
+<ul>
+<li>Pairs of images and text descriptions are encoded into the same embedding space</li>
+<li>The model learns to maximize similarity between matching pairs while minimizing similarity for non-matching pairs</li>
+<li>This creates a shared semantic space where similar concepts in either modality (image or text) end up close together</li>
+</ul>
+<p>This aligned semantic space enables powerful capabilities:</p>
+<ul>
+<li>Comparing images and text directly</li>
+<li>Finding semantic similarities across modalities</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/clip_paper_fig1.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Figure 1 from the paper: “Learning Transferable Visual Models From Natural Language Supervision”</figcaption>
+</figure>
+</div>
+<div class="cell" data-execution_count="22">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> CLIPProcessor, CLIPModel</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> CLIPModel.from_pretrained(<span class="st">"openai/clip-vit-large-patch14"</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>processor <span class="op">=</span> CLIPProcessor.from_pretrained(<span class="st">"openai/clip-vit-large-patch14"</span>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">'imgs/tropical_island.png'</span>)</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>image</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<p><img src="vllm_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="23">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>CLIPModel(
+  (text_model): CLIPTextTransformer(
+    (embeddings): CLIPTextEmbeddings(
+      (token_embedding): Embedding(49408, 768)
+      (position_embedding): Embedding(77, 768)
+    )
+    (encoder): CLIPEncoder(
+      (layers): ModuleList(
+        (0-11): 12 x CLIPEncoderLayer(
+          (self_attn): CLIPSdpaAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (layer_norm1): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (mlp): CLIPMLP(
+            (activation_fn): QuickGELUActivation()
+            (fc1): Linear(in_features=768, out_features=3072, bias=True)
+            (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          )
+          (layer_norm2): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+    )
+    (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+  )
+  (vision_model): CLIPVisionTransformer(
+    (embeddings): CLIPVisionEmbeddings(
+      (patch_embedding): Conv2d(3, 1024, kernel_size=(14, 14), stride=(14, 14), bias=False)
+      (position_embedding): Embedding(257, 1024)
+    )
+    (pre_layrnorm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+    (encoder): CLIPEncoder(
+      (layers): ModuleList(
+        (0-23): 24 x CLIPEncoderLayer(
+          (self_attn): CLIPSdpaAttention(
+            (k_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            (v_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            (q_proj): Linear(in_features=1024, out_features=1024, bias=True)
+            (out_proj): Linear(in_features=1024, out_features=1024, bias=True)
+          )
+          (layer_norm1): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+          (mlp): CLIPMLP(
+            (activation_fn): QuickGELUActivation()
+            (fc1): Linear(in_features=1024, out_features=4096, bias=True)
+            (fc2): Linear(in_features=4096, out_features=1024, bias=True)
+          )
+          (layer_norm2): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+        )
+      )
+    )
+    (post_layernorm): LayerNorm((1024,), eps=1e-05, elementwise_affine=True)
+  )
+  (visual_projection): Linear(in_features=1024, out_features=768, bias=False)
+  (text_projection): Linear(in_features=768, out_features=768, bias=False)
+)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="24">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> processor(text<span class="op">=</span>[<span class="st">"a photo of an island"</span>, <span class="st">"a photo of a plane"</span>], images<span class="op">=</span>image, return_tensors<span class="op">=</span><span class="st">"pt"</span>, padding<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>logits_per_image <span class="op">=</span> outputs.logits_per_image  <span class="co"># this is the image-text similarity score</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(logits_per_image)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>probs <span class="op">=</span> logits_per_image.softmax(dim<span class="op">=</span><span class="dv">1</span>)  <span class="co"># we can take the softmax to get the label probabilities</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>probs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>tensor([[24.5553, 16.2274]], grad_fn=&lt;TBackward0&gt;)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>tensor([[9.9976e-01, 2.4164e-04]], grad_fn=&lt;SoftmaxBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>The image was compared to the two different text descriptions and the model was able to correctly identify that the image was more similar to the text description of an island. We can get the embeddings separately as well:</p>
+<div class="cell" data-execution_count="25">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>inputs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>{'input_ids': tensor([[49406,   320,  1125,   539,   550,  2619, 49407],
+        [49406,   320,  1125,   539,   320,  5363, 49407]]), 'attention_mask': tensor([[1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1]]), 'pixel_values': tensor([[[[-0.5222, -0.5514, -0.5514,  ..., -1.6901, -1.7047, -1.7047],
+          [-0.5222, -0.5222, -0.5368,  ..., -1.6901, -1.7047, -1.7047],
+          [-0.5076, -0.5222, -0.5222,  ..., -1.7047, -1.7193, -1.7047],
+          ...,
+          [-1.6317, -1.6755, -1.6901,  ..., -1.6901, -1.6755, -1.6901],
+          [-1.6755, -1.6901, -1.6609,  ..., -1.6609, -1.6755, -1.6755],
+          [-1.6609, -1.6609, -1.6317,  ..., -1.6025, -1.6463, -1.6609]],
+
+         [[ 0.6191,  0.6041,  0.6041,  ..., -0.5365, -0.5365, -0.5515],
+          [ 0.6191,  0.6041,  0.6041,  ..., -0.5215, -0.5365, -0.5365],
+          [ 0.6191,  0.6191,  0.6191,  ..., -0.5065, -0.5215, -0.5215],
+          ...,
+          [-0.4914, -0.6415, -0.7016,  ..., -0.3114, -0.3564, -0.2363],
+          [-0.6865, -0.7766, -0.6715,  ..., -0.3114, -0.3864, -0.3714],
+          [-0.7316, -0.7016, -0.5815,  ..., -0.2213, -0.3414, -0.4164]],
+
+         [[ 1.4776,  1.5060,  1.4918,  ...,  0.5106,  0.5106,  0.4821],
+          [ 1.5060,  1.5060,  1.5060,  ...,  0.5390,  0.5248,  0.5248],
+          [ 1.5060,  1.5202,  1.5202,  ...,  0.5675,  0.5675,  0.5390],
+          ...,
+          [-0.2715, -0.3711, -0.4137,  ..., -0.2431, -0.2431, -0.1578],
+          [-0.4137, -0.4706, -0.3995,  ..., -0.2431, -0.2715, -0.2573],
+          [-0.4564, -0.4279, -0.3284,  ..., -0.1435, -0.2289, -0.2857]]]])}</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="26">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>inputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<pre><code>dict_keys(['input_ids', 'attention_mask', 'pixel_values'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="27">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(processor.decode(inputs.input_ids[<span class="dv">0</span>]))</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(processor.decode(inputs.input_ids[<span class="dv">1</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;|startoftext|&gt;a photo of an island &lt;|endoftext|&gt;
+&lt;|startoftext|&gt;a photo of a plane &lt;|endoftext|&gt;</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="28">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>inputs.pixel_values.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>torch.Size([1, 3, 224, 224])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="29">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get embeddings separately</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>image_features <span class="op">=</span> model.get_image_features(inputs[<span class="st">'pixel_values'</span>])</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>text_features <span class="op">=</span> model.get_text_features(input_ids<span class="op">=</span>inputs[<span class="st">'input_ids'</span>], </span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>                                      attention_mask<span class="op">=</span>inputs[<span class="st">'attention_mask'</span>])</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Image embedding shape: </span><span class="sc">{</span>image_features<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Text embeddings shape: </span><span class="sc">{</span>text_features<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Image embedding shape: torch.Size([1, 768])
+Text embeddings shape: torch.Size([2, 768])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="30">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>temperature <span class="op">=</span> <span class="dv">1</span> <span class="co"># I think there is a temperature parameter to be set here. </span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> (image_features <span class="op">@</span> text_features.T) <span class="op">/</span> temperature</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>logits</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="30">
+<pre><code>tensor([[83.4919, 55.5964]], grad_fn=&lt;DivBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>Since we have loaded a version of CLIP with the ViT image encoder, we can also get the final transformer hidden states, corresponding to each of the input image patches.</p>
+<ul>
+<li>Input image size is 224x224 pixels</li>
+<li>Using patch size of 14x14 pixels</li>
+<li>16x16 grid = 256 patches</li>
+<li>Add <code>[CLS]</code> token at the start to get a 257 sequence length</li>
+</ul>
+<p>The embedding dimension is 1024.</p>
+<div class="cell" data-execution_count="31">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get vision model outputs with hidden states</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>vision_outputs <span class="op">=</span> model.vision_model(inputs[<span class="st">'pixel_values'</span>], output_hidden_states<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get final hidden states (sequence of patch embeddings_</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>final_patch_embeddings <span class="op">=</span> vision_outputs.last_hidden_state  <span class="co"># Shape: [batch_size, num_patches + 1, hidden_size]</span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>final_patch_embeddings.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<pre><code>torch.Size([1, 257, 1024])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="32">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> model.vision_model(inputs[<span class="st">'pixel_values'</span>], output_hidden_states<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>outputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>odict_keys(['last_hidden_state', 'pooler_output', 'hidden_states'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="33">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>outputs.last_hidden_state.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<pre><code>torch.Size([1, 257, 1024])</code></pre>
+</div>
+</div>
+<p>These are the transformed input patch embeddings plus the <code>[CLS]</code> token output embedding.</p>
+<p>In summary, CLIP uses a dual-encoder architecture with both a vision encoder and a text encoder. When using the ViT-based image encoder, an image is processed into 256 patch embeddings plus a <code>[CLS]</code> token embedding (total 257 tokens with dimension 1024 for ViT-large). CLIP can be used in two distinct ways: First, for image-text comparison, where the <code>[CLS]</code> tokens from both encoders are projected into a shared space and compared using cosine similarity (scaled by temperature). Second, the sequence of 256 patch embeddings (excluding <code>[CLS]</code>) can be extracted from the vision encoder and passed to decoder-style LLMs, enabling the LLM to process detailed visual information alongside text. This second approach forms the foundation for many multimodal LLMs, which we’ll explore later.</p>
+</section>
+<section id="siglip-an-improved-version-of-clip" class="level3">
+<h3 class="anchored" data-anchor-id="siglip-an-improved-version-of-clip">SigLIP: an improved version of CLIP</h3>
+<p><a href="https://arxiv.org/pdf/2303.15343">SigLIP</a> (Sigmoid Loss for Language Image Pre-Training) represents an evolution of the CLIP architecture, maintaining the same dual-encoder structure but introducing key improvements in how similarity is computed between image and text embeddings. While CLIP uses a softmax-based approach that compares each image against all text descriptions in a batch, SigLIP adopts a sigmoid-based similarity measure that evaluates each image-text pair independently. This change, along with its corresponding loss function modifications, leads to more robust training and better performance on downstream tasks. Despite these improvements, the fundamental way we interact with the model remains similar to CLIP - we can still use it for image-text comparisons or extract visual features for use with decoder LLMs (more on this later). There is a great notebook <a href="https://github.com/NielsRogge/Transformers-Tutorials/blob/master/SigLIP/Inference_with_(multilingual)_SigLIP%2C_a_better_CLIP_model.ipynb">here</a>.</p>
+<div class="cell" data-execution_count="34">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModel, AutoProcessor</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModel.from_pretrained(<span class="st">"google/siglip-so400m-patch14-384"</span>)</span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>processor <span class="op">=</span> AutoProcessor.from_pretrained(<span class="st">"google/siglip-so400m-patch14-384"</span>)</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.<span class="bu">open</span>(<span class="st">'imgs/sci_fi_ship.png'</span>)</span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>image</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<p><img src="vllm_files/figure-html/cell-35-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="35">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<pre><code>SiglipModel(
+  (text_model): SiglipTextTransformer(
+    (embeddings): SiglipTextEmbeddings(
+      (token_embedding): Embedding(32000, 1152)
+      (position_embedding): Embedding(64, 1152)
+    )
+    (encoder): SiglipEncoder(
+      (layers): ModuleList(
+        (0-26): 27 x SiglipEncoderLayer(
+          (self_attn): SiglipSdpaAttention(
+            (k_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (v_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (q_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (out_proj): Linear(in_features=1152, out_features=1152, bias=True)
+          )
+          (layer_norm1): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+          (mlp): SiglipMLP(
+            (activation_fn): PytorchGELUTanh()
+            (fc1): Linear(in_features=1152, out_features=4304, bias=True)
+            (fc2): Linear(in_features=4304, out_features=1152, bias=True)
+          )
+          (layer_norm2): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+        )
+      )
+    )
+    (final_layer_norm): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+    (head): Linear(in_features=1152, out_features=1152, bias=True)
+  )
+  (vision_model): SiglipVisionTransformer(
+    (embeddings): SiglipVisionEmbeddings(
+      (patch_embedding): Conv2d(3, 1152, kernel_size=(14, 14), stride=(14, 14), padding=valid)
+      (position_embedding): Embedding(729, 1152)
+    )
+    (encoder): SiglipEncoder(
+      (layers): ModuleList(
+        (0-26): 27 x SiglipEncoderLayer(
+          (self_attn): SiglipSdpaAttention(
+            (k_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (v_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (q_proj): Linear(in_features=1152, out_features=1152, bias=True)
+            (out_proj): Linear(in_features=1152, out_features=1152, bias=True)
+          )
+          (layer_norm1): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+          (mlp): SiglipMLP(
+            (activation_fn): PytorchGELUTanh()
+            (fc1): Linear(in_features=1152, out_features=4304, bias=True)
+            (fc2): Linear(in_features=4304, out_features=1152, bias=True)
+          )
+          (layer_norm2): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+        )
+      )
+    )
+    (post_layernorm): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+    (head): SiglipMultiheadAttentionPoolingHead(
+      (attention): MultiheadAttention(
+        (out_proj): NonDynamicallyQuantizableLinear(in_features=1152, out_features=1152, bias=True)
+      )
+      (layernorm): LayerNorm((1152,), eps=1e-06, elementwise_affine=True)
+      (mlp): SiglipMLP(
+        (activation_fn): PytorchGELUTanh()
+        (fc1): Linear(in_features=1152, out_features=4304, bias=True)
+        (fc2): Linear(in_features=4304, out_features=1152, bias=True)
+      )
+    )
+  )
+)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="36">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>texts <span class="op">=</span> [<span class="st">"an alien ship"</span>, <span class="st">"sc-fi ship in the forest"</span>, <span class="st">"sci-fi ship"</span>]</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="co"># important: we pass padding="max_length" as that's how the model was trained</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> processor(text<span class="op">=</span>texts, images<span class="op">=</span>image, padding<span class="op">=</span><span class="st">"max_length"</span>, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k,v <span class="kw">in</span> inputs.items():</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(k,v.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>input_ids torch.Size([3, 64])
+pixel_values torch.Size([1, 3, 384, 384])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="37">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  outputs <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>logits_per_image <span class="op">=</span> outputs.logits_per_image</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>confidence_scores <span class="op">=</span> torch.sigmoid(logits_per_image)  <span class="co"># Independent confidence scores</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>confidence_scores[<span class="dv">0</span>][<span class="dv">0</span>]<span class="sc">:.1%}</span><span class="ss"> confidence score for '</span><span class="sc">{</span>texts[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>confidence_scores[<span class="dv">0</span>][<span class="dv">1</span>]<span class="sc">:.1%}</span><span class="ss"> confidence score for '</span><span class="sc">{</span>texts[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>confidence_scores[<span class="dv">0</span>][<span class="dv">2</span>]<span class="sc">:.1%}</span><span class="ss"> confidence score for '</span><span class="sc">{</span>texts[<span class="dv">2</span>]<span class="sc">}</span><span class="ss">'"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>2.4% confidence score for 'an alien ship'
+99.9% confidence score for 'sc-fi ship in the forest'
+0.6% confidence score for 'sci-fi ship'</code></pre>
+</div>
+</div>
+<p>Note the main difference between SigLIP and CLIP is how the similarity scores are computed</p>
+<ul>
+<li>CLIP uses softmax:
+<ul>
+<li>Outputs are normalized across all text candidates</li>
+<li>Scores sum to 1</li>
+<li>Each score represents a relative probability compared to other options</li>
+</ul></li>
+<li>SigLIP uses sigmoid:
+<ul>
+<li>Each score is independent</li>
+<li>Scores are between 0 and 1 but don’t sum to 1</li>
+<li>Each score represents a confidence measure for that specific pairing</li>
+</ul></li>
+</ul>
+<p>We can also just use the image encoder to get the final transformed patch embeddings:</p>
+<div class="cell" data-execution_count="38">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get vision model outputs with hidden states</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>vision_outputs <span class="op">=</span> model.vision_model(inputs[<span class="st">'pixel_values'</span>], output_hidden_states<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get final hidden states (sequence of patch embeddings)</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>final_patch_embeddings <span class="op">=</span> vision_outputs.last_hidden_state  <span class="co"># Shape: [batch_size, num_patches + 1, hidden_size]</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>final_patch_embeddings.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="38">
+<pre><code>torch.Size([1, 729, 1152])</code></pre>
+</div>
+</div>
+<p>SigLiP takes as input the 384x384 image and the patch size is 14x14 pixels. This leads to 27*27=729 patch embeddings.</p>
+<p><strong>Question to self:</strong> Does it not use the <code>[CLS]</code> token?</p>
+<div class="cell" data-execution_count="39">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>vision_outputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="39">
+<pre><code>odict_keys(['last_hidden_state', 'pooler_output', 'hidden_states'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="40">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>vision_outputs.pooler_output.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="40">
+<pre><code>torch.Size([1, 1152])</code></pre>
+</div>
+</div>
+<p><strong>Question to self:</strong> Maybe the the <code>pooler_output</code> is the pooled representation of the final patch embeddings?</p>
+<p><img src="imgs/siglip_diag.png" class="img-fluid"></p>
+</section>
+</section>
+<section id="vision-language-models" class="level2">
+<h2 class="anchored" data-anchor-id="vision-language-models">Vision Language Models</h2>
+<p>Finally, we can discuss one way in which images can be passed into decoder style LLMs along with text. Remember I was motivated to learn more about this by Sebastian Raschka’s recent blog post <a href="https://magazine.sebastianraschka.com/p/understanding-multimodal-llms?utm_source=post-email-title&amp;publication_id=1174659&amp;post_id=151078631&amp;utm_campaign=email-post-title&amp;isFreemail=true&amp;r=1urfra&amp;triedRedirect=true&amp;utm_medium=email">Understanding Multimodal LLMs</a>. In that blog post, one of the approaches for passing images into decoder style LLMs is referred to as “Method A: Unified Embedding Decoder Architecture approach”. This is the approach I want to discuss a little bit more here. Why? Because this was my main motivation for learning more about the topic of multimodal LLMs. I knew how text was tokenized and passed into decoder style LLMs, but I didn’t know how images were handled.</p>
+<p>Now that we have learned about transformer image encoders i.e Vision Transformers (ViTs), we already know how images are processed and encoded as sequences of patch embeddings. And we saw how those patches are first projected into the input patch embedding space of the image encoder, and then fed into the transformer layers. The output of the image encoder is a sequence of patch embeddings. Let’s look at a diagram of the role of the image encoder one more time:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/vit_encoder_diag1.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">ViT image encoder diagram</figcaption>
+</figure>
+</div>
+<p>Now suppose we have a decoder style LLM that we want to use for a multimodal task. We would like to feed in an image along with text. For example we could feed in an image along with a question about the image such as “What is in the image?” or “What is the image about?”. The recipe for how to do this is as follows:</p>
+<ul>
+<li>Encode the image using a pre-trained ViT image encoder, such as CLIP or SigLIP etc., and get the sequence of transformed patch embeddings as output by the image encoder.</li>
+<li>Then project the resulting output embeddings into the input token embedding space of the decoder LLM
+<ul>
+<li>This is done to ensure the image embeddings are in the same embedding space as the text embeddings for the decoder LLM. This is the role of the multimodal projector/adapter in the diagram below.</li>
+</ul></li>
+<li>Concatenate the projected image patch embeddings with the text token embeddings</li>
+<li>Feed the concatenated sequence into the decoder style LLM</li>
+</ul>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/vit_encoder_to_decoder1.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Multimodal LLM diagram with ViT image encoder</figcaption>
+</figure>
+</div>
+<p>There are many different ways to train a vision language model. I will describe one common approach related to the setup above. In the first stage of training, the pre-trained image encoder is frozen along with the decoder LLM. The part that is trained in this first stage is the multimodal projector/adapter(often a dense neural network). The dataset needs to consist of image-text pairs, for example image and caption pairs. The multimodal projector is designed to align image and text features by inputting images and generated questions into the model and evaluating its outputs against the corresponding ground truth captions. In the second stage of training, the decoder LLM is unfrozen and trained together with the multimodal projector. Again, this is one such approach for training a vision language model.</p>
+<p>There is an excellent explanation in this blog post from Hugging Face <a href="https://huggingface.co/blog/vlms">Vision Language Models Explained</a>. I have borrowed this diagram from that blog post which also illustrates this common approach of training a vision language model.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="imgs/training_vlm_hf_blog.png" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Image Taken from Hugging Face Blog: <a href="https://huggingface.co/blog/vlms">Vision Language Models Explained</a></figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>I’ll admit, I’ve run out of steam here, and I’ve only scratched the surface. There’s a great deal more to learn. The resources listed below offer plenty of reading and exploration opportunities. As I continue to revisit these topics and dive deeper into new research, I hope to gain a better understanding of the ever-expanding world of multimodal models. Personally I would like to go deeper into fine-tuning small decoder style LLMs for multimodal tasks.</p>
+</section>
+<section id="resources-in-no-particular-order" class="level1">
+<h1>Resources (in no particular order)</h1>
+<section id="multimodal-llms" class="level2">
+<h2 class="anchored" data-anchor-id="multimodal-llms">Multimodal LLMs</h2>
+<p><a href="https://magazine.sebastianraschka.com/p/understanding-multimodal-llms?utm_source=post-email-title&amp;publication_id=1174659&amp;post_id=151078631&amp;utm_campaign=email-post-title&amp;isFreemail=true&amp;r=1urfra&amp;triedRedirect=true&amp;utm_medium=email">Understanding Multimodal LLMs</a></p>
+<p><a href="https://www.youtube.com/watch?v=_TlhKHTgWjY">AI Visions Live | Merve Noyan | Open-source Multimodality</a></p>
+<p><a href="https://huggingface.co/blog/vlms">Vision Language Models Explained</a></p>
+<p><a href="https://llava-vl.github.io/">LLaVA: Large Language and Vision Assistant - website</a></p>
+<p><a href="https://arxiv.org/pdf/2304.08485">Visual Instruction Tuning - paper</a></p>
+<p><a href="https://arxiv.org/pdf/2310.03744">Improved Baselines with Visual Instruction Tuning - paper</a></p>
+<p><a href="https://huggingface.co/blog/paligemma">PaliGemma – Google’s Cutting-Edge Open Vision Language Model</a></p>
+<p><a href="https://arxiv.org/pdf/2407.07726">PaliGemma: A versatile 3B VLM for transfer: Paper</a></p>
+<p><a href="https://x.com/mervenoyann/status/1864724906409177365">PaliGemma 2: Announced when I finished writing this post</a></p>
+<p><a href="https://huggingface.co/blog/paligemma2">Hugging Face PaliGemma 2 Blog</a></p>
+<p><a href="https://developers.googleblog.com/en/gemma-explained-paligemma-architecture/">Gemma explained: PaliGemma architecture: Google for Developers</a> <a href="https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models?tab=readme-ov-file#awesome-papers">Awesome-Multimodal-Large-Language-Models</a></p>
+<p><a href="https://huggingface.co/spaces/WildVision/vision-arena">Vision Arena</a></p>
+<p><a href="https://github.com/merveenoyan/smol-vision">smol-vision</a></p>
+<p><a href="https://huggingface.co/blog/smolvlm">SmolVLM - small yet mighty Vision Language Model</a></p>
+<p><a href="https://github.com/QwenLM/Qwen2-VL">Qwen2-VL</a></p>
+<p><a href="https://huggingface.co/spaces/opencompass/open_vlm_leaderboard">OpenVLM Leaderboard</a></p>
+<p><a href="https://molmo.allenai.org/blog">Molmo</a></p>
+</section>
+<section id="vision-transformer-vit" class="level2">
+<h2 class="anchored" data-anchor-id="vision-transformer-vit">Vision Transformer (ViT)</h2>
+<p><a href="https://arxiv.org/pdf/2010.11929">AN IMAGE IS WORTH 16X16 WORDS: TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE</a></p>
+<p><a href="https://huggingface.co/docs/transformers/model_doc/vit">Vision Transformer (ViT) - Hugging Face Documentation</a></p>
+<p><a href="https://openai.com/index/clip/">ClIP Blog OpenAI</a></p>
+<p><a href="https://learnopencv.com/clip-model/">Training CLIP Model from Scratch for an Image Retrieval App</a></p>
+<p><a href="https://huggingface.co/docs/transformers/en/model_doc/vit">Vision Transformer (ViT: Hugging Face)</a></p>
+<p><a href="https://huggingface.co/blog/fine-tune-vit">Fine-Tune ViT for Image Classification with 🤗 Transformers</a></p>
+<p><a href="https://huggingface.co/google/siglip-so400m-patch14-384">SigLIP Model Card</a></p>
+<p><a href="https://github.com/NielsRogge/Transformers-Tutorials/blob/master/SigLIP/Inference_with_(multilingual)_SigLIP%2C_a_better_CLIP_model.ipynb">Nice Demo Notebook of SigLIP</a></p>
+<p><a href="https://huggingface.co/timm/ViT-SO400M-14-SigLIP-384/discussions/3">Interesting Thread on Calibration of SigLIP Scores</a></p>
+<p><a href="https://arxiv.org/pdf/2205.01580">Better plain ViT baselines for ImageNet-1k</a></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/vllms/vllm.html",
       "/posts/colpali/colpali_blog.html",
       "/posts/modal_fun/modal_blog.html",
       "/posts/anthropic/anthropic.html",
