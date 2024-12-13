@@ -1,0 +1,3 @@
+google-genai
+notebook
+python-dotenv
