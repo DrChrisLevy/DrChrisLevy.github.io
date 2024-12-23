@@ -1,0 +1,6 @@
+torch
+modal
+notebook
+git+https://github.com/huggingface/transformers.git
+datasets
+python-dotenv

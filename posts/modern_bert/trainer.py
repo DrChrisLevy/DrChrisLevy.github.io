@@ -1,0 +1,324 @@
+# ruff: noqa
+import os
+import shutil
+
+import modal
+from dotenv import load_dotenv
+from modal import Image, build, enter
+
+# ---------------------------------- SETUP BEGIN ----------------------------------#
+ENV_FILE = ".env"  # path to local env file with wandb api key WANDB_API_KEY=<>
+DS_NAME = "dair-ai/emotion"  # name of the Hugging Face dataset to use
+checkpoint = "answerdotai/ModernBERT-base"  # name of the Hugging Face model to fine tune
+batch_size = 32  # depends on GPU size and model size
+GPU_SIZE = "A100"  # https://modal.com/docs/guide/gpu#specifying-gpu-type
+num_train_epochs = 2
+# define the labels for the dataset
+id2label = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
+learning_rate = 5e-5  # learning rate for the optimizer
+wandb_project = "HF_TRAINING_JOBS"  # name of the wandb project to use
+PRE_FIX_NAME = ""  # optional prefix to the run name to differentiate it from other experiments
+input_column = "text"  # Often commonly called "inputs". Depends on the dataset. This is the text input column name.
+label_column = "label"  # This is the label column name.
+train_split = "train"  # This is the train split name.
+validation_split = "validation"  # This is the validation split name.
+test_split = "test"
+# This is a label that gets assigned to any example that is not classified by the model
+# according to some probability threshold. It's only used for evaluation.
+unknown_label_int = -1
+unknown_label_str = "UNKNOWN"
+# define the run name which is used in wandb and the model name when saving model checkpoints
+run_name = f"{DS_NAME}-{checkpoint}-{batch_size=}-{learning_rate=}-{num_train_epochs=}"
+
+
+# This is the logic for tokenizing the input text. It's used in the dataset map function
+# during training and evaluation.
+def tokenizer_function_logic(example, tokenizer):
+    return tokenizer(example[input_column], padding=True, truncation=True, return_tensors="pt", max_length=512)
+
+
+# ---------------------------------- SETUP END----------------------------------#
+
+if PRE_FIX_NAME:
+    run_name = f"{PRE_FIX_NAME}-{run_name}"
+
+label2id = {v: k for k, v in id2label.items()}
+
+load_dotenv(ENV_FILE)
+app = modal.App("trainer")
+
+image = Image.debian_slim(python_version="3.11").run_commands(
+    "apt-get update && apt-get install -y htop git",
+    "pip3 install torch torchvision torchaudio",
+    "pip install git+https://github.com/huggingface/transformers.git datasets accelerate scikit-learn python-dotenv wandb",
+    # f'huggingface-cli login --token {os.environ["HUGGING_FACE_ACCESS_TOKEN"]}',
+    f'wandb login  {os.environ["WANDB_API_KEY"]}',
+)
+
+vol = modal.Volume.from_name("trainer-vol", create_if_missing=True)
+
+
+@app.cls(
+    image=image,
+    volumes={"/data": vol},
+    secrets=[modal.Secret.from_dotenv(filename=ENV_FILE)],
+    gpu=GPU_SIZE,
+    timeout=60 * 60 * 10,
+    container_idle_timeout=300,
+)
+class Trainer:
+    def __init__(self, reload_ds=True):
+        self.reload_ds = reload_ds
+
+    @build()
+    @enter()
+    def setup(self):
+        import torch
+        import wandb
+        from datasets import load_dataset, load_from_disk
+        from transformers import (
+            AutoTokenizer,
+        )
+        from transformers.utils import move_cache
+
+        os.makedirs("/data", exist_ok=True)
+        if not os.path.exists(f"/data/{DS_NAME}") or self.reload_ds:
+            try:
+                # clean out the dataset folder
+                shutil.rmtree(f"/data/{DS_NAME}")
+            except FileNotFoundError:
+                pass
+            self.ds = load_dataset(DS_NAME)
+            # Save dataset to disk
+            self.ds.save_to_disk(os.path.join("/data", DS_NAME))
+        else:
+            self.ds = load_from_disk(os.path.join("/data", DS_NAME))
+
+        move_cache()
+
+        # Load tokenizer and model
+        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+
+        # Initialize wandb
+        wandb.init(project=wandb_project, name=run_name)
+
+        # Log the trainer script
+        wandb.save(__file__)
+
+    def tokenize_function(self, example):
+        return tokenizer_function_logic(example, self.tokenizer)
+
+    def compute_metrics(self, pred):
+        """
+        To debug this function manually on some sample input in ipython you can create an input
+        pred object like this:
+        from transformers import EvalPrediction
+        import numpy as np
+        logits=[[-0.9559,  0.7553],
+        [ 2.0987, -2.3868],
+        [ 1.0143, -1.1551],
+        [ 1.3666, -1.6074]]
+        label_ids = [1, 0, 1, 0]
+        pred = EvalPrediction(predictions=logits, label_ids=label_ids)
+        """
+        import numpy as np
+        import torch
+        from sklearn.metrics import f1_score
+
+        # pred is EvalPrediction object i.e. from transformers import EvalPrediction
+        logits = torch.tensor(pred.predictions)  # raw prediction logits from the model
+        label_ids = pred.label_ids  # integer label ids classes
+        labels = torch.tensor(label_ids).double().numpy()
+
+        probs = logits.softmax(dim=-1).float().numpy()  # probabilities for each class
+        preds = np.argmax(probs, axis=1)  # take the label with the highest probability
+        f1_micro = f1_score(labels, preds, average="micro", zero_division=True)
+        f1_macro = f1_score(labels, preds, average="macro", zero_division=True)
+        return {"f1_micro": f1_micro, "f1_macro": f1_macro}
+
+    @modal.method()
+    def tokenize_and_train(self):
+        from datasets import load_from_disk
+        from transformers import (
+            AutoConfig,
+            AutoModelForSequenceClassification,
+            DataCollatorWithPadding,
+            Trainer,
+            TrainingArguments,
+        )
+
+        # Remove previous training model saves if exists for same run_name
+        try:
+            shutil.rmtree(os.path.join("/data", run_name))
+        except FileNotFoundError:
+            pass
+
+        ds = load_from_disk(os.path.join("/data", DS_NAME))
+        # useful for debugging and quick training: Just downsample the dataset
+        # for split in ['train', 'validation', 'test']:
+        #     ds[split] = ds[split].shuffle(seed=42).select(range(100))
+        num_labels = len(id2label)
+        tokenized_dataset = ds.map(self.tokenize_function, batched=True)
+        data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
+
+        # https://www.philschmid.de/getting-started-pytorch-2-0-transformers
+        training_args = TrainingArguments(
+            output_dir=os.path.join("/data", run_name),
+            num_train_epochs=num_train_epochs,
+            learning_rate=learning_rate,
+            per_device_train_batch_size=batch_size,
+            per_device_eval_batch_size=batch_size,
+            # PyTorch 2.0 specifics
+            bf16=True,  # bfloat16 training
+            torch_compile=True,  # optimizations
+            optim="adamw_torch_fused",  # improved optimizer
+            # logging & evaluation strategies
+            logging_dir=os.path.join("/data", run_name, "logs"),
+            logging_strategy="steps",
+            logging_steps=200,
+            eval_strategy="epoch",
+            save_strategy="epoch",
+            load_best_model_at_end=True,
+            metric_for_best_model="f1_macro",
+            report_to="wandb",
+            run_name=run_name,
+        )
+
+        configuration = AutoConfig.from_pretrained(checkpoint)
+        # these dropout values are noted here in case we want to tweak them in future
+        # experiments.
+        # configuration.hidden_dropout_prob = 0.1  # 0.1 is default
+        # configuration.attention_probs_dropout_prob = 0.1  # 0.1 is default
+        # configuration.classifier_dropout = None  # If None then defaults to hidden_dropout_prob
+        configuration.id2label = id2label
+        configuration.label2id = label2id
+        configuration.num_labels = num_labels
+        model = AutoModelForSequenceClassification.from_pretrained(
+            checkpoint,
+            config=configuration,
+        )
+
+        trainer = Trainer(
+            model,
+            training_args,
+            train_dataset=tokenized_dataset[train_split],
+            eval_dataset=tokenized_dataset[validation_split],
+            data_collator=data_collator,
+            tokenizer=self.tokenizer,
+            compute_metrics=self.compute_metrics,
+        )
+
+        trainer.train()
+
+    def load_model(self, check_point):
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+        model = AutoModelForSequenceClassification.from_pretrained(check_point)
+        tokenizer = AutoTokenizer.from_pretrained(check_point)
+        return tokenizer, model
+
+    @modal.method()
+    def eval_model(self, check_point=None, split=validation_split):
+        import numpy as np
+        import pandas as pd
+        import torch
+        import wandb
+        from datasets import load_from_disk
+        from sklearn.metrics import classification_report
+        from torch.utils.data import DataLoader
+
+        if check_point is None:
+            # Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.
+            check_points = sorted(
+                os.listdir(os.path.join("/data/", run_name)), key=lambda x: int(x.split("-")[1]) if x.startswith("checkpoint-") else 0
+            )
+            check_point = os.path.join("/data", run_name, check_points[-1])
+        print(f"Evaluating Checkpoint {check_point}, split {split}")
+
+        tokenizer, model = self.load_model(check_point)
+
+        def tokenize_function(example):
+            return tokenizer_function_logic(example, tokenizer)
+
+        model.to(self.device)
+        test_ds = load_from_disk(os.path.join("/data", DS_NAME))[split]
+
+        test_ds = test_ds.map(tokenize_function, batched=True, batch_size=batch_size)
+
+        def forward_pass(batch):
+            """
+            To debug this function manually on some sample input in ipython, take your dataset
+            that has already been tokenized and create a batch object with this code:
+            batch_size = 32
+            test_ds.set_format('torch', columns=['input_ids', 'attention_mask', 'label'])
+            small_ds = test_ds.take(batch_size)
+            batch = {k: torch.stack([example[k] for example in small_ds]) for k in small_ds[0].keys()}
+            """
+            inputs = {k: v.to(self.device) for k, v in batch.items() if k in tokenizer.model_input_names}
+            with torch.no_grad():
+                output = model(**inputs)
+                probs = torch.softmax(output.logits, dim=-1).round(decimals=2)
+            return {"probs": probs.cpu().numpy()}
+
+        test_ds.set_format("torch", columns=["input_ids", "attention_mask", label_column])
+        test_ds = test_ds.map(forward_pass, batched=True, batch_size=batch_size)
+
+        test_ds.set_format("pandas")
+        df_test = test_ds[:]
+
+        def pred_label(probs, threshold):
+            # probs is a list of probabilities for one row of the dataframe
+            probs = np.array(probs)
+            max_prob = np.max(probs)
+            predicted_class = np.argmax(probs)
+
+            # Create mask where confidence is below threshold
+            if max_prob < threshold:
+                return unknown_label_int
+
+            return predicted_class
+
+        for threshold in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
+            df_test[f"pred_{label_column}"] = df_test["probs"].apply(pred_label, args=(threshold,))
+            report = classification_report(
+                np.array([x for x in df_test[label_column].values]),
+                np.array([x for x in df_test[f"pred_{label_column}"].values]),
+                target_names=[unknown_label_str] + [k for k, v in sorted(label2id.items(), key=lambda item: item[1])],
+                digits=2,
+                zero_division=0,
+                output_dict=False,
+                labels=[unknown_label_int] + sorted(list(range(len(id2label)))),
+            )
+            # # Add labeled eval set at 0.5 threshold
+            # if threshold == 0.5:
+            #     df_test.drop(
+            #         columns=[
+            #             "input_ids",
+            #             "attention_mask",
+            #         ]
+            #     ).to_csv(f"/data/labeled_{PRE_FIX_NAME}_{split}_set.csv", index=False)
+            print(threshold)
+            print(report)
+
+        print("Probability Distribution Max Probability Across All Classes")
+        print(pd.DataFrame([max(x) for x in df_test["probs"]]).describe())
+        # Ensure wandb is finished
+        wandb.finish()
+
+
+@app.local_entrypoint()
+def main():
+    trainer = Trainer(reload_ds=True)
+
+    print(f"Training {run_name}")
+    trainer.tokenize_and_train.remote()
+
+    # Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.
+    # Write the full path to the checkpoint here if you want to evaluate a specific model.
+    # For example: check_point = '/data/run_name/checkpoint-1234/'
+    check_point = None
+    trainer.eval_model.remote(
+        check_point=check_point,
+        split=validation_split,
+    )
