@@ -138,7 +138,7 @@ class Trainer:
         return {"f1_micro": f1_micro, "f1_macro": f1_macro}
 
     @modal.method()
-    def tokenize_and_train(self):
+    def train_model(self):
         from datasets import load_from_disk
         from transformers import (
             AutoConfig,
@@ -312,7 +312,7 @@ def main():
     trainer = Trainer(reload_ds=True)
 
     print(f"Training {run_name}")
-    trainer.tokenize_and_train.remote()
+    trainer.train_model.remote()
 
     # Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.
     # Write the full path to the checkpoint here if you want to evaluate a specific model.
