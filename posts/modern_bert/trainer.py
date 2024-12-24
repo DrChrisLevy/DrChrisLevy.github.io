@@ -8,7 +8,8 @@ from modal import Image, build, enter
 
 # ---------------------------------- SETUP BEGIN ----------------------------------#
 ENV_FILE = ".env"  # path to local env file with wandb api key WANDB_API_KEY=<>
-DS_NAME = "dair-ai/emotion"  # name of the Hugging Face dataset to use
+ds_name = "dair-ai/emotion"  # name of the Hugging Face dataset to use
+ds_name_config = None  # for hugging face datasets that have multiple config instances. For example cardiffnlp/tweet_eval
 checkpoint = "answerdotai/ModernBERT-base"  # name of the Hugging Face model to fine tune
 batch_size = 32  # depends on GPU size and model size
 GPU_SIZE = "A100"  # https://modal.com/docs/guide/gpu#specifying-gpu-type
@@ -17,7 +18,7 @@ num_train_epochs = 2
 id2label = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
 learning_rate = 5e-5  # learning rate for the optimizer
 wandb_project = "HF_TRAINING_JOBS"  # name of the wandb project to use
-PRE_FIX_NAME = ""  # optional prefix to the run name to differentiate it from other experiments
+pre_fix_name = ""  # optional prefix to the run name to differentiate it from other experiments
 input_column = "text"  # Often commonly called "inputs". Depends on the dataset. This is the text input column name.
 label_column = "label"  # This is the label column name.
 train_split = "train"  # This is the train split name.
@@ -28,7 +29,7 @@ test_split = "test"
 unknown_label_int = -1
 unknown_label_str = "UNKNOWN"
 # define the run name which is used in wandb and the model name when saving model checkpoints
-run_name = f"{DS_NAME}-{checkpoint}-{batch_size=}-{learning_rate=}-{num_train_epochs=}"
+run_name = f"{ds_name}-{ds_name_config}-{checkpoint}-{batch_size=}-{learning_rate=}-{num_train_epochs=}"
 
 
 # This is the logic for tokenizing the input text. It's used in the dataset map function
@@ -39,10 +40,11 @@ def tokenizer_function_logic(example, tokenizer):
 
 # ---------------------------------- SETUP END----------------------------------#
 
-if PRE_FIX_NAME:
-    run_name = f"{PRE_FIX_NAME}-{run_name}"
+if pre_fix_name:
+    run_name = f"{pre_fix_name}-{run_name}"
 
 label2id = {v: k for k, v in id2label.items()}
+path_to_ds = os.path.join("/data", ds_name, ds_name_config if ds_name_config else "")
 
 load_dotenv(ENV_FILE)
 app = modal.App("trainer")
@@ -82,17 +84,18 @@ class Trainer:
         from transformers.utils import move_cache
 
         os.makedirs("/data", exist_ok=True)
-        if not os.path.exists(f"/data/{DS_NAME}") or self.reload_ds:
+
+        if not os.path.exists(path_to_ds) or self.reload_ds:
             try:
                 # clean out the dataset folder
-                shutil.rmtree(f"/data/{DS_NAME}")
+                shutil.rmtree(path_to_ds)
             except FileNotFoundError:
                 pass
-            self.ds = load_dataset(DS_NAME)
+            self.ds = load_dataset(ds_name, ds_name_config)
             # Save dataset to disk
-            self.ds.save_to_disk(os.path.join("/data", DS_NAME))
+            self.ds.save_to_disk(path_to_ds)
         else:
-            self.ds = load_from_disk(os.path.join("/data", DS_NAME))
+            self.ds = load_from_disk(path_to_ds)
 
         move_cache()
 
@@ -154,7 +157,7 @@ class Trainer:
         except FileNotFoundError:
             pass
 
-        ds = load_from_disk(os.path.join("/data", DS_NAME))
+        ds = load_from_disk(path_to_ds)
         # useful for debugging and quick training: Just downsample the dataset
         # for split in ['train', 'validation', 'test']:
         #     ds[split] = ds[split].shuffle(seed=42).select(range(100))
@@ -242,7 +245,7 @@ class Trainer:
             return tokenizer_function_logic(example, tokenizer)
 
         model.to(self.device)
-        test_ds = load_from_disk(os.path.join("/data", DS_NAME))[split]
+        test_ds = load_from_disk(path_to_ds)[split]
 
         test_ds = test_ds.map(tokenize_function, batched=True, batch_size=batch_size)
 
@@ -297,7 +300,7 @@ class Trainer:
             #             "input_ids",
             #             "attention_mask",
             #         ]
-            #     ).to_csv(f"/data/labeled_{PRE_FIX_NAME}_{split}_set.csv", index=False)
+            #     ).to_csv(f"/data/labeled_{pre_fix_name}_{split}_set.csv", index=False)
             print(threshold)
             print(report)
 
