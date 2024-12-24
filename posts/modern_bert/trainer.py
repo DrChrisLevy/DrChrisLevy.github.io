@@ -17,7 +17,7 @@ num_train_epochs = 2
 # define the labels for the dataset
 id2label = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
 learning_rate = 5e-5  # learning rate for the optimizer
-wandb_project = "HF_TRAINING_JOBS"  # name of the wandb project to use
+wandb_project = "hugging_face_training_jobs"  # name of the wandb project to use
 pre_fix_name = ""  # optional prefix to the run name to differentiate it from other experiments
 input_column = "text"  # Often commonly called "inputs". Depends on the dataset. This is the text input column name.
 label_column = "label"  # This is the label column name.
@@ -76,7 +76,6 @@ class Trainer:
     @enter()
     def setup(self):
         import torch
-        import wandb
         from datasets import load_dataset, load_from_disk
         from transformers import (
             AutoTokenizer,
@@ -102,12 +101,6 @@ class Trainer:
         # Load tokenizer and model
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-
-        # Initialize wandb
-        wandb.init(project=wandb_project, name=run_name)
-
-        # Log the trainer script
-        wandb.save(__file__)
 
     def tokenize_function(self, example):
         return tokenizer_function_logic(example, self.tokenizer)
@@ -142,6 +135,8 @@ class Trainer:
 
     @modal.method()
     def train_model(self):
+        import wandb
+        import os
         from datasets import load_from_disk
         from transformers import (
             AutoConfig,
@@ -151,6 +146,7 @@ class Trainer:
             TrainingArguments,
         )
 
+        os.environ["WANDB_PROJECT"] = wandb_project
         # Remove previous training model saves if exists for same run_name
         try:
             shutil.rmtree(os.path.join("/data", run_name))
@@ -214,6 +210,9 @@ class Trainer:
 
         trainer.train()
 
+        # Log the trainer script
+        wandb.save(__file__)
+
     def load_model(self, check_point):
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -223,6 +222,7 @@ class Trainer:
 
     @modal.method()
     def eval_model(self, check_point=None, split=validation_split):
+        import os
         import numpy as np
         import pandas as pd
         import torch
@@ -231,6 +231,7 @@ class Trainer:
         from sklearn.metrics import classification_report
         from torch.utils.data import DataLoader
 
+        os.environ["WANDB_PROJECT"] = wandb_project
         if check_point is None:
             # Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.
             check_points = sorted(
@@ -276,7 +277,6 @@ class Trainer:
             max_prob = np.max(probs)
             predicted_class = np.argmax(probs)
 
-            # Create mask where confidence is below threshold
             if max_prob < threshold:
                 return unknown_label_int
 
@@ -293,14 +293,6 @@ class Trainer:
                 output_dict=False,
                 labels=[unknown_label_int] + sorted(list(range(len(id2label)))),
             )
-            # # Add labeled eval set at 0.5 threshold
-            # if threshold == 0.5:
-            #     df_test.drop(
-            #         columns=[
-            #             "input_ids",
-            #             "attention_mask",
-            #         ]
-            #     ).to_csv(f"/data/labeled_{pre_fix_name}_{split}_set.csv", index=False)
             print(threshold)
             print(report)
 
