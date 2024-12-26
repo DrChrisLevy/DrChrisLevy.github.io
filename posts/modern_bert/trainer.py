@@ -70,7 +70,10 @@ vol = modal.Volume.from_name("trainer-vol", create_if_missing=True)
 )
 class Trainer:
     def __init__(self, reload_ds=True):
+        import torch
+
         self.reload_ds = reload_ds
+        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     @build()
     @enter()
@@ -100,7 +103,6 @@ class Trainer:
 
         # Load tokenizer and model
         self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     def tokenize_function(self, example):
         return tokenizer_function_logic(example, self.tokenizer)
@@ -229,7 +231,6 @@ class Trainer:
         import wandb
         from datasets import load_from_disk
         from sklearn.metrics import classification_report
-        from torch.utils.data import DataLoader
 
         os.environ["WANDB_PROJECT"] = wandb_project
         if check_point is None:
@@ -282,19 +283,35 @@ class Trainer:
 
             return predicted_class
 
-        for threshold in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
+        for threshold in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
+            print("-" * 60)
+            print(f"{threshold=}\n")
             df_test[f"pred_{label_column}"] = df_test["probs"].apply(pred_label, args=(threshold,))
+            print(f"Coverage Rate:\n")
+            predictions_mapped = df_test[f"pred_{label_column}"].map({**id2label, unknown_label_int: unknown_label_str})
+            print("Raw counts:")
+            print(predictions_mapped.value_counts())
+            print("\nProportions:\n")
+            print(predictions_mapped.value_counts(normalize=True))
+            print(f"\nConditional metrics (classification report on predicted subset != {unknown_label_str})")
+            mask = df_test[f"pred_{label_column}"] != unknown_label_int
+            y = np.array([x for x in df_test[mask][label_column].values])
+            y_pred = np.array([x for x in df_test[mask][f"pred_{label_column}"].values])
             report = classification_report(
-                np.array([x for x in df_test[label_column].values]),
-                np.array([x for x in df_test[f"pred_{label_column}"].values]),
-                target_names=[unknown_label_str] + [k for k, v in sorted(label2id.items(), key=lambda item: item[1])],
+                y,
+                y_pred,
+                target_names=[k for k, v in sorted(label2id.items(), key=lambda item: item[1])],
                 digits=2,
                 zero_division=0,
                 output_dict=False,
-                labels=[unknown_label_int] + sorted(list(range(len(id2label)))),
+                labels=sorted(list(range(len(id2label)))),
             )
-            print(threshold)
             print(report)
+            # --- Overall Accuracy (count "Unknown" as incorrect) ---
+            # If ground truth is never 'unknown_label_int', then any prediction of "Unknown" is automatically wrong.
+            overall_acc = (df_test[label_column] == df_test[f"pred_{label_column}"]).mean()
+            print(f"Overall Accuracy (counting '{unknown_label_str}' as wrong): {overall_acc:.2%}")
+            print("-" * 60)
 
         print("Probability Distribution Max Probability Across All Classes")
         print(pd.DataFrame([max(x) for x in df_test["probs"]]).describe())
