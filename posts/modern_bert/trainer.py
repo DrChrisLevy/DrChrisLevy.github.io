@@ -78,7 +78,6 @@ class Trainer:
     @build()
     @enter()
     def setup(self):
-        import torch
         from datasets import load_dataset, load_from_disk
         from transformers import (
             AutoTokenizer,
@@ -157,10 +156,11 @@ class Trainer:
 
         ds = load_from_disk(path_to_ds)
         # useful for debugging and quick training: Just downsample the dataset
-        # for split in ['train', 'validation', 'test']:
-        #     ds[split] = ds[split].shuffle(seed=42).select(range(100))
+        # for split in ds.keys():
+        #     ds[split] = ds[split].shuffle(seed=42).select(range(1000))
         num_labels = len(id2label)
         tokenized_dataset = ds.map(self.tokenize_function, batched=True)
+        tokenized_dataset = tokenized_dataset.rename_column(label_column, "labels")
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
         # https://www.philschmid.de/getting-started-pytorch-2-0-transformers
@@ -250,6 +250,7 @@ class Trainer:
         test_ds = load_from_disk(path_to_ds)[split]
 
         test_ds = test_ds.map(tokenize_function, batched=True, batch_size=batch_size)
+        test_ds = test_ds.rename_column(label_column, "labels")
 
         def forward_pass(batch):
             """
@@ -266,7 +267,7 @@ class Trainer:
                 probs = torch.softmax(output.logits, dim=-1).round(decimals=2)
             return {"probs": probs.cpu().numpy()}
 
-        test_ds.set_format("torch", columns=["input_ids", "attention_mask", label_column])
+        test_ds.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
         test_ds = test_ds.map(forward_pass, batched=True, batch_size=batch_size)
 
         test_ds.set_format("pandas")
@@ -286,17 +287,17 @@ class Trainer:
         for threshold in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
             print("-" * 60)
             print(f"{threshold=}\n")
-            df_test[f"pred_{label_column}"] = df_test["probs"].apply(pred_label, args=(threshold,))
+            df_test[f"pred_labels"] = df_test["probs"].apply(pred_label, args=(threshold,))
             print(f"Coverage Rate:\n")
-            predictions_mapped = df_test[f"pred_{label_column}"].map({**id2label, unknown_label_int: unknown_label_str})
+            predictions_mapped = df_test[f"pred_labels"].map({**id2label, unknown_label_int: unknown_label_str})
             print("Raw counts:")
             print(predictions_mapped.value_counts())
             print("\nProportions:\n")
             print(predictions_mapped.value_counts(normalize=True))
             print(f"\nConditional metrics (classification report on predicted subset != {unknown_label_str})")
-            mask = df_test[f"pred_{label_column}"] != unknown_label_int
-            y = np.array([x for x in df_test[mask][label_column].values])
-            y_pred = np.array([x for x in df_test[mask][f"pred_{label_column}"].values])
+            mask = df_test[f"pred_labels"] != unknown_label_int
+            y = np.array([x for x in df_test[mask]["labels"].values])
+            y_pred = np.array([x for x in df_test[mask][f"pred_labels"].values])
             report = classification_report(
                 y,
                 y_pred,
@@ -309,7 +310,7 @@ class Trainer:
             print(report)
             # --- Overall Accuracy (count "Unknown" as incorrect) ---
             # If ground truth is never 'unknown_label_int', then any prediction of "Unknown" is automatically wrong.
-            overall_acc = (df_test[label_column] == df_test[f"pred_{label_column}"]).mean()
+            overall_acc = (df_test["labels"] == df_test[f"pred_labels"]).mean()
             print(f"Overall Accuracy (counting '{unknown_label_str}' as wrong): {overall_acc:.2%}")
             print("-" * 60)
 
