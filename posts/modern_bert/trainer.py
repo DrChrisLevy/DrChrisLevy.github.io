@@ -10,34 +10,40 @@ from modal import Image, build, enter
 ENV_FILE = ".env"  # path to local env file with wandb api key WANDB_API_KEY=<>
 ds_name = "dair-ai/emotion"  # name of the Hugging Face dataset to use
 ds_name_config = None  # for hugging face datasets that have multiple config instances. For example cardiffnlp/tweet_eval
+train_split = "train"  # name of the tain split in the dataset
+validation_split = "validation"  # name of the validation split in the dataset
+test_split = "test"  # name of the test split in the dataset
+# define the labels for the dataset
+id2label = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
+# Often commonly called "inputs". Depends on the dataset. This is the input text to the model.
+# This field will be called input_ids during tokenization/training/eval.
+input_column = "text"
+# This is the column name from the dataset which is the target to train on.
+# It will get renamed to "label" during tokenization/training/eval.
+label_column = "label"
 checkpoint = "answerdotai/ModernBERT-base"  # name of the Hugging Face model to fine tune
 batch_size = 32  # depends on GPU size and model size
 GPU_SIZE = "A100"  # https://modal.com/docs/guide/gpu#specifying-gpu-type
 num_train_epochs = 2
-# define the labels for the dataset
-id2label = {0: "sadness", 1: "joy", 2: "love", 3: "anger", 4: "fear", 5: "surprise"}
 learning_rate = 5e-5  # learning rate for the optimizer
+
+
+# This is the logic for tokenizing the input text. It's used in the dataset map function
+# during training and evaluation. Of importance is the max_length parameter which
+# you will want to increase for input texts that are longer. Traditionally bert and other encoder
+# models have a max length of 512 tokens. But ModernBERT has a max length of 8192 tokens.
+def tokenizer_function_logic(example, tokenizer):
+    return tokenizer(example[input_column], padding=True, truncation=True, return_tensors="pt", max_length=512)
+
+
 wandb_project = "hugging_face_training_jobs"  # name of the wandb project to use
 pre_fix_name = ""  # optional prefix to the run name to differentiate it from other experiments
-input_column = "text"  # Often commonly called "inputs". Depends on the dataset. This is the text input column name.
-label_column = "label"  # This is the label column name.
-train_split = "train"  # This is the train split name.
-validation_split = "validation"  # This is the validation split name.
-test_split = "test"
 # This is a label that gets assigned to any example that is not classified by the model
 # according to some probability threshold. It's only used for evaluation.
 unknown_label_int = -1
 unknown_label_str = "UNKNOWN"
 # define the run name which is used in wandb and the model name when saving model checkpoints
 run_name = f"{ds_name}-{ds_name_config}-{checkpoint}-{batch_size=}-{learning_rate=}-{num_train_epochs=}"
-
-
-# This is the logic for tokenizing the input text. It's used in the dataset map function
-# during training and evaluation.
-def tokenizer_function_logic(example, tokenizer):
-    return tokenizer(example[input_column], padding=True, truncation=True, return_tensors="pt", max_length=512)
-
-
 # ---------------------------------- SETUP END----------------------------------#
 
 if pre_fix_name:
@@ -160,7 +166,8 @@ class Trainer:
         #     ds[split] = ds[split].shuffle(seed=42).select(range(1000))
         num_labels = len(id2label)
         tokenized_dataset = ds.map(self.tokenize_function, batched=True)
-        tokenized_dataset = tokenized_dataset.rename_column(label_column, "labels")
+        if label_column != "label":
+            tokenized_dataset = tokenized_dataset.rename_column(label_column, "label")
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
         # https://www.philschmid.de/getting-started-pytorch-2-0-transformers
@@ -250,7 +257,8 @@ class Trainer:
         test_ds = load_from_disk(path_to_ds)[split]
 
         test_ds = test_ds.map(tokenize_function, batched=True, batch_size=batch_size)
-        test_ds = test_ds.rename_column(label_column, "labels")
+        if label_column != "label":
+            test_ds = test_ds.rename_column(label_column, "label")
 
         def forward_pass(batch):
             """
@@ -267,7 +275,7 @@ class Trainer:
                 probs = torch.softmax(output.logits, dim=-1).round(decimals=2)
             return {"probs": probs.cpu().numpy()}
 
-        test_ds.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
+        test_ds.set_format("torch", columns=["input_ids", "attention_mask", "label"])
         test_ds = test_ds.map(forward_pass, batched=True, batch_size=batch_size)
 
         test_ds.set_format("pandas")
@@ -287,17 +295,17 @@ class Trainer:
         for threshold in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
             print("-" * 60)
             print(f"{threshold=}\n")
-            df_test[f"pred_labels"] = df_test["probs"].apply(pred_label, args=(threshold,))
+            df_test[f"pred_label"] = df_test["probs"].apply(pred_label, args=(threshold,))
             print(f"Coverage Rate:\n")
-            predictions_mapped = df_test[f"pred_labels"].map({**id2label, unknown_label_int: unknown_label_str})
+            predictions_mapped = df_test[f"pred_label"].map({**id2label, unknown_label_int: unknown_label_str})
             print("Raw counts:")
             print(predictions_mapped.value_counts())
             print("\nProportions:\n")
             print(predictions_mapped.value_counts(normalize=True))
             print(f"\nConditional metrics (classification report on predicted subset != {unknown_label_str})")
-            mask = df_test[f"pred_labels"] != unknown_label_int
-            y = np.array([x for x in df_test[mask]["labels"].values])
-            y_pred = np.array([x for x in df_test[mask][f"pred_labels"].values])
+            mask = df_test[f"pred_label"] != unknown_label_int
+            y = np.array([x for x in df_test[mask]["label"].values])
+            y_pred = np.array([x for x in df_test[mask][f"pred_label"].values])
             report = classification_report(
                 y,
                 y_pred,
@@ -310,7 +318,7 @@ class Trainer:
             print(report)
             # --- Overall Accuracy (count "Unknown" as incorrect) ---
             # If ground truth is never 'unknown_label_int', then any prediction of "Unknown" is automatically wrong.
-            overall_acc = (df_test["labels"] == df_test[f"pred_labels"]).mean()
+            overall_acc = (df_test["label"] == df_test[f"pred_label"]).mean()
             print(f"Overall Accuracy (counting '{unknown_label_str}' as wrong): {overall_acc:.2%}")
             print("-" * 60)
 
