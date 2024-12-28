@@ -4,3 +4,7 @@ notebook
 git+https://github.com/huggingface/transformers.git
 datasets
 python-dotenv
+openai
+anthropic
+sqlitedict
+google-genai

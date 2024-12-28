@@ -407,6 +407,10 @@ load_dotenv()
 openai_client = OpenAI()
 anthropic_client = anthropic.Anthropic()
 google_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+deepseek_client = OpenAI(
+    api_key=os.getenv("DEEP_SEEK_API_KEY"),
+    base_url="https://api.deepseek.com",
+)
 
 
 def query_openai():
@@ -418,7 +422,7 @@ def query_openai():
         ],
         temperature=random.uniform(0.2, 0.8),
         response_format={"type": "json_object"},
-        max_completion_tokens=6500,
+        max_completion_tokens=8000,
     )
 
     return completion.choices[0].message.content
@@ -429,7 +433,7 @@ def query_anthropic():
     prefill = f'{{\n"persona": {{\n    "label": "{label}",\n    "demographics": {{'
     message = anthropic_client.messages.create(
         model="claude-3-5-sonnet-20241022",
-        max_tokens=6500,
+        max_tokens=8000,
         temperature=random.uniform(0.5, 1.0),
         system=system_prompt,
         messages=[
@@ -448,25 +452,41 @@ def query_google():
             system_instruction=system_prompt,
             response_mime_type="application/json",
             temperature=random.uniform(0.8, 1.3),
-            max_output_tokens=6500,
+            max_output_tokens=8000,
         ),
     )
     return response.text
 
 
+def query_deepseek():
+    completion = deepseek_client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f'Generate the persona and tweets for the label: "{random.choice(labels)}"'},
+        ],
+        temperature=random.uniform(0.2, 1),
+        response_format={"type": "json_object"},
+        max_completion_tokens=8000,
+    )
+
+    return completion.choices[0].message.content
+
+
 def generate_data():
     db = SqliteDict("data.db", autocommit=True)
-
+    counter = 0
     while True:
         try:
             db[str(uuid4())] = {"model": "gpt-4o-mini", "data": query_openai()}
             db[str(uuid4())] = {"model": "claude-3-5-sonnet-20241022", "data": query_anthropic()}
             db[str(uuid4())] = {"model": "gemini-2.0-flash-exp", "data": query_google()}
+            db[str(uuid4())] = {"model": "deepseek-chat-v3", "data": query_deepseek()}
         except Exception as e:
             print(e)
             time.sleep(5)
 
-        if len(db) % 10 == 0:
+        counter += 1
+        if counter % 10 == 0:
+            print(f'{counter=}')
             print(f"Total entries: {len(db)}")
-
-
