@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from modal import Image, build, enter
 
 # ---------------------------------- SETUP BEGIN ----------------------------------#
-ENV_FILE = ".env"  # path to local env file with wandb api key WANDB_API_KEY=<>
+env_file = ".env"  # path to local env file with wandb api key WANDB_API_KEY=<>
 ds_name = "dair-ai/emotion"  # name of the Hugging Face dataset to use
 ds_name_config = None  # for hugging face datasets that have multiple config instances. For example cardiffnlp/tweet_eval
 train_split = "train"  # name of the tain split in the dataset
@@ -52,15 +52,44 @@ if pre_fix_name:
 label2id = {v: k for k, v in id2label.items()}
 path_to_ds = os.path.join("/data", ds_name, ds_name_config if ds_name_config else "")
 
-load_dotenv(ENV_FILE)
+load_dotenv(env_file)
 app = modal.App("trainer")
 
-image = Image.debian_slim(python_version="3.11").run_commands(
-    "apt-get update && apt-get install -y htop git",
-    "pip3 install torch torchvision torchaudio",
-    "pip install git+https://github.com/huggingface/transformers.git datasets accelerate scikit-learn python-dotenv wandb",
-    # f'huggingface-cli login --token {os.environ["HUGGING_FACE_ACCESS_TOKEN"]}',
-    f'wandb login  {os.environ["WANDB_API_KEY"]}',
+# Non Flash-Attn Image
+# image = Image.debian_slim(python_version="3.11").run_commands(
+#     "apt-get update && apt-get install -y htop git",
+#     "pip3 install torch torchvision torchaudio",
+#     "pip install git+https://github.com/huggingface/transformers.git datasets accelerate scikit-learn python-dotenv wandb",
+#     # f'huggingface-cli login --token {os.environ["HUGGING_FACE_ACCESS_TOKEN"]}',
+#     f'wandb login  {os.environ["WANDB_API_KEY"]}',
+# )
+
+# Flash-Attn Image
+# https://modal.com/docs/guide/cuda#for-more-complex-setups-use-an-officially-supported-cuda-image
+cuda_version = "12.4.0"  # should be no greater than host CUDA version
+flavor = "devel"  #  includes full CUDA toolkit
+operating_sys = "ubuntu22.04"
+tag = f"{cuda_version}-{flavor}-{operating_sys}"
+
+image = (
+    modal.Image.from_registry(f"nvidia/cuda:{tag}", add_python="3.11")
+    .apt_install("git", "htop")
+    .pip_install(
+        "ninja",  # required to build flash-attn
+        "packaging",  # required to build flash-attn
+        "wheel",  # required to build flash-attn
+        "torch",
+        "git+https://github.com/huggingface/transformers.git",
+        "datasets",
+        "accelerate",
+        "scikit-learn",
+        "python-dotenv",
+        "wandb",
+    )
+    .run_commands(
+        "pip install flash-attn --no-build-isolation",  # add flash-attn
+        f'wandb login  {os.environ["WANDB_API_KEY"]}',
+    )
 )
 
 vol = modal.Volume.from_name("trainer-vol", create_if_missing=True)
@@ -69,7 +98,7 @@ vol = modal.Volume.from_name("trainer-vol", create_if_missing=True)
 @app.cls(
     image=image,
     volumes={"/data": vol},
-    secrets=[modal.Secret.from_dotenv(filename=ENV_FILE)],
+    secrets=[modal.Secret.from_dotenv(filename=env_file)],
     gpu=GPU_SIZE,
     timeout=60 * 60 * 10,
     container_idle_timeout=300,
@@ -143,6 +172,7 @@ class Trainer:
     @modal.method()
     def train_model(self):
         import wandb
+        import torch
         import os
         from datasets import load_from_disk
         from transformers import (
@@ -171,6 +201,7 @@ class Trainer:
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
         # https://www.philschmid.de/getting-started-pytorch-2-0-transformers
+        # https://www.philschmid.de/fine-tune-modern-bert-in-2025
         training_args = TrainingArguments(
             output_dir=os.path.join("/data", run_name),
             num_train_epochs=num_train_epochs,
@@ -179,7 +210,7 @@ class Trainer:
             per_device_eval_batch_size=batch_size,
             # PyTorch 2.0 specifics
             bf16=True,  # bfloat16 training
-            torch_compile=True,  # optimizations
+            # torch_compile=True,  # optimizations but its making it slower with my code and causes errors when running with flash-attn
             optim="adamw_torch_fused",  # improved optimizer
             # logging & evaluation strategies
             logging_dir=os.path.join("/data", run_name, "logs"),
@@ -205,6 +236,9 @@ class Trainer:
         model = AutoModelForSequenceClassification.from_pretrained(
             checkpoint,
             config=configuration,
+            # TODO: Is this how to use flash-attn 2?
+            # attn_implementation="flash_attention_2",
+            # torch_dtype=torch.bfloat16,
         )
 
         trainer = Trainer(
@@ -224,8 +258,14 @@ class Trainer:
 
     def load_model(self, check_point):
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        import torch
 
-        model = AutoModelForSequenceClassification.from_pretrained(check_point)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            check_point,
+            # TODO: Is this how to use flash-attn 2?
+            # attn_implementation="flash_attention_2",
+            # torch_dtype=torch.bfloat16,
+        )
         tokenizer = AutoTokenizer.from_pretrained(check_point)
         return tokenizer, model
 
@@ -273,6 +313,7 @@ class Trainer:
             with torch.no_grad():
                 output = model(**inputs)
                 probs = torch.softmax(output.logits, dim=-1).round(decimals=2)
+                probs = probs.float()  # convert to float32 only for numpy compatibility. # TODO: Related to using flash-attn 2
             return {"probs": probs.cpu().numpy()}
 
         test_ds.set_format("torch", columns=["input_ids", "attention_mask", "label"])
