@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Chris Levy">
+<meta name="dcterms.date" content="2024-12-29">
+
+<title>Chris Levy - Fine-Tuning ModernBERT For Classification Tasks on Modal</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>
+.cell-output-stdout code {
+  word-break: break-wor !important;
+  white-space: pre-wrap !important;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Chris Levy</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/DrChrisLevy" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/cleavey1985" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-left">
+      <h1 class="title">Fine-Tuning ModernBERT For Classification Tasks on Modal</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Chris Levy </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 29, 2024</p>
+      </div>
+    </div>
+    
+      <div>
+      <div class="quarto-title-meta-heading">Modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date-modified">December 29, 2024</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#intro" id="toc-intro" class="nav-link active" data-scroll-target="#intro">Intro</a></li>
+  <li><a href="#encoder-models-generate-embedding-representations" id="toc-encoder-models-generate-embedding-representations" class="nav-link" data-scroll-target="#encoder-models-generate-embedding-representations">Encoder Models Generate Embedding Representations</a></li>
+  <li><a href="#fine-tuning-modernbert-for-classification" id="toc-fine-tuning-modernbert-for-classification" class="nav-link" data-scroll-target="#fine-tuning-modernbert-for-classification">Fine-Tuning ModernBERT for Classification</a>
+  <ul class="collapse">
+  <li><a href="#create-a-modal-account" id="toc-create-a-modal-account" class="nav-link" data-scroll-target="#create-a-modal-account">Create a Modal Account</a></li>
+  <li><a href="#setup-the-environment" id="toc-setup-the-environment" class="nav-link" data-scroll-target="#setup-the-environment">Setup the Environment</a></li>
+  <li><a href="#training-code" id="toc-training-code" class="nav-link" data-scroll-target="#training-code">Training Code</a></li>
+  <li><a href="#run-the-trainer" id="toc-run-the-trainer" class="nav-link" data-scroll-target="#run-the-trainer">Run The Trainer</a>
+  <ul class="collapse">
+  <li><a href="#emotion-dataset" id="toc-emotion-dataset" class="nav-link" data-scroll-target="#emotion-dataset">Emotion Dataset</a></li>
+  <li><a href="#ag-news-dataset" id="toc-ag-news-dataset" class="nav-link" data-scroll-target="#ag-news-dataset">AG News Dataset</a></li>
+  <li><a href="#tweeteval-dataset" id="toc-tweeteval-dataset" class="nav-link" data-scroll-target="#tweeteval-dataset">TweetEval Dataset</a></li>
+  <li><a href="#yahoo-answers-topics" id="toc-yahoo-answers-topics" class="nav-link" data-scroll-target="#yahoo-answers-topics">Yahoo Answers Topics</a></li>
+  <li><a href="#synthetic-dataset-with-longer-texts" id="toc-synthetic-dataset-with-longer-texts" class="nav-link" data-scroll-target="#synthetic-dataset-with-longer-texts">Synthetic Dataset With Longer Texts</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul></li>
+  <li><a href="#resources" id="toc-resources" class="nav-link" data-scroll-target="#resources">Resources</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+
+
+
+
+<p><img src="imgs/bert_old.png" class="img-fluid"></p>
+<section id="intro" class="level1">
+<h1>Intro</h1>
+<p>First go and read the ModernBert blog post announcement <a href="https://huggingface.co/blog/modernbert">here</a>. If you are interested I wrote a little about transformers (encoders and decoders) in my previous blog posts <a href="https://drchrislevy.github.io/posts/vllms/vllm.html">here</a> and <a href="https://drchrislevy.github.io/posts/basic_transformer_notes/transformers.html">here</a>. I also have written previously about using Modal <a href="https://drchrislevy.github.io/posts/modal_fun/modal_blog.html">here</a> and <a href="https://drchrislevy.github.io/posts/colpali/colpali_blog.html">here</a> and <a href="https://drchrislevy.github.io/posts/intro_modal/intro_modal.html">here</a>.</p>
+</section>
+<section id="encoder-models-generate-embedding-representations" class="level1">
+<h1>Encoder Models Generate Embedding Representations</h1>
+<p>This section gives a very quick rundown on how encoder models <strong>encode</strong> text into embeddings.</p>
+<div class="cell" data-execution_count="1">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> transformers <span class="im">import</span> AutoModel, AutoTokenizer</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>model_id <span class="op">=</span> <span class="st">"answerdotai/ModernBERT-base"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(model_id)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> AutoModel.from_pretrained(model_id)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>ModernBertModel(
+  (embeddings): ModernBertEmbeddings(
+    (tok_embeddings): Embedding(50368, 768, padding_idx=50283)
+    (norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+    (drop): Dropout(p=0.0, inplace=False)
+  )
+  (layers): ModuleList(
+    (0): ModernBertEncoderLayer(
+      (attn_norm): Identity()
+      (attn): ModernBertAttention(
+        (Wqkv): Linear(in_features=768, out_features=2304, bias=False)
+        (rotary_emb): ModernBertRotaryEmbedding()
+        (Wo): Linear(in_features=768, out_features=768, bias=False)
+        (out_drop): Identity()
+      )
+      (mlp_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+      (mlp): ModernBertMLP(
+        (Wi): Linear(in_features=768, out_features=2304, bias=False)
+        (act): GELUActivation()
+        (drop): Dropout(p=0.0, inplace=False)
+        (Wo): Linear(in_features=1152, out_features=768, bias=False)
+      )
+    )
+    (1-21): 21 x ModernBertEncoderLayer(
+      (attn_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+      (attn): ModernBertAttention(
+        (Wqkv): Linear(in_features=768, out_features=2304, bias=False)
+        (rotary_emb): ModernBertRotaryEmbedding()
+        (Wo): Linear(in_features=768, out_features=768, bias=False)
+        (out_drop): Identity()
+      )
+      (mlp_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+      (mlp): ModernBertMLP(
+        (Wi): Linear(in_features=768, out_features=2304, bias=False)
+        (act): GELUActivation()
+        (drop): Dropout(p=0.0, inplace=False)
+        (Wo): Linear(in_features=1152, out_features=768, bias=False)
+      )
+    )
+  )
+  (final_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="2">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The capital of Nova Scotia is Halifax."</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>inputs <span class="op">=</span> tokenizer(text, return_tensors<span class="op">=</span><span class="st">"pt"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>inputs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>{'input_ids': tensor([[50281,   510,  5347,   273, 30947, 47138,   310, 14449, 41653,    15,
+         50282]]), 'attention_mask': tensor([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])}</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="3">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get embeddings</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>outputs <span class="op">=</span> model(<span class="op">**</span>inputs, output_hidden_states<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>outputs.keys()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>odict_keys(['last_hidden_state', 'hidden_states'])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="4">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Tuple containing outputs from every layer in the model</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(outputs.hidden_states))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span>([x.shape <span class="cf">for</span> x <span class="kw">in</span> outputs.hidden_states])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>23</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>{torch.Size([1, 11, 768])}</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="5">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># last_hidden_state</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Single tensor representing the final layer's output</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># [batch_size, sequence_length, hidden_size]</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>outputs.last_hidden_state.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>torch.Size([1, 11, 768])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>outputs.last_hidden_state</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>tensor([[[ 3.9541e-01, -1.1135e+00, -9.1821e-01,  ..., -4.2644e-01,
+           2.0316e-01, -7.5940e-01],
+         [ 1.2727e-01,  6.0307e-02,  2.4341e-01,  ...,  1.3519e-01,
+          -1.0590e-01,  9.5566e-02],
+         [ 3.2714e-01, -1.3615e+00, -8.6864e-01,  ...,  5.3308e-01,
+           1.4498e+00,  1.4891e-01],
+         ...,
+         [-2.8325e-02, -8.1840e-01, -1.1389e-01,  ...,  3.3296e-01,
+          -5.4001e-01, -2.0064e-01],
+         [-1.3851e+00,  1.5134e-01, -8.1608e-01,  ..., -1.4898e+00,
+           2.8013e-01,  1.3483e+00],
+         [ 2.5279e-01, -6.3874e-02,  7.7065e-02,  ...,  5.3266e-04,
+          -5.2192e-03, -1.5917e-01]]], grad_fn=&lt;NativeLayerNormBackward0&gt;)</code></pre>
+</div>
+</div>
+<p>The reason we get an embedding for each token (11 in this example) is because BERT ( ModernBERT) are contextual embedding models, meaning they create representations that capture each token’s meaning based on its context in the sentence. Each token gets its own 768-dimensional embedding vector.</p>
+<div class="cell" data-execution_count="7">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> position <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(inputs.input_ids[<span class="dv">0</span>])):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    token_id <span class="op">=</span> inputs.input_ids[<span class="dv">0</span>][position]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    decoded_token <span class="op">=</span> tokenizer.decode([token_id])</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    embedding <span class="op">=</span> outputs.last_hidden_state[<span class="dv">0</span>][position]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Position </span><span class="sc">{</span>position<span class="sc">}</span><span class="ss">:"</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Input Token ID: </span><span class="sc">{</span>token_id<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Input Token: '</span><span class="sc">{</span>decoded_token<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Embedding Shape: </span><span class="sc">{</span>embedding<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Position 0:
+Input Token ID: 50281
+Input Token: '[CLS]'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 1:
+Input Token ID: 510
+Input Token: 'The'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 2:
+Input Token ID: 5347
+Input Token: ' capital'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 3:
+Input Token ID: 273
+Input Token: ' of'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 4:
+Input Token ID: 30947
+Input Token: ' Nova'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 5:
+Input Token ID: 47138
+Input Token: ' Scotia'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 6:
+Input Token ID: 310
+Input Token: ' is'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 7:
+Input Token ID: 14449
+Input Token: ' Hal'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 8:
+Input Token ID: 41653
+Input Token: 'ifax'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 9:
+Input Token ID: 15
+Input Token: '.'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------
+Position 10:
+Input Token ID: 50282
+Input Token: '[SEP]'
+Embedding Shape: torch.Size([768])
+--------------------------------------------------</code></pre>
+</div>
+</div>
+<p>For downstream tasks with BERT-like models (including ModernBERT), there are typically two main approaches for generating a single embedding for the entire input text:</p>
+<ol type="1">
+<li><code>[CLS]</code> Token Embedding (Most Common)</li>
+</ol>
+<div class="cell" data-execution_count="8">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the [CLS] token embedding (first token, index 0)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>cls_embedding <span class="op">=</span> outputs.last_hidden_state[<span class="dv">0</span>][<span class="dv">0</span>]  <span class="co"># Shape: [768]</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>cls_embedding.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>torch.Size([768])</code></pre>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Mean Pooling (Alternative Approach)</li>
+</ol>
+<div class="cell" data-execution_count="9">
+<details open="">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean pooling - take average of all tokens</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>mean_embedding <span class="op">=</span> outputs.last_hidden_state[<span class="dv">0</span>].mean(dim<span class="op">=</span><span class="dv">0</span>)  <span class="co"># Shape: [768]</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>mean_embedding.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>torch.Size([768])</code></pre>
+</div>
+</div>
+<p>The <code>[CLS]</code> token is specifically designed to capture sentence-level information and is most commonly used for classification tasks. This is because BERT models are trained to use this token to aggregate information from the entire sequence.</p>
+</section>
+<section id="fine-tuning-modernbert-for-classification" class="level1">
+<h1>Fine-Tuning ModernBERT for Classification</h1>
+<p>When I first learned about fine-tuning transformer encoder models for classification tasks, my favorite resource was the book <a href="https://www.amazon.ca/dp/1098136799?smid=ATVPDKIKX0DER&amp;_encoding=UTF8&amp;linkCode=gs2&amp;tag=oreilly200b-20">Natural Language Processing with Transformers: Building Language Applications with Hugging Face</a>. It’s still relevant and a great resource. In particular, checkout Chapter 2 which walks through classification tasks. In that chapter the authors first train a simple classifier on top of the <code>[CLS]</code> token embeddings. In that case the model is frozen and only used as a feature extractor. The other approach is to fine-tune the entire model together with a classification head. It’s this latter approach that I’ll show you how to do here.</p>
+<section id="create-a-modal-account" class="level2">
+<h2 class="anchored" data-anchor-id="create-a-modal-account">Create a Modal Account</h2>
+<ul>
+<li>you get $30 a month of free compute!</li>
+<li>create an account at <a href="https://modal.com/">modal.com</a></li>
+<li><a href="https://modal.com/docs/guide">Super easy to set up</a></li>
+</ul>
+</section>
+<section id="setup-the-environment" class="level2">
+<h2 class="anchored" data-anchor-id="setup-the-environment">Setup the Environment</h2>
+<pre><code>python3 -m venv env
+source env/bin/activate
+pip install modal dotenv
+modal setup</code></pre>
+<ul>
+<li>Place your wandb api key in a <code>.env</code> file like this: <code>WANDB_API_KEY=&lt;&gt;</code></li>
+<li>create the file<code>trainer.py</code> and place it at the root of your project folder alongside the <code>.env</code> file. The full code is below but you can also find it <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/modern_bert/trainer.py">here</a>.</li>
+</ul>
+</section>
+<section id="training-code" class="level2">
+<h2 class="anchored" data-anchor-id="training-code">Training Code</h2>
+<p>Here is all the code for the <code>trainer.py</code> file.</p>
+<ul>
+<li>At the beginning of the file you can adjust the dataset, model, learning rate, batch size, epochs, class labels, column names, etc.
+<ul>
+<li>It’s expected to use a Hugging Face dataset and it’s expected that you will have to change these variables based on the dataset you are using.</li>
+<li>You can also make edits anywhere else in the code as well but when you are first starting out it’s best to keep the code simple and only make changes to the variables at the beginning of the file.</li>
+</ul></li>
+<li>When you run <code>modal run trainer.py</code> it will execute the code within the function <code>main()</code>.
+<ul>
+<li>By default it trains a model and then evaluates it on the validation split</li>
+<li>You can do whatever else you want here in the <code>main()</code> function. For example, you could comment out the training logic and just run an evaluation on some checkpoint.</li>
+</ul></li>
+<li>There are two main <strong>modal</strong> functions which each run in their own container. See the functions decorated with <code>@modal.method()</code>, which are <code>train_model</code> and <code>eval_model</code>.</li>
+<li>If you want to run different training runs or evaluation runs just edit the file and kick off the jobs by executing <code>modal run trainer.py</code> from the command line. Remember modal will take care of spinning up the containers and running the code!</li>
+<li>You can use the command <code>modal run --detach trainer.py</code>which lets the app continue running even if your client disconnects.</li>
+<li>In either case you will see live logs directly in your local terminal, even though the containers are running in the cloud.</li>
+<li>You can also follow along with logs and container metrics in the <a href="https://modal.com/">Modal UI dashboard</a>.</li>
+<li>You can also see the wandb outputs at <a href="https://wandb.ai/home">https://wandb.ai/home</a></li>
+<li>All the datasets and models are stored in the Modal volumes. You can see them in the <a href="https://modal.com/">Modal UI dashboard</a>.</li>
+</ul>
+<p>Here are is the <code>trainer.py</code> file. You can also find it here on <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/modern_bert/trainer.py">github</a>.</p>
+<div class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ruff: noqa</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> modal</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> modal <span class="im">import</span> Image, build, enter</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------- SETUP </span><span class="re">BEGIN</span><span class="co"> ----------------------------------#</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>env_file <span class="op">=</span> <span class="st">".env"</span>  <span class="co"># path to local env file with wandb api key WANDB_API_KEY=&lt;&gt;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"dair-ai/emotion"</span>  <span class="co"># name of the Hugging Face dataset to use</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>ds_name_config <span class="op">=</span> <span class="va">None</span>  <span class="co"># for hugging face datasets that have multiple config instances. For example cardiffnlp/tweet_eval</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>train_split <span class="op">=</span> <span class="st">"train"</span>  <span class="co"># name of the tain split in the dataset</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>validation_split <span class="op">=</span> <span class="st">"validation"</span>  <span class="co"># name of the validation split in the dataset</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>test_split <span class="op">=</span> <span class="st">"test"</span>  <span class="co"># name of the test split in the dataset</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># define the labels for the dataset</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {<span class="dv">0</span>: <span class="st">"sadness"</span>, <span class="dv">1</span>: <span class="st">"joy"</span>, <span class="dv">2</span>: <span class="st">"love"</span>, <span class="dv">3</span>: <span class="st">"anger"</span>, <span class="dv">4</span>: <span class="st">"fear"</span>, <span class="dv">5</span>: <span class="st">"surprise"</span>}</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Often commonly called "inputs". Depends on the dataset. This is the input text to the model.</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co"># This field will be called input_ids during tokenization/training/eval.</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>input_column <span class="op">=</span> <span class="st">"text"</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the column name from the dataset which is the target to train on.</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co"># It will get renamed to "label" during tokenization/training/eval.</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>label_column <span class="op">=</span> <span class="st">"label"</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> <span class="st">"answerdotai/ModernBERT-base"</span>  <span class="co"># name of the Hugging Face model to fine tune</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span>  <span class="co"># depends on GPU size and model size</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>GPU_SIZE <span class="op">=</span> <span class="st">"A100"</span>  <span class="co"># https://modal.com/docs/guide/gpu#specifying-gpu-type</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>num_train_epochs <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>learning_rate <span class="op">=</span> <span class="fl">5e-5</span>  <span class="co"># learning rate for the optimizer</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the logic for tokenizing the input text. It's used in the dataset map function</span></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a><span class="co"># during training and evaluation. Of importance is the max_length parameter which</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="co"># you will want to increase for input texts that are longer. Traditionally bert and other encoder</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="co"># models have a max length of 512 tokens. But ModernBERT has a max length of 8192 tokens.</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tokenizer_function_logic(example, tokenizer):</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tokenizer(example[input_column], padding<span class="op">=</span><span class="va">True</span>, truncation<span class="op">=</span><span class="va">True</span>, return_tensors<span class="op">=</span><span class="st">"pt"</span>, max_length<span class="op">=</span><span class="dv">512</span>)</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>wandb_project <span class="op">=</span> <span class="st">"hugging_face_training_jobs"</span>  <span class="co"># name of the wandb project to use</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>pre_fix_name <span class="op">=</span> <span class="st">""</span>  <span class="co"># optional prefix to the run name to differentiate it from other experiments</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a label that gets assigned to any example that is not classified by the model</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="co"># according to some probability threshold. It's only used for evaluation.</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>unknown_label_int <span class="op">=</span> <span class="op">-</span><span class="dv">1</span></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>unknown_label_str <span class="op">=</span> <span class="st">"UNKNOWN"</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a><span class="co"># define the run name which is used in wandb and the model name when saving model checkpoints</span></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>run_name <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>ds_name<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>ds_name_config<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>checkpoint<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>batch_size<span class="op">=</span><span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>learning_rate<span class="op">=</span><span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>num_train_epochs<span class="op">=</span><span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a><span class="co"># ---------------------------------- SETUP </span><span class="re">END</span><span class="co">----------------------------------#</span></span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> pre_fix_name:</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>    run_name <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>pre_fix_name<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>run_name<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>label2id <span class="op">=</span> {v: k <span class="cf">for</span> k, v <span class="kw">in</span> id2label.items()}</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>path_to_ds <span class="op">=</span> os.path.join(<span class="st">"/data"</span>, ds_name, ds_name_config <span class="cf">if</span> ds_name_config <span class="cf">else</span> <span class="st">""</span>)</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>load_dotenv(env_file)</span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> modal.App(<span class="st">"trainer"</span>)</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Non Flash-Attn Image</span></span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a><span class="co"># image = Image.debian_slim(python_version="3.11").run_commands(</span></span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a><span class="co">#     "apt-get update &amp;&amp; apt-get install -y htop git",</span></span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a><span class="co">#     "pip3 install torch torchvision torchaudio",</span></span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a><span class="co">#     "pip install git+https://github.com/huggingface/transformers.git datasets accelerate scikit-learn python-dotenv wandb",</span></span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a><span class="co">#     # f'huggingface-cli login --token {os.environ["HUGGING_FACE_ACCESS_TOKEN"]}',</span></span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a><span class="co">#     f'wandb login  {os.environ["WANDB_API_KEY"]}',</span></span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Flash-Attn Image</span></span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a><span class="co"># https://modal.com/docs/guide/cuda#for-more-complex-setups-use-an-officially-supported-cuda-image</span></span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>cuda_version <span class="op">=</span> <span class="st">"12.4.0"</span>  <span class="co"># should be no greater than host CUDA version</span></span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a>flavor <span class="op">=</span> <span class="st">"devel"</span>  <span class="co">#  includes full CUDA toolkit</span></span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>operating_sys <span class="op">=</span> <span class="st">"ubuntu22.04"</span></span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a>tag <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>cuda_version<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>flavor<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>operating_sys<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-74"><a href="#cb21-74" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> (</span>
+<span id="cb21-75"><a href="#cb21-75" aria-hidden="true" tabindex="-1"></a>    modal.Image.from_registry(<span class="ss">f"nvidia/cuda:</span><span class="sc">{</span>tag<span class="sc">}</span><span class="ss">"</span>, add_python<span class="op">=</span><span class="st">"3.11"</span>)</span>
+<span id="cb21-76"><a href="#cb21-76" aria-hidden="true" tabindex="-1"></a>    .apt_install(<span class="st">"git"</span>, <span class="st">"htop"</span>)</span>
+<span id="cb21-77"><a href="#cb21-77" aria-hidden="true" tabindex="-1"></a>    .pip_install(</span>
+<span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>        <span class="st">"ninja"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a>        <span class="st">"packaging"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wheel"</span>,  <span class="co"># required to build flash-attn</span></span>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>        <span class="st">"torch"</span>,</span>
+<span id="cb21-82"><a href="#cb21-82" aria-hidden="true" tabindex="-1"></a>        <span class="st">"git+https://github.com/huggingface/transformers.git"</span>,</span>
+<span id="cb21-83"><a href="#cb21-83" aria-hidden="true" tabindex="-1"></a>        <span class="st">"datasets"</span>,</span>
+<span id="cb21-84"><a href="#cb21-84" aria-hidden="true" tabindex="-1"></a>        <span class="st">"accelerate"</span>,</span>
+<span id="cb21-85"><a href="#cb21-85" aria-hidden="true" tabindex="-1"></a>        <span class="st">"scikit-learn"</span>,</span>
+<span id="cb21-86"><a href="#cb21-86" aria-hidden="true" tabindex="-1"></a>        <span class="st">"python-dotenv"</span>,</span>
+<span id="cb21-87"><a href="#cb21-87" aria-hidden="true" tabindex="-1"></a>        <span class="st">"wandb"</span>,</span>
+<span id="cb21-88"><a href="#cb21-88" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-89"><a href="#cb21-89" aria-hidden="true" tabindex="-1"></a>    .run_commands(</span>
+<span id="cb21-90"><a href="#cb21-90" aria-hidden="true" tabindex="-1"></a>        <span class="st">"pip install flash-attn --no-build-isolation"</span>,  <span class="co"># add flash-attn</span></span>
+<span id="cb21-91"><a href="#cb21-91" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'wandb login  </span><span class="sc">{</span>os<span class="sc">.</span>environ[<span class="st">"WANDB_API_KEY"</span>]<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb21-92"><a href="#cb21-92" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb21-93"><a href="#cb21-93" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-94"><a href="#cb21-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-95"><a href="#cb21-95" aria-hidden="true" tabindex="-1"></a>vol <span class="op">=</span> modal.Volume.from_name(<span class="st">"trainer-vol"</span>, create_if_missing<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-96"><a href="#cb21-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-97"><a href="#cb21-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-98"><a href="#cb21-98" aria-hidden="true" tabindex="-1"></a><span class="at">@app.cls</span>(</span>
+<span id="cb21-99"><a href="#cb21-99" aria-hidden="true" tabindex="-1"></a>    image<span class="op">=</span>image,</span>
+<span id="cb21-100"><a href="#cb21-100" aria-hidden="true" tabindex="-1"></a>    volumes<span class="op">=</span>{<span class="st">"/data"</span>: vol},</span>
+<span id="cb21-101"><a href="#cb21-101" aria-hidden="true" tabindex="-1"></a>    secrets<span class="op">=</span>[modal.Secret.from_dotenv(filename<span class="op">=</span>env_file)],</span>
+<span id="cb21-102"><a href="#cb21-102" aria-hidden="true" tabindex="-1"></a>    gpu<span class="op">=</span>GPU_SIZE,</span>
+<span id="cb21-103"><a href="#cb21-103" aria-hidden="true" tabindex="-1"></a>    timeout<span class="op">=</span><span class="dv">60</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">10</span>,</span>
+<span id="cb21-104"><a href="#cb21-104" aria-hidden="true" tabindex="-1"></a>    container_idle_timeout<span class="op">=</span><span class="dv">300</span>,</span>
+<span id="cb21-105"><a href="#cb21-105" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-106"><a href="#cb21-106" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Trainer:</span>
+<span id="cb21-107"><a href="#cb21-107" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, reload_ds<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb21-108"><a href="#cb21-108" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb21-109"><a href="#cb21-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-110"><a href="#cb21-110" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.reload_ds <span class="op">=</span> reload_ds</span>
+<span id="cb21-111"><a href="#cb21-111" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.device <span class="op">=</span> torch.device(<span class="st">"cuda"</span>) <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> torch.device(<span class="st">"cpu"</span>)</span>
+<span id="cb21-112"><a href="#cb21-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-113"><a href="#cb21-113" aria-hidden="true" tabindex="-1"></a>    <span class="at">@build</span>()</span>
+<span id="cb21-114"><a href="#cb21-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">@enter</span>()</span>
+<span id="cb21-115"><a href="#cb21-115" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> setup(<span class="va">self</span>):</span>
+<span id="cb21-116"><a href="#cb21-116" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> datasets <span class="im">import</span> load_dataset, load_from_disk</span>
+<span id="cb21-117"><a href="#cb21-117" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers <span class="im">import</span> (</span>
+<span id="cb21-118"><a href="#cb21-118" aria-hidden="true" tabindex="-1"></a>            AutoTokenizer,</span>
+<span id="cb21-119"><a href="#cb21-119" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-120"><a href="#cb21-120" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers.utils <span class="im">import</span> move_cache</span>
+<span id="cb21-121"><a href="#cb21-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-122"><a href="#cb21-122" aria-hidden="true" tabindex="-1"></a>        os.makedirs(<span class="st">"/data"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-123"><a href="#cb21-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-124"><a href="#cb21-124" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> os.path.exists(path_to_ds) <span class="kw">or</span> <span class="va">self</span>.reload_ds:</span>
+<span id="cb21-125"><a href="#cb21-125" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span>:</span>
+<span id="cb21-126"><a href="#cb21-126" aria-hidden="true" tabindex="-1"></a>                <span class="co"># clean out the dataset folder</span></span>
+<span id="cb21-127"><a href="#cb21-127" aria-hidden="true" tabindex="-1"></a>                shutil.rmtree(path_to_ds)</span>
+<span id="cb21-128"><a href="#cb21-128" aria-hidden="true" tabindex="-1"></a>            <span class="cf">except</span> <span class="pp">FileNotFoundError</span>:</span>
+<span id="cb21-129"><a href="#cb21-129" aria-hidden="true" tabindex="-1"></a>                <span class="cf">pass</span></span>
+<span id="cb21-130"><a href="#cb21-130" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.ds <span class="op">=</span> load_dataset(ds_name, ds_name_config)</span>
+<span id="cb21-131"><a href="#cb21-131" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Save dataset to disk</span></span>
+<span id="cb21-132"><a href="#cb21-132" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.ds.save_to_disk(path_to_ds)</span>
+<span id="cb21-133"><a href="#cb21-133" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb21-134"><a href="#cb21-134" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.ds <span class="op">=</span> load_from_disk(path_to_ds)</span>
+<span id="cb21-135"><a href="#cb21-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-136"><a href="#cb21-136" aria-hidden="true" tabindex="-1"></a>        move_cache()</span>
+<span id="cb21-137"><a href="#cb21-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-138"><a href="#cb21-138" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Load tokenizer and model</span></span>
+<span id="cb21-139"><a href="#cb21-139" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(checkpoint)</span>
+<span id="cb21-140"><a href="#cb21-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-141"><a href="#cb21-141" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> tokenize_function(<span class="va">self</span>, example):</span>
+<span id="cb21-142"><a href="#cb21-142" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> tokenizer_function_logic(example, <span class="va">self</span>.tokenizer)</span>
+<span id="cb21-143"><a href="#cb21-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-144"><a href="#cb21-144" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> compute_metrics(<span class="va">self</span>, pred):</span>
+<span id="cb21-145"><a href="#cb21-145" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb21-146"><a href="#cb21-146" aria-hidden="true" tabindex="-1"></a><span class="co">        To debug this function manually on some sample input in ipython you can create an input</span></span>
+<span id="cb21-147"><a href="#cb21-147" aria-hidden="true" tabindex="-1"></a><span class="co">        pred object like this:</span></span>
+<span id="cb21-148"><a href="#cb21-148" aria-hidden="true" tabindex="-1"></a><span class="co">        from transformers import EvalPrediction</span></span>
+<span id="cb21-149"><a href="#cb21-149" aria-hidden="true" tabindex="-1"></a><span class="co">        import numpy as np</span></span>
+<span id="cb21-150"><a href="#cb21-150" aria-hidden="true" tabindex="-1"></a><span class="co">        logits=[[-0.9559,  0.7553],</span></span>
+<span id="cb21-151"><a href="#cb21-151" aria-hidden="true" tabindex="-1"></a><span class="co">        [ 2.0987, -2.3868],</span></span>
+<span id="cb21-152"><a href="#cb21-152" aria-hidden="true" tabindex="-1"></a><span class="co">        [ 1.0143, -1.1551],</span></span>
+<span id="cb21-153"><a href="#cb21-153" aria-hidden="true" tabindex="-1"></a><span class="co">        [ 1.3666, -1.6074]]</span></span>
+<span id="cb21-154"><a href="#cb21-154" aria-hidden="true" tabindex="-1"></a><span class="co">        label_ids = [1, 0, 1, 0]</span></span>
+<span id="cb21-155"><a href="#cb21-155" aria-hidden="true" tabindex="-1"></a><span class="co">        pred = EvalPrediction(predictions=logits, label_ids=label_ids)</span></span>
+<span id="cb21-156"><a href="#cb21-156" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb21-157"><a href="#cb21-157" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb21-158"><a href="#cb21-158" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb21-159"><a href="#cb21-159" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> sklearn.metrics <span class="im">import</span> f1_score</span>
+<span id="cb21-160"><a href="#cb21-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-161"><a href="#cb21-161" aria-hidden="true" tabindex="-1"></a>        <span class="co"># pred is EvalPrediction object i.e. from transformers import EvalPrediction</span></span>
+<span id="cb21-162"><a href="#cb21-162" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> torch.tensor(pred.predictions)  <span class="co"># raw prediction logits from the model</span></span>
+<span id="cb21-163"><a href="#cb21-163" aria-hidden="true" tabindex="-1"></a>        label_ids <span class="op">=</span> pred.label_ids  <span class="co"># integer label ids classes</span></span>
+<span id="cb21-164"><a href="#cb21-164" aria-hidden="true" tabindex="-1"></a>        labels <span class="op">=</span> torch.tensor(label_ids).double().numpy()</span>
+<span id="cb21-165"><a href="#cb21-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-166"><a href="#cb21-166" aria-hidden="true" tabindex="-1"></a>        probs <span class="op">=</span> logits.softmax(dim<span class="op">=-</span><span class="dv">1</span>).<span class="bu">float</span>().numpy()  <span class="co"># probabilities for each class</span></span>
+<span id="cb21-167"><a href="#cb21-167" aria-hidden="true" tabindex="-1"></a>        preds <span class="op">=</span> np.argmax(probs, axis<span class="op">=</span><span class="dv">1</span>)  <span class="co"># take the label with the highest probability</span></span>
+<span id="cb21-168"><a href="#cb21-168" aria-hidden="true" tabindex="-1"></a>        f1_micro <span class="op">=</span> f1_score(labels, preds, average<span class="op">=</span><span class="st">"micro"</span>, zero_division<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-169"><a href="#cb21-169" aria-hidden="true" tabindex="-1"></a>        f1_macro <span class="op">=</span> f1_score(labels, preds, average<span class="op">=</span><span class="st">"macro"</span>, zero_division<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-170"><a href="#cb21-170" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {<span class="st">"f1_micro"</span>: f1_micro, <span class="st">"f1_macro"</span>: f1_macro}</span>
+<span id="cb21-171"><a href="#cb21-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-172"><a href="#cb21-172" aria-hidden="true" tabindex="-1"></a>    <span class="at">@modal.method</span>()</span>
+<span id="cb21-173"><a href="#cb21-173" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> train_model(<span class="va">self</span>):</span>
+<span id="cb21-174"><a href="#cb21-174" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> wandb</span>
+<span id="cb21-175"><a href="#cb21-175" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb21-176"><a href="#cb21-176" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> os</span>
+<span id="cb21-177"><a href="#cb21-177" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> datasets <span class="im">import</span> load_from_disk</span>
+<span id="cb21-178"><a href="#cb21-178" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers <span class="im">import</span> (</span>
+<span id="cb21-179"><a href="#cb21-179" aria-hidden="true" tabindex="-1"></a>            AutoConfig,</span>
+<span id="cb21-180"><a href="#cb21-180" aria-hidden="true" tabindex="-1"></a>            AutoModelForSequenceClassification,</span>
+<span id="cb21-181"><a href="#cb21-181" aria-hidden="true" tabindex="-1"></a>            DataCollatorWithPadding,</span>
+<span id="cb21-182"><a href="#cb21-182" aria-hidden="true" tabindex="-1"></a>            Trainer,</span>
+<span id="cb21-183"><a href="#cb21-183" aria-hidden="true" tabindex="-1"></a>            TrainingArguments,</span>
+<span id="cb21-184"><a href="#cb21-184" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-185"><a href="#cb21-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-186"><a href="#cb21-186" aria-hidden="true" tabindex="-1"></a>        os.environ[<span class="st">"WANDB_PROJECT"</span>] <span class="op">=</span> wandb_project</span>
+<span id="cb21-187"><a href="#cb21-187" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remove previous training model saves if exists for same run_name</span></span>
+<span id="cb21-188"><a href="#cb21-188" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb21-189"><a href="#cb21-189" aria-hidden="true" tabindex="-1"></a>            shutil.rmtree(os.path.join(<span class="st">"/data"</span>, run_name))</span>
+<span id="cb21-190"><a href="#cb21-190" aria-hidden="true" tabindex="-1"></a>        <span class="cf">except</span> <span class="pp">FileNotFoundError</span>:</span>
+<span id="cb21-191"><a href="#cb21-191" aria-hidden="true" tabindex="-1"></a>            <span class="cf">pass</span></span>
+<span id="cb21-192"><a href="#cb21-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-193"><a href="#cb21-193" aria-hidden="true" tabindex="-1"></a>        ds <span class="op">=</span> load_from_disk(path_to_ds)</span>
+<span id="cb21-194"><a href="#cb21-194" aria-hidden="true" tabindex="-1"></a>        <span class="co"># useful for debugging and quick training: Just downsample the dataset</span></span>
+<span id="cb21-195"><a href="#cb21-195" aria-hidden="true" tabindex="-1"></a>        <span class="co"># for split in ds.keys():</span></span>
+<span id="cb21-196"><a href="#cb21-196" aria-hidden="true" tabindex="-1"></a>        <span class="co">#     ds[split] = ds[split].shuffle(seed=42).select(range(1000))</span></span>
+<span id="cb21-197"><a href="#cb21-197" aria-hidden="true" tabindex="-1"></a>        num_labels <span class="op">=</span> <span class="bu">len</span>(id2label)</span>
+<span id="cb21-198"><a href="#cb21-198" aria-hidden="true" tabindex="-1"></a>        tokenized_dataset <span class="op">=</span> ds.<span class="bu">map</span>(<span class="va">self</span>.tokenize_function, batched<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-199"><a href="#cb21-199" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> label_column <span class="op">!=</span> <span class="st">"label"</span>:</span>
+<span id="cb21-200"><a href="#cb21-200" aria-hidden="true" tabindex="-1"></a>            tokenized_dataset <span class="op">=</span> tokenized_dataset.rename_column(label_column, <span class="st">"label"</span>)</span>
+<span id="cb21-201"><a href="#cb21-201" aria-hidden="true" tabindex="-1"></a>        data_collator <span class="op">=</span> DataCollatorWithPadding(tokenizer<span class="op">=</span><span class="va">self</span>.tokenizer)</span>
+<span id="cb21-202"><a href="#cb21-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-203"><a href="#cb21-203" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://www.philschmid.de/getting-started-pytorch-2-0-transformers</span></span>
+<span id="cb21-204"><a href="#cb21-204" aria-hidden="true" tabindex="-1"></a>        <span class="co"># https://www.philschmid.de/fine-tune-modern-bert-in-2025</span></span>
+<span id="cb21-205"><a href="#cb21-205" aria-hidden="true" tabindex="-1"></a>        training_args <span class="op">=</span> TrainingArguments(</span>
+<span id="cb21-206"><a href="#cb21-206" aria-hidden="true" tabindex="-1"></a>            output_dir<span class="op">=</span>os.path.join(<span class="st">"/data"</span>, run_name),</span>
+<span id="cb21-207"><a href="#cb21-207" aria-hidden="true" tabindex="-1"></a>            num_train_epochs<span class="op">=</span>num_train_epochs,</span>
+<span id="cb21-208"><a href="#cb21-208" aria-hidden="true" tabindex="-1"></a>            learning_rate<span class="op">=</span>learning_rate,</span>
+<span id="cb21-209"><a href="#cb21-209" aria-hidden="true" tabindex="-1"></a>            per_device_train_batch_size<span class="op">=</span>batch_size,</span>
+<span id="cb21-210"><a href="#cb21-210" aria-hidden="true" tabindex="-1"></a>            per_device_eval_batch_size<span class="op">=</span>batch_size,</span>
+<span id="cb21-211"><a href="#cb21-211" aria-hidden="true" tabindex="-1"></a>            <span class="co"># PyTorch 2.0 specifics</span></span>
+<span id="cb21-212"><a href="#cb21-212" aria-hidden="true" tabindex="-1"></a>            bf16<span class="op">=</span><span class="va">True</span>,  <span class="co"># bfloat16 training</span></span>
+<span id="cb21-213"><a href="#cb21-213" aria-hidden="true" tabindex="-1"></a>            <span class="co"># torch_compile=True,  # optimizations but its making it slower with my code and causes errors when running with flash-attn</span></span>
+<span id="cb21-214"><a href="#cb21-214" aria-hidden="true" tabindex="-1"></a>            optim<span class="op">=</span><span class="st">"adamw_torch_fused"</span>,  <span class="co"># improved optimizer</span></span>
+<span id="cb21-215"><a href="#cb21-215" aria-hidden="true" tabindex="-1"></a>            <span class="co"># logging &amp; evaluation strategies</span></span>
+<span id="cb21-216"><a href="#cb21-216" aria-hidden="true" tabindex="-1"></a>            logging_dir<span class="op">=</span>os.path.join(<span class="st">"/data"</span>, run_name, <span class="st">"logs"</span>),</span>
+<span id="cb21-217"><a href="#cb21-217" aria-hidden="true" tabindex="-1"></a>            logging_strategy<span class="op">=</span><span class="st">"steps"</span>,</span>
+<span id="cb21-218"><a href="#cb21-218" aria-hidden="true" tabindex="-1"></a>            logging_steps<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb21-219"><a href="#cb21-219" aria-hidden="true" tabindex="-1"></a>            eval_strategy<span class="op">=</span><span class="st">"epoch"</span>,</span>
+<span id="cb21-220"><a href="#cb21-220" aria-hidden="true" tabindex="-1"></a>            save_strategy<span class="op">=</span><span class="st">"epoch"</span>,</span>
+<span id="cb21-221"><a href="#cb21-221" aria-hidden="true" tabindex="-1"></a>            load_best_model_at_end<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb21-222"><a href="#cb21-222" aria-hidden="true" tabindex="-1"></a>            metric_for_best_model<span class="op">=</span><span class="st">"f1_macro"</span>,</span>
+<span id="cb21-223"><a href="#cb21-223" aria-hidden="true" tabindex="-1"></a>            report_to<span class="op">=</span><span class="st">"wandb"</span>,</span>
+<span id="cb21-224"><a href="#cb21-224" aria-hidden="true" tabindex="-1"></a>            run_name<span class="op">=</span>run_name,</span>
+<span id="cb21-225"><a href="#cb21-225" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-226"><a href="#cb21-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-227"><a href="#cb21-227" aria-hidden="true" tabindex="-1"></a>        configuration <span class="op">=</span> AutoConfig.from_pretrained(checkpoint)</span>
+<span id="cb21-228"><a href="#cb21-228" aria-hidden="true" tabindex="-1"></a>        <span class="co"># these dropout values are noted here in case we want to tweak them in future</span></span>
+<span id="cb21-229"><a href="#cb21-229" aria-hidden="true" tabindex="-1"></a>        <span class="co"># experiments.</span></span>
+<span id="cb21-230"><a href="#cb21-230" aria-hidden="true" tabindex="-1"></a>        <span class="co"># configuration.hidden_dropout_prob = 0.1  # 0.1 is default</span></span>
+<span id="cb21-231"><a href="#cb21-231" aria-hidden="true" tabindex="-1"></a>        <span class="co"># configuration.attention_probs_dropout_prob = 0.1  # 0.1 is default</span></span>
+<span id="cb21-232"><a href="#cb21-232" aria-hidden="true" tabindex="-1"></a>        <span class="co"># configuration.classifier_dropout = None  # If None then defaults to hidden_dropout_prob</span></span>
+<span id="cb21-233"><a href="#cb21-233" aria-hidden="true" tabindex="-1"></a>        configuration.id2label <span class="op">=</span> id2label</span>
+<span id="cb21-234"><a href="#cb21-234" aria-hidden="true" tabindex="-1"></a>        configuration.label2id <span class="op">=</span> label2id</span>
+<span id="cb21-235"><a href="#cb21-235" aria-hidden="true" tabindex="-1"></a>        configuration.num_labels <span class="op">=</span> num_labels</span>
+<span id="cb21-236"><a href="#cb21-236" aria-hidden="true" tabindex="-1"></a>        model <span class="op">=</span> AutoModelForSequenceClassification.from_pretrained(</span>
+<span id="cb21-237"><a href="#cb21-237" aria-hidden="true" tabindex="-1"></a>            checkpoint,</span>
+<span id="cb21-238"><a href="#cb21-238" aria-hidden="true" tabindex="-1"></a>            config<span class="op">=</span>configuration,</span>
+<span id="cb21-239"><a href="#cb21-239" aria-hidden="true" tabindex="-1"></a>            <span class="co"># </span><span class="al">TODO</span><span class="co">: Is this how to use flash-attn 2?</span></span>
+<span id="cb21-240"><a href="#cb21-240" aria-hidden="true" tabindex="-1"></a>            <span class="co"># attn_implementation="flash_attention_2",</span></span>
+<span id="cb21-241"><a href="#cb21-241" aria-hidden="true" tabindex="-1"></a>            <span class="co"># torch_dtype=torch.bfloat16,</span></span>
+<span id="cb21-242"><a href="#cb21-242" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-243"><a href="#cb21-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-244"><a href="#cb21-244" aria-hidden="true" tabindex="-1"></a>        trainer <span class="op">=</span> Trainer(</span>
+<span id="cb21-245"><a href="#cb21-245" aria-hidden="true" tabindex="-1"></a>            model,</span>
+<span id="cb21-246"><a href="#cb21-246" aria-hidden="true" tabindex="-1"></a>            training_args,</span>
+<span id="cb21-247"><a href="#cb21-247" aria-hidden="true" tabindex="-1"></a>            train_dataset<span class="op">=</span>tokenized_dataset[train_split],</span>
+<span id="cb21-248"><a href="#cb21-248" aria-hidden="true" tabindex="-1"></a>            eval_dataset<span class="op">=</span>tokenized_dataset[validation_split],</span>
+<span id="cb21-249"><a href="#cb21-249" aria-hidden="true" tabindex="-1"></a>            data_collator<span class="op">=</span>data_collator,</span>
+<span id="cb21-250"><a href="#cb21-250" aria-hidden="true" tabindex="-1"></a>            tokenizer<span class="op">=</span><span class="va">self</span>.tokenizer,</span>
+<span id="cb21-251"><a href="#cb21-251" aria-hidden="true" tabindex="-1"></a>            compute_metrics<span class="op">=</span><span class="va">self</span>.compute_metrics,</span>
+<span id="cb21-252"><a href="#cb21-252" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-253"><a href="#cb21-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-254"><a href="#cb21-254" aria-hidden="true" tabindex="-1"></a>        trainer.train()</span>
+<span id="cb21-255"><a href="#cb21-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-256"><a href="#cb21-256" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Log the trainer script</span></span>
+<span id="cb21-257"><a href="#cb21-257" aria-hidden="true" tabindex="-1"></a>        wandb.save(<span class="va">__file__</span>)</span>
+<span id="cb21-258"><a href="#cb21-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-259"><a href="#cb21-259" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> load_model(<span class="va">self</span>, check_point):</span>
+<span id="cb21-260"><a href="#cb21-260" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> transformers <span class="im">import</span> AutoModelForSequenceClassification, AutoTokenizer</span>
+<span id="cb21-261"><a href="#cb21-261" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb21-262"><a href="#cb21-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-263"><a href="#cb21-263" aria-hidden="true" tabindex="-1"></a>        model <span class="op">=</span> AutoModelForSequenceClassification.from_pretrained(</span>
+<span id="cb21-264"><a href="#cb21-264" aria-hidden="true" tabindex="-1"></a>            check_point,</span>
+<span id="cb21-265"><a href="#cb21-265" aria-hidden="true" tabindex="-1"></a>            <span class="co"># </span><span class="al">TODO</span><span class="co">: Is this how to use flash-attn 2?</span></span>
+<span id="cb21-266"><a href="#cb21-266" aria-hidden="true" tabindex="-1"></a>            <span class="co"># attn_implementation="flash_attention_2",</span></span>
+<span id="cb21-267"><a href="#cb21-267" aria-hidden="true" tabindex="-1"></a>            <span class="co"># torch_dtype=torch.bfloat16,</span></span>
+<span id="cb21-268"><a href="#cb21-268" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb21-269"><a href="#cb21-269" aria-hidden="true" tabindex="-1"></a>        tokenizer <span class="op">=</span> AutoTokenizer.from_pretrained(check_point)</span>
+<span id="cb21-270"><a href="#cb21-270" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> tokenizer, model</span>
+<span id="cb21-271"><a href="#cb21-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-272"><a href="#cb21-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">@modal.method</span>()</span>
+<span id="cb21-273"><a href="#cb21-273" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> eval_model(<span class="va">self</span>, check_point<span class="op">=</span><span class="va">None</span>, split<span class="op">=</span>validation_split):</span>
+<span id="cb21-274"><a href="#cb21-274" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> os</span>
+<span id="cb21-275"><a href="#cb21-275" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb21-276"><a href="#cb21-276" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb21-277"><a href="#cb21-277" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> torch</span>
+<span id="cb21-278"><a href="#cb21-278" aria-hidden="true" tabindex="-1"></a>        <span class="im">import</span> wandb</span>
+<span id="cb21-279"><a href="#cb21-279" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> datasets <span class="im">import</span> load_from_disk</span>
+<span id="cb21-280"><a href="#cb21-280" aria-hidden="true" tabindex="-1"></a>        <span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report</span>
+<span id="cb21-281"><a href="#cb21-281" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-282"><a href="#cb21-282" aria-hidden="true" tabindex="-1"></a>        os.environ[<span class="st">"WANDB_PROJECT"</span>] <span class="op">=</span> wandb_project</span>
+<span id="cb21-283"><a href="#cb21-283" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> check_point <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb21-284"><a href="#cb21-284" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.</span></span>
+<span id="cb21-285"><a href="#cb21-285" aria-hidden="true" tabindex="-1"></a>            check_points <span class="op">=</span> <span class="bu">sorted</span>(</span>
+<span id="cb21-286"><a href="#cb21-286" aria-hidden="true" tabindex="-1"></a>                os.listdir(os.path.join(<span class="st">"/data/"</span>, run_name)), key<span class="op">=</span><span class="kw">lambda</span> x: <span class="bu">int</span>(x.split(<span class="st">"-"</span>)[<span class="dv">1</span>]) <span class="cf">if</span> x.startswith(<span class="st">"checkpoint-"</span>) <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb21-287"><a href="#cb21-287" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb21-288"><a href="#cb21-288" aria-hidden="true" tabindex="-1"></a>            check_point <span class="op">=</span> os.path.join(<span class="st">"/data"</span>, run_name, check_points[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb21-289"><a href="#cb21-289" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Evaluating Checkpoint </span><span class="sc">{</span>check_point<span class="sc">}</span><span class="ss">, split </span><span class="sc">{</span>split<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-290"><a href="#cb21-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-291"><a href="#cb21-291" aria-hidden="true" tabindex="-1"></a>        tokenizer, model <span class="op">=</span> <span class="va">self</span>.load_model(check_point)</span>
+<span id="cb21-292"><a href="#cb21-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-293"><a href="#cb21-293" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> tokenize_function(example):</span>
+<span id="cb21-294"><a href="#cb21-294" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> tokenizer_function_logic(example, tokenizer)</span>
+<span id="cb21-295"><a href="#cb21-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-296"><a href="#cb21-296" aria-hidden="true" tabindex="-1"></a>        model.to(<span class="va">self</span>.device)</span>
+<span id="cb21-297"><a href="#cb21-297" aria-hidden="true" tabindex="-1"></a>        test_ds <span class="op">=</span> load_from_disk(path_to_ds)[split]</span>
+<span id="cb21-298"><a href="#cb21-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-299"><a href="#cb21-299" aria-hidden="true" tabindex="-1"></a>        test_ds <span class="op">=</span> test_ds.<span class="bu">map</span>(tokenize_function, batched<span class="op">=</span><span class="va">True</span>, batch_size<span class="op">=</span>batch_size)</span>
+<span id="cb21-300"><a href="#cb21-300" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> label_column <span class="op">!=</span> <span class="st">"label"</span>:</span>
+<span id="cb21-301"><a href="#cb21-301" aria-hidden="true" tabindex="-1"></a>            test_ds <span class="op">=</span> test_ds.rename_column(label_column, <span class="st">"label"</span>)</span>
+<span id="cb21-302"><a href="#cb21-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-303"><a href="#cb21-303" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> forward_pass(batch):</span>
+<span id="cb21-304"><a href="#cb21-304" aria-hidden="true" tabindex="-1"></a>            <span class="co">"""</span></span>
+<span id="cb21-305"><a href="#cb21-305" aria-hidden="true" tabindex="-1"></a><span class="co">            To debug this function manually on some sample input in ipython, take your dataset</span></span>
+<span id="cb21-306"><a href="#cb21-306" aria-hidden="true" tabindex="-1"></a><span class="co">            that has already been tokenized and create a batch object with this code:</span></span>
+<span id="cb21-307"><a href="#cb21-307" aria-hidden="true" tabindex="-1"></a><span class="co">            batch_size = 32</span></span>
+<span id="cb21-308"><a href="#cb21-308" aria-hidden="true" tabindex="-1"></a><span class="co">            test_ds.set_format('torch', columns=['input_ids', 'attention_mask', 'label'])</span></span>
+<span id="cb21-309"><a href="#cb21-309" aria-hidden="true" tabindex="-1"></a><span class="co">            small_ds = test_ds.take(batch_size)</span></span>
+<span id="cb21-310"><a href="#cb21-310" aria-hidden="true" tabindex="-1"></a><span class="co">            batch = {k: torch.stack([example[k] for example in small_ds]) for k in small_ds[0].keys()}</span></span>
+<span id="cb21-311"><a href="#cb21-311" aria-hidden="true" tabindex="-1"></a><span class="co">            """</span></span>
+<span id="cb21-312"><a href="#cb21-312" aria-hidden="true" tabindex="-1"></a>            inputs <span class="op">=</span> {k: v.to(<span class="va">self</span>.device) <span class="cf">for</span> k, v <span class="kw">in</span> batch.items() <span class="cf">if</span> k <span class="kw">in</span> tokenizer.model_input_names}</span>
+<span id="cb21-313"><a href="#cb21-313" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb21-314"><a href="#cb21-314" aria-hidden="true" tabindex="-1"></a>                output <span class="op">=</span> model(<span class="op">**</span>inputs)</span>
+<span id="cb21-315"><a href="#cb21-315" aria-hidden="true" tabindex="-1"></a>                probs <span class="op">=</span> torch.softmax(output.logits, dim<span class="op">=-</span><span class="dv">1</span>).<span class="bu">round</span>(decimals<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb21-316"><a href="#cb21-316" aria-hidden="true" tabindex="-1"></a>                probs <span class="op">=</span> probs.<span class="bu">float</span>()  <span class="co"># convert to float32 only for numpy compatibility. # </span><span class="al">TODO</span><span class="co">: Related to using flash-attn 2</span></span>
+<span id="cb21-317"><a href="#cb21-317" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> {<span class="st">"probs"</span>: probs.cpu().numpy()}</span>
+<span id="cb21-318"><a href="#cb21-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-319"><a href="#cb21-319" aria-hidden="true" tabindex="-1"></a>        test_ds.set_format(<span class="st">"torch"</span>, columns<span class="op">=</span>[<span class="st">"input_ids"</span>, <span class="st">"attention_mask"</span>, <span class="st">"label"</span>])</span>
+<span id="cb21-320"><a href="#cb21-320" aria-hidden="true" tabindex="-1"></a>        test_ds <span class="op">=</span> test_ds.<span class="bu">map</span>(forward_pass, batched<span class="op">=</span><span class="va">True</span>, batch_size<span class="op">=</span>batch_size)</span>
+<span id="cb21-321"><a href="#cb21-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-322"><a href="#cb21-322" aria-hidden="true" tabindex="-1"></a>        test_ds.set_format(<span class="st">"pandas"</span>)</span>
+<span id="cb21-323"><a href="#cb21-323" aria-hidden="true" tabindex="-1"></a>        df_test <span class="op">=</span> test_ds[:]</span>
+<span id="cb21-324"><a href="#cb21-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-325"><a href="#cb21-325" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> pred_label(probs, threshold):</span>
+<span id="cb21-326"><a href="#cb21-326" aria-hidden="true" tabindex="-1"></a>            <span class="co"># probs is a list of probabilities for one row of the dataframe</span></span>
+<span id="cb21-327"><a href="#cb21-327" aria-hidden="true" tabindex="-1"></a>            probs <span class="op">=</span> np.array(probs)</span>
+<span id="cb21-328"><a href="#cb21-328" aria-hidden="true" tabindex="-1"></a>            max_prob <span class="op">=</span> np.<span class="bu">max</span>(probs)</span>
+<span id="cb21-329"><a href="#cb21-329" aria-hidden="true" tabindex="-1"></a>            predicted_class <span class="op">=</span> np.argmax(probs)</span>
+<span id="cb21-330"><a href="#cb21-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-331"><a href="#cb21-331" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> max_prob <span class="op">&lt;</span> threshold:</span>
+<span id="cb21-332"><a href="#cb21-332" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> unknown_label_int</span>
+<span id="cb21-333"><a href="#cb21-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-334"><a href="#cb21-334" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> predicted_class</span>
+<span id="cb21-335"><a href="#cb21-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-336"><a href="#cb21-336" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> threshold <span class="kw">in</span> [<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.4</span>, <span class="fl">0.5</span>, <span class="fl">0.6</span>, <span class="fl">0.7</span>, <span class="fl">0.8</span>, <span class="fl">0.9</span>]:</span>
+<span id="cb21-337"><a href="#cb21-337" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">60</span>)</span>
+<span id="cb21-338"><a href="#cb21-338" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>threshold<span class="op">=</span><span class="sc">}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb21-339"><a href="#cb21-339" aria-hidden="true" tabindex="-1"></a>            df_test[<span class="ss">f"pred_label"</span>] <span class="op">=</span> df_test[<span class="st">"probs"</span>].<span class="bu">apply</span>(pred_label, args<span class="op">=</span>(threshold,))</span>
+<span id="cb21-340"><a href="#cb21-340" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Coverage Rate:</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb21-341"><a href="#cb21-341" aria-hidden="true" tabindex="-1"></a>            predictions_mapped <span class="op">=</span> df_test[<span class="ss">f"pred_label"</span>].<span class="bu">map</span>({<span class="op">**</span>id2label, unknown_label_int: unknown_label_str})</span>
+<span id="cb21-342"><a href="#cb21-342" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"Raw counts:"</span>)</span>
+<span id="cb21-343"><a href="#cb21-343" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(predictions_mapped.value_counts())</span>
+<span id="cb21-344"><a href="#cb21-344" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Proportions:</span><span class="ch">\n</span><span class="st">"</span>)</span>
+<span id="cb21-345"><a href="#cb21-345" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(predictions_mapped.value_counts(normalize<span class="op">=</span><span class="va">True</span>))</span>
+<span id="cb21-346"><a href="#cb21-346" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Conditional metrics (classification report on predicted subset != </span><span class="sc">{</span>unknown_label_str<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb21-347"><a href="#cb21-347" aria-hidden="true" tabindex="-1"></a>            mask <span class="op">=</span> df_test[<span class="ss">f"pred_label"</span>] <span class="op">!=</span> unknown_label_int</span>
+<span id="cb21-348"><a href="#cb21-348" aria-hidden="true" tabindex="-1"></a>            y <span class="op">=</span> np.array([x <span class="cf">for</span> x <span class="kw">in</span> df_test[mask][<span class="st">"label"</span>].values])</span>
+<span id="cb21-349"><a href="#cb21-349" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> np.array([x <span class="cf">for</span> x <span class="kw">in</span> df_test[mask][<span class="ss">f"pred_label"</span>].values])</span>
+<span id="cb21-350"><a href="#cb21-350" aria-hidden="true" tabindex="-1"></a>            report <span class="op">=</span> classification_report(</span>
+<span id="cb21-351"><a href="#cb21-351" aria-hidden="true" tabindex="-1"></a>                y,</span>
+<span id="cb21-352"><a href="#cb21-352" aria-hidden="true" tabindex="-1"></a>                y_pred,</span>
+<span id="cb21-353"><a href="#cb21-353" aria-hidden="true" tabindex="-1"></a>                target_names<span class="op">=</span>[k <span class="cf">for</span> k, v <span class="kw">in</span> <span class="bu">sorted</span>(label2id.items(), key<span class="op">=</span><span class="kw">lambda</span> item: item[<span class="dv">1</span>])],</span>
+<span id="cb21-354"><a href="#cb21-354" aria-hidden="true" tabindex="-1"></a>                digits<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb21-355"><a href="#cb21-355" aria-hidden="true" tabindex="-1"></a>                zero_division<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb21-356"><a href="#cb21-356" aria-hidden="true" tabindex="-1"></a>                output_dict<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb21-357"><a href="#cb21-357" aria-hidden="true" tabindex="-1"></a>                labels<span class="op">=</span><span class="bu">sorted</span>(<span class="bu">list</span>(<span class="bu">range</span>(<span class="bu">len</span>(id2label)))),</span>
+<span id="cb21-358"><a href="#cb21-358" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb21-359"><a href="#cb21-359" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(report)</span>
+<span id="cb21-360"><a href="#cb21-360" aria-hidden="true" tabindex="-1"></a>            <span class="co"># --- Overall Accuracy (count "Unknown" as incorrect) ---</span></span>
+<span id="cb21-361"><a href="#cb21-361" aria-hidden="true" tabindex="-1"></a>            <span class="co"># If ground truth is never 'unknown_label_int', then any prediction of "Unknown" is automatically wrong.</span></span>
+<span id="cb21-362"><a href="#cb21-362" aria-hidden="true" tabindex="-1"></a>            overall_acc <span class="op">=</span> (df_test[<span class="st">"label"</span>] <span class="op">==</span> df_test[<span class="ss">f"pred_label"</span>]).mean()</span>
+<span id="cb21-363"><a href="#cb21-363" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Overall Accuracy (counting '</span><span class="sc">{</span>unknown_label_str<span class="sc">}</span><span class="ss">' as wrong): </span><span class="sc">{</span>overall_acc<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb21-364"><a href="#cb21-364" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">60</span>)</span>
+<span id="cb21-365"><a href="#cb21-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-366"><a href="#cb21-366" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Probability Distribution Max Probability Across All Classes"</span>)</span>
+<span id="cb21-367"><a href="#cb21-367" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(pd.DataFrame([<span class="bu">max</span>(x) <span class="cf">for</span> x <span class="kw">in</span> df_test[<span class="st">"probs"</span>]]).describe())</span>
+<span id="cb21-368"><a href="#cb21-368" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Ensure wandb is finished</span></span>
+<span id="cb21-369"><a href="#cb21-369" aria-hidden="true" tabindex="-1"></a>        wandb.finish()</span>
+<span id="cb21-370"><a href="#cb21-370" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-371"><a href="#cb21-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-372"><a href="#cb21-372" aria-hidden="true" tabindex="-1"></a><span class="at">@app.local_entrypoint</span>()</span>
+<span id="cb21-373"><a href="#cb21-373" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb21-374"><a href="#cb21-374" aria-hidden="true" tabindex="-1"></a>    trainer <span class="op">=</span> Trainer(reload_ds<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb21-375"><a href="#cb21-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-376"><a href="#cb21-376" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Training </span><span class="sc">{</span>run_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb21-377"><a href="#cb21-377" aria-hidden="true" tabindex="-1"></a>    trainer.train_model.remote()</span>
+<span id="cb21-378"><a href="#cb21-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-379"><a href="#cb21-379" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Will use most recent checkpoint by default. It may not be the "best" checkpoint/model.</span></span>
+<span id="cb21-380"><a href="#cb21-380" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Write the full path to the checkpoint here if you want to evaluate a specific model.</span></span>
+<span id="cb21-381"><a href="#cb21-381" aria-hidden="true" tabindex="-1"></a>    <span class="co"># For example: check_point = '/data/run_name/checkpoint-1234/'</span></span>
+<span id="cb21-382"><a href="#cb21-382" aria-hidden="true" tabindex="-1"></a>    check_point <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb21-383"><a href="#cb21-383" aria-hidden="true" tabindex="-1"></a>    trainer.eval_model.remote(</span>
+<span id="cb21-384"><a href="#cb21-384" aria-hidden="true" tabindex="-1"></a>        check_point<span class="op">=</span>check_point,</span>
+<span id="cb21-385"><a href="#cb21-385" aria-hidden="true" tabindex="-1"></a>        split<span class="op">=</span>validation_split,</span>
+<span id="cb21-386"><a href="#cb21-386" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section>
+<section id="run-the-trainer" class="level2">
+<h2 class="anchored" data-anchor-id="run-the-trainer">Run The Trainer</h2>
+<p>All of these training runs can be executed from the command line by running <code>modal run trainer.py</code> after making minor edits to the <code>trainer.py</code> file. You can even run them all in parallel, because Modal will take care of spinning up the containers and running the code!</p>
+<p>Here are some random screen shots from the Modal UI dashboard showing containers, GPU metrics, volumes for storing datasets and checkpoints, and log outputs.</p>
+<p><img src="imgs/containers.png" class="img-fluid"></p>
+<p><img src="imgs/gpu_metrics.png" class="img-fluid"></p>
+<p><img src="imgs/volumes1.png" class="img-fluid"></p>
+<p><img src="imgs/volumes2.png" class="img-fluid"></p>
+<p><img src="imgs/volumes3.png" class="img-fluid"></p>
+<p><img src="imgs/logs1.png" class="img-fluid"></p>
+<p><img src="imgs/logs2.png" class="img-fluid"></p>
+<p><img src="imgs/logs3.png" class="img-fluid"></p>
+<p>Here are some screen shots from the wandb dashboard. There are public wandb runs for each of the training runs below.</p>
+<p><img src="imgs/wandb1.png" class="img-fluid"></p>
+<p><img src="imgs/wandb2.png" class="img-fluid"></p>
+<p><img src="imgs/wandb3.png" class="img-fluid"></p>
+<section id="emotion-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="emotion-dataset">Emotion Dataset</h3>
+<p>By default the trainer will use the <code>"dair-ai/emotion"</code> dataset which predicts the emotion of a text.</p>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/4oie0k1m?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+<pre><code>modal run --detach trainer.py</code></pre>
+</section>
+<section id="ag-news-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="ag-news-dataset">AG News Dataset</h3>
+<p>You can easily switch to a different dataset, in this case I used the <code>"fancyzhx/ag_news"</code> dataset. All I switched in the <code>trainer.py</code> file were these lines:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"fancyzhx/ag_news"</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {<span class="dv">0</span>: <span class="st">"World"</span>, <span class="dv">1</span>: <span class="st">"Sports"</span>, <span class="dv">2</span>: <span class="st">"Business"</span>, <span class="dv">3</span>: <span class="st">"Sci/Tech"</span>}</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>validation_split <span class="op">=</span> <span class="st">"test"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>modal run --detach trainer.py</code></pre>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/ljhq0fgu?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+</section>
+<section id="tweeteval-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="tweeteval-dataset">TweetEval Dataset</h3>
+<section id="sentiment" class="level4">
+<h4 class="anchored" data-anchor-id="sentiment">Sentiment</h4>
+<p>Make these edits to the <code>trainer.py</code> file:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"cardiffnlp/tweet_eval"</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>ds_name_config <span class="op">=</span> <span class="st">"sentiment"</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {<span class="dv">0</span>: <span class="st">"negative"</span>, <span class="dv">1</span>: <span class="st">"neutral"</span>, <span class="dv">2</span>: <span class="st">"positive"</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>modal run --detach trainer.py</code></pre>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/gmypi9sy?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+</section>
+<section id="irony" class="level4">
+<h4 class="anchored" data-anchor-id="irony">Irony</h4>
+<p>Make these edits to the <code>trainer.py</code> file:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"cardiffnlp/tweet_eval"</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>ds_name_config <span class="op">=</span> <span class="st">"irony"</span> </span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {<span class="dv">0</span>: <span class="st">'non_irony'</span>, <span class="dv">1</span>: <span class="st">'irony'</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>modal run --detach trainer.py</code></pre>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/u5qn98j0?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+</section>
+</section>
+<section id="yahoo-answers-topics" class="level3">
+<h3 class="anchored" data-anchor-id="yahoo-answers-topics">Yahoo Answers Topics</h3>
+<p>Make these edits to the <code>trainer.py</code> file:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"community-datasets/yahoo_answers_topics"</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>: <span class="st">"Society &amp; Culture"</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>: <span class="st">"Science &amp; Mathematics"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span>: <span class="st">"Health"</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">3</span>: <span class="st">"Education &amp; Reference"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="dv">4</span>: <span class="st">"Computers &amp; Internet"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span>: <span class="st">"Sports"</span>,</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="dv">6</span>: <span class="st">"Business &amp; Finance"</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="dv">7</span>: <span class="st">"Entertainment &amp; Music"</span>,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="dv">8</span>: <span class="st">"Family &amp; Relationships"</span>,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="dv">9</span>: <span class="st">"Politics &amp; Government"</span>,</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>validation_split <span class="op">=</span> <span class="st">"test"</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>input_column <span class="op">=</span> <span class="st">'question_title'</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>label_column <span class="op">=</span> <span class="st">'topic'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>modal run --detach trainer.py</code></pre>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/atxplydb?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+</section>
+<section id="synthetic-dataset-with-longer-texts" class="level3">
+<h3 class="anchored" data-anchor-id="synthetic-dataset-with-longer-texts">Synthetic Dataset With Longer Texts</h3>
+<p>To test out the longer context window of ModernBERT, I created a synthetic dataset with longer texts. These texts consists of synthetic social media posts. For each row in the dataset there is a list of input tweets concatenated together and a corresponding label. I made this dataset using various LLMS such as <code>gpt-4o-mini</code>, <code>claude-3-5-sonnet-20241022</code>, <code>gemini-2.0-flash-exp</code>, and <code>deepseek-chat-v3</code>. The prompts for creating the dataset are in the <code>prompts.py</code> file which can be found <a href="https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/posts/modern_bert/prompts.py">here</a>. The system prompt was also crafted mostly by an LLM and I made some minor edits to it. The dataset is just a toy dataset and should not be used for anything serious. It probably has issues since I hacked it together rather quickly.</p>
+<p>I uploaded the dataset to the Hugging Face Hub and you can find it <a href="https://huggingface.co/datasets/chrislevy/synthetic_social_persona_tweets">here</a>.</p>
+<p>To run the trainer on this dataset make these edits to the <code>trainer.py</code> file:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># I changed the tokenizer function to use a max length of 3000 tokens</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tokenizer_function_logic(example, tokenizer):</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> tokenizer(example[input_column], padding<span class="op">=</span><span class="va">True</span>, truncation<span class="op">=</span><span class="va">True</span>, return_tensors<span class="op">=</span><span class="st">"pt"</span>, max_length<span class="op">=</span><span class="dv">3000</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>ds_name <span class="op">=</span> <span class="st">"chrislevy/synthetic_social_persona_tweets"</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>id2label <span class="op">=</span> {<span class="dv">0</span>: <span class="st">'Tech Industry Analysis'</span>, <span class="dv">1</span>: <span class="st">'Software Engineering'</span>, <span class="dv">2</span>: <span class="st">'Frontend Development'</span>, <span class="dv">3</span>: <span class="st">'Data Analytics'</span>, <span class="dv">4</span>: <span class="st">'AI &amp; Machine Learning'</span>, <span class="dv">5</span>: <span class="st">'Cybersecurity News'</span>, <span class="dv">6</span>: <span class="st">'Cryptocurrency &amp; Web3'</span>, <span class="dv">7</span>: <span class="st">'Web3 Innovation'</span>, <span class="dv">8</span>: <span class="st">'NFT Trading'</span>, <span class="dv">9</span>: <span class="st">'Startup Ecosystem'</span>, <span class="dv">10</span>: <span class="st">'Venture Capital Analysis'</span>, <span class="dv">11</span>: <span class="st">'Paid Advertising'</span>, <span class="dv">12</span>: <span class="st">'Content Marketing'</span>, <span class="dv">13</span>: <span class="st">'Ecommerce Innovation'</span>, <span class="dv">14</span>: <span class="st">'Business Leadership'</span>, <span class="dv">15</span>: <span class="st">'Product Management'</span>, <span class="dv">16</span>: <span class="st">'Fintech Discussion'</span>, <span class="dv">17</span>: <span class="st">'Sales Strategy'</span>, <span class="dv">18</span>: <span class="st">'Tech Entrepreneurship'</span>, <span class="dv">19</span>: <span class="st">'US Politics Analysis'</span>, <span class="dv">20</span>: <span class="st">'Global Affairs Commentary'</span>, <span class="dv">21</span>: <span class="st">'Electoral Politics'</span>, <span class="dv">22</span>: <span class="st">'Political Commentary'</span>, <span class="dv">23</span>: <span class="st">'Legal System Analysis'</span>, <span class="dv">24</span>: <span class="st">'Military &amp; Defense'</span>, <span class="dv">25</span>: <span class="st">'Climate Change Discussion'</span>, <span class="dv">26</span>: <span class="st">'Economic Policy'</span>, <span class="dv">27</span>: <span class="st">'Political Satire'</span>, <span class="dv">28</span>: <span class="st">'Local Community News'</span>, <span class="dv">29</span>: <span class="st">'Film &amp; Cinema Analysis'</span>, <span class="dv">30</span>: <span class="st">'TV Series Discussion'</span>, <span class="dv">31</span>: <span class="st">'Reality TV Commentary'</span>, <span class="dv">32</span>: <span class="st">'Music Industry Analysis'</span>, <span class="dv">33</span>: <span class="st">'Video Content Creation'</span>, <span class="dv">34</span>: <span class="st">'Video Game Enthusiast'</span>, <span class="dv">35</span>: <span class="st">'Competitive Gaming'</span>, <span class="dv">36</span>: <span class="st">'Indie Game Dev'</span>, <span class="dv">37</span>: <span class="st">'Anime &amp; Manga Community'</span>, <span class="dv">38</span>: <span class="st">'Comics &amp; Graphic Novels'</span>, <span class="dv">39</span>: <span class="st">'Celebrity Commentary'</span>, <span class="dv">40</span>: <span class="st">'Fashion &amp; Streetwear'</span>, <span class="dv">41</span>: <span class="st">'Sneaker Culture'</span>, <span class="dv">42</span>: <span class="st">'Book &amp; Literature'</span>, <span class="dv">43</span>: <span class="st">'Podcast Creation'</span>, <span class="dv">44</span>: <span class="st">'Entertainment Industry'</span>, <span class="dv">45</span>: <span class="st">'Live Music Fan'</span>, <span class="dv">46</span>: <span class="st">'NFL Analysis'</span>, <span class="dv">47</span>: <span class="st">'NBA Discussion'</span>, <span class="dv">48</span>: <span class="st">'MLB Commentary'</span>, <span class="dv">49</span>: <span class="st">'Soccer Coverage'</span>, <span class="dv">50</span>: <span class="st">'Formula 1 Community'</span>, <span class="dv">51</span>: <span class="st">'College Sports Analysis'</span>, <span class="dv">52</span>: <span class="st">'MMA &amp; Boxing'</span>, <span class="dv">53</span>: <span class="st">'Weightlifting Training'</span>, <span class="dv">54</span>: <span class="st">'Fitness Training'</span>, <span class="dv">55</span>: <span class="st">'Endurance Sports'</span>, <span class="dv">56</span>: <span class="st">'Sports Betting'</span>, <span class="dv">57</span>: <span class="st">'Olympics Coverage'</span>, <span class="dv">58</span>: <span class="st">'Space Exploration'</span>, <span class="dv">59</span>: <span class="st">'Biology Research'</span>, <span class="dv">60</span>: <span class="st">'Physics Discussion'</span>, <span class="dv">61</span>: <span class="st">'Health &amp; Medicine'</span>, <span class="dv">62</span>: <span class="st">'EdTech Innovation'</span>, <span class="dv">63</span>: <span class="st">'Historical Analysis'</span>, <span class="dv">64</span>: <span class="st">'Psychology Research'</span>, <span class="dv">65</span>: <span class="st">'Environmental Science'</span>, <span class="dv">66</span>: <span class="st">'Earth Sciences'</span>, <span class="dv">67</span>: <span class="st">'Academic Research'</span>, <span class="dv">68</span>: <span class="st">'Travel Photography'</span>, <span class="dv">69</span>: <span class="st">'Food &amp; Cooking'</span>, <span class="dv">70</span>: <span class="st">'Professional Photography'</span>, <span class="dv">71</span>: <span class="st">'Amateur Photography'</span>, <span class="dv">72</span>: <span class="st">'Home Improvement'</span>, <span class="dv">73</span>: <span class="st">'Home Gardening'</span>, <span class="dv">74</span>: <span class="st">'Investment Strategy'</span>, <span class="dv">75</span>: <span class="st">'Personal Investing'</span>, <span class="dv">76</span>: <span class="st">'Pet Community'</span>, <span class="dv">77</span>: <span class="st">'Meditation Practice'</span>, <span class="dv">78</span>: <span class="st">'Digital Art'</span>, <span class="dv">79</span>: <span class="st">'Visual Arts'</span>, <span class="dv">80</span>: <span class="st">'Automotive Culture'</span>, <span class="dv">81</span>: <span class="st">'Craft Beer Culture'</span>, <span class="dv">82</span>: <span class="st">'Coffee Enthusiasm'</span>, <span class="dv">83</span>: <span class="st">'Culinary Arts'</span>, <span class="dv">84</span>: <span class="st">'Parenting Discussion'</span>, <span class="dv">85</span>: <span class="st">'Mental Health Support'</span>, <span class="dv">86</span>: <span class="st">'Spiritual Practice'</span>, <span class="dv">87</span>: <span class="st">'Philosophy Discussion'</span>, <span class="dv">88</span>: <span class="st">'Urban Culture'</span>, <span class="dv">89</span>: <span class="st">'Vintage Collection'</span>, <span class="dv">90</span>: <span class="st">'DIY Crafts'</span>, <span class="dv">91</span>: <span class="st">'Language Learning'</span>, <span class="dv">92</span>: <span class="st">'Open Source Coding'</span>, <span class="dv">93</span>: <span class="st">'Personal Development'</span>, <span class="dv">94</span>: <span class="st">'Minimalist Living'</span>, <span class="dv">95</span>: <span class="st">'Sustainable Living'</span>, <span class="dv">96</span>: <span class="st">'Fiction Writing'</span>, <span class="dv">97</span>: <span class="st">'Conspiracy Theories'</span>, <span class="dv">98</span>: <span class="st">'Fan Culture'</span>, <span class="dv">99</span>: <span class="st">'Internet Culture'</span>, <span class="dv">100</span>: <span class="st">'Outdoor Adventure'</span>, <span class="dv">101</span>: <span class="st">'Alternative Lifestyle'</span>, <span class="dv">102</span>: <span class="st">'Twitter Meta Commentary'</span>, <span class="dv">103</span>: <span class="st">'Meme Creation'</span>, <span class="dv">104</span>: <span class="st">'Viral Content'</span>, <span class="dv">105</span>: <span class="st">'Personal Updates'</span>, <span class="dv">106</span>: <span class="st">'Social Commentary'</span>, <span class="dv">107</span>: <span class="st">'Community Building'</span>, <span class="dv">108</span>: <span class="st">'Twitter Spaces Hosting'</span>, <span class="dv">109</span>: <span class="st">'Platform Critique'</span>, <span class="dv">110</span>: <span class="st">'Bot &amp; Automation'</span>, <span class="dv">111</span>: <span class="st">'Online Privacy'</span>, <span class="dv">112</span>: <span class="st">'Data Visualization'</span>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>I also changed the logging steps for this run only <code>logging_steps=20,</code>.</p>
+<pre><code>modal run --detach trainer.py</code></pre>
+<ul>
+<li><a href="https://wandb.ai/christopherdavidlevy/hugging_face_training_jobs/runs/b2nb4sry?nw=nwuserchristopherdavidlevy">wandb run</a></li>
+</ul>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>I hope this code can start as a launching point for your own fine-tuning experiments with encoder models and ModernBERT. If you were not familiar with Modal, I hope this shows you how easy it is to get started. I think minor changes may be needed to get this training with flash attention 2. You will see some commented out parts of my code with regards to choosing <code>attn_implementation="flash_attention_2"</code>. I’m not sure if that is needed or not. I think I am installing the flash attention 2 package but I’m not sure if it’s being used during training. If anyone knows, hit up on <a href="https://x.com/cleavey1985">X</a>. I did try running different variations but couldn’t really see how to tell if it was all running properly or not.</p>
+</section>
+</section>
+<section id="resources" class="level1">
+<h1>Resources</h1>
+<p><a href="https://x.com/jeremyphoward/status/1869786023963832509">Announcement from Jeremy Howard on X</a></p>
+<p><a href="https://huggingface.co/blog/modernbert">Blog Post on Hugging Face</a></p>
+<p><a href="https://modal.com/">Modal</a></p>
+<p><a href="https://www.philschmid.de/fine-tune-modern-bert-in-2025">Fine-tune classifier with ModernBERT in 2025 Blog by Philipp Schmid</a></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

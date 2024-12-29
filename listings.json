@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/modern_bert/modern_bert.html",
       "/posts/gemini/gemini2.html",
       "/posts/vllms/vllm.html",
       "/posts/colpali/colpali_blog.html",
