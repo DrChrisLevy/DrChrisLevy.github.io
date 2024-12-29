@@ -557,7 +557,7 @@ The `label` field is the integer id of the `target_name`/label.
 The `id2label` is defined as follows:
 
 ```python
-{json.dumps(id2label, indent=4)}
+id2label={id2label}
 ```
 """
     dataset_dict.push_to_hub("chrislevy/synthetic_social_persona_tweets")
@@ -568,3 +568,4 @@ The `id2label` is defined as follows:
 
     # Upload the readme using huggingface_hub
     upload_file(path_or_fileobj="README.md", path_in_repo="README.md", repo_id="chrislevy/synthetic_social_persona_tweets", repo_type="dataset")
+    os.remove("README.md")
