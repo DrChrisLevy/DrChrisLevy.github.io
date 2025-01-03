@@ -3,7 +3,7 @@ import json
 import modal
 
 # Create image with IPython installed
-image = modal.Image.debian_slim().pip_install("ipython")
+image = modal.Image.debian_slim().pip_install("ipython", "pandas")
 
 
 # Create the driver program that will run in the sandbox
