@@ -1,6 +1,6 @@
 from typing import Any
 
-from python_sandbox import create_sandbox, run_code
+from python_sandbox import create_sandbox, execute_python_code
 
 
 def test_ipython_sandbox():
@@ -37,7 +37,7 @@ def test_ipython_sandbox():
     ]
     try:
         for code, expected in codes_and_expected:
-            result = run_code(sandbox, code)
+            result = execute_python_code(code, sandbox)
             # Handle special case for stdout when Any is expected
             if expected["stdout"] is Any:
                 assert isinstance(result["stdout"], str)  # Just verify it's a string

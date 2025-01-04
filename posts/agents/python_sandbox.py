@@ -60,17 +60,11 @@ def create_sandbox():
     return sandbox
 
 
-def run_code(sandbox, code: str) -> dict:
-    """
-    Runs code in the persistent IPython shell.
-
-    Args:
-        sandbox: Modal sandbox instance
-        code: Python code to execute
-
-    Returns:
-        dict with execution results
-    """
+def execute_python_code(code: str, sandbox=None) -> dict:
+    created_sandbox = False
+    if sandbox is None:
+        sandbox = create_sandbox()
+        created_sandbox = True
     # Send the code to the sandbox
     sandbox.stdin.write(json.dumps({"code": code}))
     sandbox.stdin.write("\n")
@@ -78,29 +72,6 @@ def run_code(sandbox, code: str) -> dict:
 
     # Get the response
     response = next(iter(sandbox.stdout))
-    return json.loads(response)
-
-
-if __name__ == "__main__":
-    # Create the sandbox
-    sandbox = create_sandbox()
-
-    try:
-        # Example usage
-        print("Testing sequential execution with persistent state:")
-        test_codes = ["x = 42", "y = x * 2", "print(f'x = {x}, y = {y}')", "result = x + y\nresult"]
-
-        for code in test_codes:
-            print("\nExecuting:", code)
-            result = run_code(sandbox, code)
-            print("Success:", result["success"])
-            if result["stdout"]:
-                print("Stdout:", result["stdout"].rstrip())
-            if result["result"]:
-                print("Return value:", result["result"])
-            if result["error"]:
-                print("Error:", result["error"])
-
-    finally:
-        # Clean up
+    if created_sandbox:
         sandbox.terminate()
+    return json.loads(response)

@@ -1,2 +1,6 @@
 notebook
 python-dotenv
+litellm
+duckduckgo-search
+modal
+markdownify
