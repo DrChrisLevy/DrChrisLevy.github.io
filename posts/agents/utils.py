@@ -72,29 +72,6 @@ def console_print_tool_call_inputs(tool_calls):
 
 
 def console_print_tool_call_outputs(tool_calls, tool_results):
-    # # Create a group of panels for each tool output
-    # tool_panels = Group(
-    #     *[
-    #         Panel(
-    #             f"\n[bold]{tool_result}\n",
-    #             title="[bold]Tool Call Output",
-    #             subtitle=f'{tool_call["function"]["name"]} - {tool_call["id"]}',
-    #             border_style=OUTPUT_COLOR,
-    #             subtitle_align="left",
-    #         )
-    #         for tool_call, tool_result in zip(tool_calls, tool_results)
-    #     ]
-    # )
-
-    # # Wrap the group in an outer panel
-    # console.print(
-    #     Panel(
-    #         tool_panels,
-    #         title="[bold]Parallel Tool Calls Outputs",
-    #         border_style=OUTPUT_COLOR,
-    #     )
-    # )
-    # Create panels for each tool output
     panels = []
 
     for tool_call, tool_result in zip(tool_calls, tool_results):
