@@ -107,7 +107,7 @@ def console_print_tool_call_outputs(tool_calls, tool_results):
         elif tool_name == "execute_python_code":
             content = format_code_result(tool_result)
         else:
-            content = f"\n[bold]{tool_result}\n"
+            content = f"\n[bold]{tool_result[:300]}...<truncated>\n"
 
         # Create panel for this tool output
         panel = Panel(
@@ -149,10 +149,7 @@ def format_search_results(results):
         body = result["body"][:150] + "..." if len(result["body"]) > 150 else result["body"]
 
         formatted.append(
-            f"[bold]Result {i}:[/bold]\n"
-            f"[bold blue]Title:[/bold blue] {title}\n"
-            f"[bold blue]URL:[/bold blue] {result['href']}\n"
-            f"[dim]{body}[/dim]\n"
+            f"[bold]Result {i}:[/bold]\n" f"[bold]Title:[/bold] {title}\n" f"[bold]URL:[/bold] {result['href']}\n" f"[dim]{body}[/dim]\n"
         )
 
     return "\n".join(formatted)

@@ -17,9 +17,10 @@ def call_tool(tool: Callable, tool_args: Dict) -> Any:
 
 
 def run_step(messages, tools=None, tools_lookup=None, model="gpt-4o-mini", **kwargs):
+    messages = messages.copy()
     response = completion(model=model, messages=messages, tools=tools, **kwargs)
     response_message = response.choices[0].message.model_dump()
-    response_message.pop("function_call", None)
+    response_message.pop("function_call", None)  # deprecated field in OpenAI API
     tool_calls = response_message.get("tool_calls", [])
     messages.append(response_message)
 
