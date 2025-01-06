@@ -22,6 +22,7 @@ def run_step(messages, tools=None, tools_lookup=None, model="gpt-4o-mini", **kwa
     response_message = response.choices[0].message.model_dump()
     response_message.pop("function_call", None)  # deprecated field in OpenAI API
     tool_calls = response_message.get("tool_calls", [])
+    assistant_content = response_message.get("content", "")
     messages.append(response_message)
 
     if not tool_calls:
@@ -31,7 +32,7 @@ def run_step(messages, tools=None, tools_lookup=None, model="gpt-4o-mini", **kwa
     tools_args_list = [json.loads(t["function"]["arguments"]) for t in tool_calls]
     tools_callables = [tools_lookup[t["function"]["name"]] for t in tool_calls]
     tasks = [(tools_callables[i], tools_args_list[i]) for i in range(len(tool_calls))]
-    console_print_tool_call_inputs(tool_calls)
+    console_print_tool_call_inputs(assistant_content, tool_calls)
     with futures.ThreadPoolExecutor(max_workers=10) as executor:
         tool_results = list(executor.map(lambda p: call_tool(p[0], p[1]), tasks))
     console_print_tool_call_outputs(tool_calls, tool_results)
