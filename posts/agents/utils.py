@@ -32,34 +32,47 @@ def console_print_step(iteration):
     console.print("\n")
 
 
-def console_print_tool_call_inputs(tool_calls):
+def console_print_tool_call_inputs(assistant_content, tool_calls):
     tools_args_list = [json.loads(t["function"]["arguments"]) for t in tool_calls]
     tool_names = [t["function"]["name"] for t in tool_calls]
     tool_call_ids = [t["id"] for t in tool_calls]
 
-    # Create a group of panels for each tool call
-    # Create a group of panels for each tool call
-    tool_panels = Group(
-        *[
-            Panel(
-                Syntax(
-                    tool_args["code"],
-                    lexer="python",
-                    theme="monokai",
-                    word_wrap=True,
-                    line_numbers=True,
-                )
-                if tool_name == "execute_python_code"
-                else f"\n[bold]{tool_args}\n",
-                title="[bold]Tool Call",
-                subtitle=f"{tool_name} - {tool_call_id}",
-                border_style=INPUT_COLOR,
-                subtitle_align="left",
-                title_align="left" if tool_name == "do_code" else "center",
-            )
-            for tool_name, tool_args, tool_call_id in zip(tool_names, tools_args_list, tool_call_ids)
-        ]
+    # Create panels list to store individual panels
+    panels = []
+    panels.append(
+        Panel(
+            f"[bold]Assistant Message:[/bold]\n {assistant_content}",
+            title="[bold]Assistant Content",
+            border_style=INPUT_COLOR,
+            title_align="center",
+        )
     )
+
+    # Convert list comprehension to for loop
+    for tool_name, tool_args, tool_call_id in zip(tool_names, tools_args_list, tool_call_ids):
+        if tool_name == "execute_python_code":
+            content = Syntax(
+                tool_args["code"],
+                lexer="python",
+                theme="monokai",
+                word_wrap=True,
+                line_numbers=True,
+            )
+        else:
+            content = f"\n[bold]{tool_args}\n"
+
+        panel = Panel(
+            content,
+            title="[bold]Tool Call",
+            subtitle=f"{tool_name} - {tool_call_id}",
+            border_style=INPUT_COLOR,
+            subtitle_align="left",
+            title_align="left" if tool_name == "do_code" else "center",
+        )
+        panels.append(panel)
+
+    # Create group from collected panels
+    tool_panels = Group(*panels)
 
     # Wrap the group in an outer panel
     console.print(
