@@ -59,7 +59,7 @@ def console_print_tool_call_inputs(assistant_content, tool_calls):
                 line_numbers=True,
             )
         else:
-            content = f"\n[bold]{tool_args}\n"
+            content = f"{tool_args}"
 
         panel = Panel(
             content,
@@ -165,3 +165,74 @@ def format_code_result(result):
         output.append(f"[bold red]Error:[/bold red]\n" f"[red]{result['error']}[/red]")
 
     return "\n\n".join(output)
+
+
+def console_print_react_tool_action_inputs(assistant_json):
+    tool_name = assistant_json["ACTION"]["tool_name"]
+    tool_args = assistant_json["ACTION"]["tool_arguments"]
+    thought = assistant_json["THOUGHT"]
+    # Create panels list to store individual panels
+    panels = []
+    panels.append(
+        Panel(
+            thought,
+            title="[bold]THOUGHT",
+            border_style=INPUT_COLOR,
+            title_align="center",
+        )
+    )
+
+    if tool_name == "execute_python_code":
+        content = Syntax(
+            tool_args["code"],
+            lexer="python",
+            theme="monokai",
+            word_wrap=True,
+            line_numbers=True,
+        )
+    else:
+        content = f"{tool_args}"
+
+    panel = Panel(
+        content,
+        title="[bold]ACTION",
+        subtitle=f"{tool_name}",
+        border_style=INPUT_COLOR,
+        subtitle_align="left",
+        title_align="left" if tool_name == "do_code" else "center",
+    )
+    panels.append(panel)
+
+    # Create group from collected panels
+    tool_panels = Group(*panels)
+
+    # Wrap the group in an outer panel
+    console.print(
+        Panel(
+            tool_panels,
+            title="[bold]THOUGHT and ACTION",
+            border_style=INPUT_COLOR,
+        )
+    )
+
+
+def console_print_react_tool_action_outputs(tool_name, tool_result):
+    # Format the content based on tool type
+    if tool_name == "web_search":
+        content = format_search_results(tool_result)
+    elif tool_name == "execute_python_code":
+        content = format_code_result(tool_result)
+    elif tool_name == "final_answer":
+        content = tool_result
+    else:
+        content = f"\n[bold]{tool_result[:300]}...<truncated>\n"
+
+    console.print(
+        Panel(
+            content,
+            title="[bold]OBSERVATION",
+            subtitle=f"{tool_name}",
+            border_style=OUTPUT_COLOR,
+            subtitle_align="left",
+        )
+    )
