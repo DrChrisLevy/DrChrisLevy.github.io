@@ -335,19 +335,4 @@ def react_loop(messages, model="gpt-4o-mini", max_steps=10, **kwargs):
     return messages
 
 
-messages = [
-    {"role": "system", "content": REACT_SYSTEM_PROMPT},
-    {
-        "role": "user",
-        "content": """
-    Recently on Jan 2 2025, Steph Curry made a series of 3 pointers in one game without missing. 
-    How many three pointers did he make in total that game?
-    How many points did he score in total that game?
-    Calculate the total points scored by both teams and then the percentage of those points that were made by Steph Curry alone.
 
-    Also, how old is Lebron James and how many points did he score in his game on Jan 2 2025?
-    Take his total points scored that game and raise it to the power of 5. What is the result?
-    """,
-    },
-]
-result = react_loop(messages)
