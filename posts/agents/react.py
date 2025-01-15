@@ -319,20 +319,16 @@ def run_step(messages, model="gpt-4o-mini", **kwargs):
     return messages
 
 
-def react_loop(messages, model="gpt-4o-mini", max_steps=10, **kwargs):
+def react_loop(task: str, model="gpt-4o-mini", max_steps=10, **kwargs):
+    messages = [
+        {"role": "system", "content": REACT_SYSTEM_PROMPT},
+        {"role": "user", "content": task},
+    ]
     console_print_user_request(messages, model)
     done_calling_tools = False
     for counter in range(max_steps):
-        print(counter)
         done_calling_tools = messages[-1]["role"] == "assistant" and "final_answer" in messages[-1].get("content")
         if done_calling_tools:
             break
-
-        # console_print_step(counter)
         messages = run_step(messages, model=model, **kwargs)
-
-    # console_print_llm_output(messages[-1]["content"])
     return messages
-
-
-
