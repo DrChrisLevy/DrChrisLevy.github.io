@@ -22,7 +22,7 @@ while True:
     try:
         # Read a line of JSON from stdin
         command = json.loads(input())
-        code = command.get("code")
+        code = command.get('code')
         
         if code is None:
             print(json.dumps({"error": "No code provided"}))
@@ -65,27 +65,6 @@ def execute_python_code(code: str, sandbox=None) -> dict:
     if sandbox is None:
         sandbox = create_sandbox()
         created_sandbox = True
-
-    # Fix newline characters before sending
-    # To fix the issue --> code = 'print("\nHELLO WORLD")' --> execute_python_code(code=code)
-    # Only fix newlines that are inside string literals
-    import re
-
-    def fix_string_literals(match):
-        # Replace actual newlines with escaped newlines only inside strings
-        return match.group(0).replace("\n", "\\n")
-
-    # Find string literals and fix newlines only inside them
-    # Handle all quote styles:
-    # 1. Triple double quotes """..."""
-    code = re.sub(r'"""([^"\\]|\\.)*"""', fix_string_literals, code)
-    # 2. Triple single quotes '''...'''
-    code = re.sub(r"'''([^'\\]|\\.)*'''", fix_string_literals, code)
-    # 3. Regular double quotes "..."
-    code = re.sub(r'"([^"\\]|\\.)*"', fix_string_literals, code)
-    # 4. Regular single quotes '...'
-    code = re.sub(r"'([^'\\]|\\.)*'", fix_string_literals, code)
-
     # Send the code to the sandbox
     sandbox.stdin.write(json.dumps({"code": code}))
     sandbox.stdin.write("\n")

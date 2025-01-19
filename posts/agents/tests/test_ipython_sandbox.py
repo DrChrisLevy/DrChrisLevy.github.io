@@ -7,40 +7,6 @@ def test_ipython_sandbox():
     sandbox = create_sandbox()
 
     codes_and_expected = [
-        # Triple double quotes with newline
-        ('''print("""Hello\nWorld""")''', {"stdout": "Hello\nWorld\n", "stderr": "", "success": True, "result": "None", "error": None}),
-        # Triple single quotes with newline
-        ("""print('''Hello\nWorld''')""", {"stdout": "Hello\nWorld\n", "stderr": "", "success": True, "result": "None", "error": None}),
-        # Multiple newlines
-        (
-            """print("Hello\nBeautiful\nWorld")""",
-            {"stdout": "Hello\nBeautiful\nWorld\n", "stderr": "", "success": True, "result": "None", "error": None},
-        ),
-        # Newline at start of string
-        # Code with real newlines and string newlines
-        (
-            """def greet():
-    print("Hello\\nWorld")
-greet()""",
-            {"stdout": "Hello\nWorld\n", "stderr": "", "success": True, "result": "None", "error": None},
-        ),
-        # Multiple strings with newlines
-        (
-            """print("First\nLine", "Second\nLine")""",
-            {"stdout": "First\nLine Second\nLine\n", "stderr": "", "success": True, "result": "None", "error": None},
-        ),
-        # Triple quoted docstring with newlines
-        (
-            '''def function():
-    """This is a
-    multiline docstring with
-    newlines"""
-    return "ok"
-print(function.__doc__)''',
-            {"stdout": "This is a\n    multiline docstring with\n    newlines\n", "stderr": "", "success": True, "result": "None", "error": None},
-        ),
-        ("""print("\nStart with newline")""", {"stdout": "\nStart with newline\n", "stderr": "", "success": True, "result": "None", "error": None}),
-        ("""print("\nGenre Statistics:")""", {"stdout": "\nGenre Statistics:\n", "stderr": "", "success": True, "result": "None", "error": None}),
         ("x = 42", {"stdout": "", "stderr": "", "success": True, "result": "None", "error": None}),
         ('print("hello")', {"stdout": "hello\n", "stderr": "", "success": True, "result": "None", "error": None}),
         ("42", {"stdout": "Out[1]: 42\n", "stderr": "", "success": True, "result": "42", "error": None}),
