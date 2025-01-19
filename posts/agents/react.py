@@ -42,11 +42,20 @@ You have access to the following tools:
 For each step, you should:
 
 1. Think: Explain your thought process and what you plan to do next
-2. Act: Call one of the available tools using the proper JSON forma. Only call one tool at a time.
+2. Act: Call one of the available tools using the proper JSON format. Only call one tool at a time.
 3. Observe: Review the results from the tool call
 4. Repeat or Conclude: Either take another step or provide your final answer
 
 YOU MUST ALWAYS RESPOND IN STRUCTURED JSON FORMAT.
+The output format must follow this Schema:
+
+{
+  "THOUGHT": "Your thought process",
+  "ACTION": {
+    "tool_name": "The name of the tool to call",
+    "tool_arguments": "The arguments to pass to the tool"
+  }
+}
 
 Here are some examples of how to solve tasks:
 Example 1: "What was the average temperature in New York City last week?"
