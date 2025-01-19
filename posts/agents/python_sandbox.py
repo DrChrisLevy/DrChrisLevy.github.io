@@ -11,11 +11,18 @@ def create_driver_program():
     return """
 import json
 import sys
+import re
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.utils.io import capture_output
 
+def strip_ansi_codes(text):
+    ansi_escape = re.compile(r'\\x1B(?:[@-Z\\\\-_]|\\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
+
 # Create a persistent IPython shell instance
 shell = InteractiveShell()
+shell.colors = 'NoColor'  # Disable color output
+shell.autoindent = False  # Disable autoindent
 
 # Keep reading commands from stdin
 while True:
@@ -31,21 +38,26 @@ while True:
         # Execute the code and capture output
         with capture_output() as captured:
             result = shell.run_cell(code)
-            
+
+        # Clean the outputs
+        stdout = strip_ansi_codes(captured.stdout)
+        stderr = strip_ansi_codes(captured.stderr)
+        error = strip_ansi_codes(str(result.error_in_exec)) if not result.success else None
+
         # Format the response
         response = {
-            "stdout": captured.stdout,
-            "stderr": captured.stderr,
+            "stdout": stdout,  # Use stripped version
+            "stderr": stderr,  # Use stripped version
             "success": result.success,
             "result": repr(result.result) if result.success else None,
-            "error": str(result.error_in_exec) if not result.success else None
+            "error": error  # Use stripped version
         }
         
         # Send the response
         print(json.dumps(response), flush=True)
         
     except Exception as e:
-        print(json.dumps({"error": str(e)}), flush=True)
+        print(json.dumps({"error": strip_ansi_codes(str(e))}), flush=True)
 """
 
 
