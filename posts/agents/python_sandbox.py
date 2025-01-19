@@ -46,11 +46,11 @@ while True:
 
         # Format the response
         response = {
-            "stdout": stdout,  # Use stripped version
-            "stderr": stderr,  # Use stripped version
+            "stdout": stdout,
+            "stderr": stderr,
             "success": result.success,
             "result": repr(result.result) if result.success else None,
-            "error": error  # Use stripped version
+            "error": error
         }
         
         # Send the response
