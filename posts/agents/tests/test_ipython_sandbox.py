@@ -52,3 +52,84 @@ def test_ipython_sandbox():
         raise e
     finally:
         sandbox.terminate()
+
+
+def test_pandas_sandbox():
+    try:
+        sandbox = create_sandbox()
+
+        code = """
+        import pandas as pd
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+
+        code = """
+        !pip install pandas
+        import pandas as pd
+        print("Pandas successfully imported!")
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+
+        code = """
+        # Create sample data to work with
+        data = {
+            'title': ['The Matrix', 'Inception', 'Jurassic Park', 'The Notebook', 'Die Hard'],
+            'genre': ['Sci-Fi,Action', 'Sci-Fi,Thriller', 'Action,Adventure', 'Romance,Drama', 'Action,Thriller'],
+            'rating': [8.7, 8.8, 8.1, 7.8, 8.2]
+        }
+        df = pd.DataFrame(data)
+        print("Data sample:")
+        print(df.head())
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+
+        code = """
+        # First, let's see what unique genres we have
+        all_genres = set()
+        for genres in df['genre']:
+            all_genres.update(genres.split(','))
+        print("Unique genres:", sorted(all_genres))
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+
+        code = """
+        def get_genre_stats(genre):
+            # Get movies in this genre
+            genre_movies = df[df['genre'].str.contains(genre)]
+            avg_rating = genre_movies['rating'].mean()
+            count = len(genre_movies)
+            return {'genre': genre, 'avg_rating': avg_rating, 'movie_count': count}
+
+        # Test with one genre
+        action_stats = get_genre_stats('Action')
+        print("Action genre stats:", action_stats)
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+
+        code = """
+        # Create stats for all genres
+        genre_stats = [get_genre_stats(genre) for genre in all_genres]
+        stats_df = pd.DataFrame(genre_stats)
+        stats_df = stats_df.sort_values('avg_rating', ascending=False)
+        print("\\nGenre Statistics:")
+        print(stats_df)
+        """
+        observation = execute_python_code(code, sandbox)
+        print(observation)
+        assert observation == {
+            "stdout": "\nGenre Statistics:\n       genre  avg_rating  movie_count\n0     Sci-Fi    8.750000            2\n4   Thriller    8.500000            2\n2     Action    8.333333            3\n1  Adventure    8.100000            1\n3    Romance    7.800000            1\n5      Drama    7.800000            1\n",
+            "stderr": "",
+            "success": True,
+            "result": "None",
+            "error": None,
+        }
+    except Exception as e:
+        print(e)
+        raise e
+    finally:
+        sandbox.terminate()
