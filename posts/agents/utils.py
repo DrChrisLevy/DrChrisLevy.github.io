@@ -5,6 +5,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.rule import Rule
 from rich.syntax import Syntax
+from rich.text import Text
 
 YELLOW_HEX = "#d4b702"
 GREEN_HEX = "#00ff00"
@@ -234,5 +235,74 @@ def console_print_react_tool_action_outputs(tool_name, tool_result):
             subtitle=f"{tool_name}",
             border_style=OUTPUT_COLOR,
             subtitle_align="left",
+        )
+    )
+
+
+def console_print_code_agent_code_block(code_block: str):
+    content = Syntax(
+        code_block,
+        lexer="python",
+        theme="monokai",
+        word_wrap=True,
+        line_numbers=True,
+    )
+    console.print(Panel(content, title="[bold] Executing Code", border_style=INPUT_COLOR))
+
+
+def console_print_code_agent_assistant_message(assistant_message: str):
+    console.print(Panel(assistant_message, title="[bold]Assistant Message", border_style=INPUT_COLOR))
+
+
+def console_print_code_agent_observation(observation: dict):
+    """Print a nicely formatted observation from code execution."""
+
+    console = Console()
+    panels = []
+
+    # Format stdout if present
+    if observation.get("stdout"):
+        stdout_content = Syntax(
+            observation["stdout"].rstrip(),
+            lexer="python",
+            theme="monokai",
+            word_wrap=True,
+        )
+        panels.append(Panel(stdout_content, title="[bold blue]stdout", border_style="blue"))
+
+    # Format stderr if present
+    if observation.get("stderr"):
+        stderr_content = Syntax(
+            observation["stderr"].rstrip(),
+            lexer="python",
+            theme="monokai",
+            word_wrap=True,
+        )
+        panels.append(Panel(stderr_content, title="[bold red]stderr", border_style="red"))
+
+    # Format success status
+    success_color = "green" if observation.get("success") else "red"
+    success_text = Text(f"Success: {observation.get('success', False)}", style=success_color)
+    panels.append(Panel(success_text, title="[bold]execution status", border_style=success_color))
+
+    # Format result if present and not None
+    if observation.get("result") is not None:
+        result_content = Text(str(observation["result"]))
+        panels.append(Panel(result_content, title="[bold]result", border_style="cyan"))
+
+    # Format error if present
+    if observation.get("error"):
+        error_content = Text(str(observation["error"]), style="red")
+        panels.append(Panel(error_content, title="[bold red]error", border_style="red"))
+
+    # Create group from collected panels
+    observation_panels = Group(*panels)
+
+    # Wrap the group in an outer panel
+    console.print(
+        Panel(
+            observation_panels,
+            title="[bold]Code Execution Observation",
+            border_style="yellow",
         )
     )

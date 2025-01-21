@@ -2,6 +2,13 @@ import re
 
 from litellm import completion
 from python_sandbox import create_sandbox, execute_python_code
+from utils import (
+    console_print_code_agent_assistant_message,
+    console_print_code_agent_code_block,
+    console_print_code_agent_observation,
+    console_print_step,
+    console_print_user_request,
+)
 
 
 def final_answer(answer: str):
@@ -16,19 +23,10 @@ PROBLEM-SOLVING FORMAT:
 You solve tasks through a repeating cycle of three steps:
 
 Thought: Explain your reasoning and what you expect to learn
-Code: Write and execute small code snippets that end with <end_code>
+Code: Write and execute small code snippets
 Observation: Review the execution results to inform next steps
 
 This cycle repeats, with each iteration building on previous results, until the task is completed. The task is only complete when you've called final_answer() with the solution.
-
-For example:
-Thought: First, I'll...
-Code: [code]<end_code>
-Observation: [results]
-Thought: Based on those results, I'll...
-Code: [code]<end_code>
-Observation: [results]
-[Continue until task is solved]
 
 ENVIRONMENT CAPABILITIES:
 1. Secure Sandbox:
@@ -38,9 +36,9 @@ ENVIRONMENT CAPABILITIES:
    - Built with Modal and IPython for secure code execution
 
 2. Pre-imported Tools (Feel free to use these tools as needed or create your own from scratch!)
-   - web_search(query: str) - Search the web for the given query
-   - visit_web_page(url: str) - Visit and extract content from the given URL 
-   - final_answer(answer: str) - Submit the final solution for the task
+   - web_search(query: str) - Search the web for the given query. Always print the results.
+   - visit_web_page(url: str) - Visit and extract content from the given URL. Always print the results.
+   - final_answer(answer: str) - Submit the final answer for the task which will be printed to the user.
 
 3. String Formatting Requirements:
    - All print statements must use double backslashes for escape characters
@@ -64,22 +62,9 @@ PROBLEM-SOLVING APPROACH:
 4. Build upon working code incrementally
 5. Keep track of what you learn at each step
 
-GUIDELINES:
-1. Write small focused lines of code at a time
-2. Always print intermediate results
-3. Verify data at each step
-4. Build complexity gradually
-5. Test assumptions explicitly
-6. Handle errors early
-7. Keep track of state
-8. Document discoveries
-9. Use clear variable names
-10. Call final_answer() only when completely done
-11. Use double backslashes in all print statements
-12. Break complex operations into multiple steps
-
 
 EXAMPLES:
+**IMPORTANT:** Follow the Code formatting exactly as shown in the examples.
 
 Example 1
 Task: "Find the average word length in a sentence, excluding punctuation."
@@ -417,41 +402,120 @@ print(f"\\nAnalysis Period: {summary['analysis_period']}")
 final_answer(summary)
 ```<end_code>
 
+Example 4
+Task: "Give a detailed summary of Trumps 2025 Inauguration speech. Consult multiple sources."
+
+Thought: To provide a detailed summary of Trump's 2025 Inauguration speech, I will first search for the text of the speech and analyze multiple sources for their interpretations and key points. This will help ensure a comprehensive summary. 
+
+Code:
+```python
+# Initiating a web search for Trump's 2025 inauguration speech and summaries
+web_results = web_search("Trump 2025 inauguration speech summary")
+print(web_results)
+```<end_code>
+
+Observation: {
+'stdout': '[{\'title\': "Trump\'s inaugural address, annotated and fact-checked", \'href\': \'https://www.cnn.com/interactive/politics/2025/donald-trump-inaugural-speech-dg/\', \'body\': "Read a line-by-line analysis of President Donald Trump\'s inaugural address. ... 2025, is liberation day. This is wartime language. Trump suggests Americans have been under siege until today."}, {\'title\': "4 takeaways from Trump\'s second inaugural address : NPR", \'href\': \'https://www.npr.org/2025/01/20/g-s1-43759/trump-inaugural-address-key-moments\', \'body\': "For updates, context and analysis of Donald Trump\'s 2025 inauguration, check out NPR\'s live blog throughout the day Monday."}, {\'title\': "Takeaways from Trump\'s second inaugural address | AP News", \'href\': \'https://apnews.com/article/trump-inaugural-address-takeaways-212571b9f231469010c31e06ec530199\', \'body\': \'NEW YORK (AP) — President Donald Trump\\\'s second inaugural address featured similar themes to his first: a sweeping indictment of the country he inherits and grand promises to fix its problems.. Eight years ago, Trump described "American carnage" and promised to end it immediately. On Monday, he declared that the country\\\'s "decline" will end immediately, ushering in "the golden ...\'}, {\'title\': "6 takeaways from Trump\'s inaugural address - CBS News", \'href\': \'https://www.cbsnews.com/news/6-takeaways-from-trumps-inaugural-address/\', \'body\': \'Here are the highlights from Mr. Trump\\\'s second inaugural address. "The golden age of America begins right now" ... See the Inauguration Day schedule for Trump\\\'s 2025 presidential swearing in.\'}, {\'title\': "Donald Trump\'s Second Inaugural Speech, Annotated", \'href\': \'https://www.nytimes.com/interactive/2025/01/20/us/trump-inauguration-speech-annotated.html\', \'body\': \'1. Trump promised an "America First" vision in his first term, and he made a similar promise in his first inaugural address. This idea has been one of the animating ideas behind his political ...\'}]\n',
+ 'stderr': '',
+ 'success': True,
+ 'result': 'None',
+ 'error': None
+}
+
+Thought: I found several articles summarizing Trump's 2025 Inauguration speech, including detailed analyses and key takeaways. The notable sources include CNN, NPR, AP News, CBS News, and The New York Times. 
+I'll extract information from these sources to compile a comprehensive summary. 
+First I will visit each webpage to get the full details.
+
+Code:
+```python
+for source in web_results:
+    print(f"Visiting {source['title']} at {source['href']}")
+    print(visit_web_page(source['href']))
+```<end_code>
+
+Observation: {
+'stdout': "Visiting Trump's inaugural address, annotated and fact-checked at https://www.cnn.com/interactive/politics/2025/donald-trump-inaugural-speech-dg/\nDonald Trump's second inaugural speech, annotated and fact checked - CNN                            \n\n... (content truncated)\nVisiting 4 takeaways from Trump's second inaugural address : NPR at https://www.npr.org/2025/01/20/g-s1-43759/trump-inaugural-address-key-moments\n4 takeaways from Trump’s second inaugural address : NPR\n\nAccessibility links\n\n* [Skip to main conten\n\n... (content truncated)\nVisiting Takeaways from Trump's second inaugural address | AP News at https://apnews.com/article/trump-inaugural-address-takeaways-212571b9f231469010c31e06ec530199\nKey moments from Trump's second inaugural address | AP News\n\nMenu\n[![AP Logo](https://assets.apnews.\n\n... (content truncated)\nVisiting 6 takeaways from Trump's inaugural address - CBS News at https://www.cbsnews.com/news/6-takeaways-from-trumps-inaugural-address/\n6 takeaways from Trump's inaugural address - CBS News\n\n* [Latest](/)\n  + [U.S.](/us/)\n  + [Inaugurat\n\n... (content truncated)\nVisiting Donald Trump's Second Inaugural Speech, Annotated at https://www.nytimes.com/interactive/2025/01/20/us/trump-inauguration-speech-annotated.html\nDonald Trump’s Second Inaugural Speech, Annotated - The New York Times\n  \n\n[Skip to content](#site-c\n\n... (content truncated)\n",
+ 'stderr': '',
+ 'success': True,
+ 'result': 'None',
+ 'error': None
+ }       
+
+Thought: I can now give a final answer using all the information I have.
+
+Code:
+```python
+final_answer("answer goes here")
+```<end_code>
 
 Your reward comes from solving tasks reliably and delighting users with clear, well-validated code developed step-by-step.
 """
 
 
-sb = create_sandbox()
-
-# Copy the existing tools.py into the sandbox
-with open("web_tools.py", "r") as source_file:
-    tools_content = source_file.read()
-
-with sb.open("web_tools.py", "w") as sandbox_file:
-    sandbox_file.write(tools_content)
-
-execute_python_code("!pip install requests markdownify duckduckgo-search", sb)
-execute_python_code("import requests; from web_tools import web_search, visit_web_page", sb)
-
-
-execute_python_code('res = web_search("How many points did Lebron James score in the 2024 NBA finals?")', sb)
-execute_python_code('visit_web_page(res[0]["href"])', sb)
-
-task = "How many points did Lebron James score in the 2024 NBA finals?"
-messages = [{"role": "system", "content": CODING_AGENT_SYSTEM_PROMPT}, {"role": "user", "content": task}]
-
-response = completion(model="gpt-4o-mini", messages=messages, stop=["<end_code>"])
-
-
 def extract_code_blocks(response_text: str) -> list[str]:
-    # Pattern matches content between ```python and ```
-    pattern = r"```python\n(.*?)```"
+    # Pattern matches content between ```python and <end_code>, ignoring "Code:" prefix
+    pattern = r"```python\n(.*?)<end_code>"
     # re.DOTALL allows . to match newlines
     matches = re.findall(pattern, response_text, re.DOTALL)
-    return matches
+    # Clean up any "Code:" prefix, backticks, and whitespace
+    return [block.replace("Code:", "").replace("```", "").strip() for block in matches]
 
 
-code = extract_code_blocks(response.choices[0].message.content)[0]
-execute_python_code(code, sb)
-print(response)
+def extract_final_answer(text: str) -> str | None:
+    """Extract the argument passed to final_answer() from a code block."""
+    # Look for final_answer("...") or final_answer('...')
+    pattern = r'final_answer\([\'"](.+?)[\'"]\)'
+    match = re.search(pattern, text)
+    return match.group(1) if match else None
+
+
+def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10):
+    sb = create_sandbox()
+
+    # Copy the existing tools.py into the sandbox
+    with open("web_tools.py", "r") as source_file:
+        tools_content = source_file.read()
+
+    with sb.open("web_tools.py", "w") as sandbox_file:
+        sandbox_file.write(tools_content)
+
+    execute_python_code("!pip install requests markdownify duckduckgo-search", sb)
+    execute_python_code("import requests; from web_tools import web_search, visit_web_page;", sb)
+    execute_python_code("def final_answer(answer): return answer", sb)
+
+    messages = [{"role": "system", "content": CODING_AGENT_SYSTEM_PROMPT}, {"role": "user", "content": task}]
+    console_print_user_request(messages, model)
+    for i in range(max_iterations):
+        console_print_step(i)
+        response = completion(model="gpt-4o-mini", messages=messages, stop=["<end_code>"])
+        asst_message = response.choices[0].message.content + "<end_code>"
+        console_print_code_agent_assistant_message(asst_message)
+        messages.append({"role": "assistant", "content": asst_message})
+        try:
+            code = extract_code_blocks(messages[-1]["content"])[0]
+            console_print_code_agent_code_block(code)
+        except Exception:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": """
+                            The was an error in extracting your code snippet.
+                            The code is probably correct but you did not put it between the ```python and <end_code> tags.
+                            Like this:
+                                Code:
+                                ```python
+                                ...
+                                ```<end_code>
+                            Please attempt the same code again.
+                            """,
+                }
+            )
+            continue
+        if "final_answer" in code:
+            final_answer = extract_final_answer(code)
+            messages.append({"role": "user", "content": f"Final Answer: {final_answer}"})
+            break
+        observation = execute_python_code(code, sb)
+        console_print_code_agent_observation(observation)
+        messages.append({"role": "user", "content": f"Observation: {observation}"})
+    return messages
