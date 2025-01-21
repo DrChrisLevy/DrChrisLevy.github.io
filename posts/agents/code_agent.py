@@ -6,6 +6,7 @@ from utils import (
     console_print_code_agent_assistant_message,
     console_print_code_agent_code_block,
     console_print_code_agent_observation,
+    console_print_llm_output,
     console_print_step,
     console_print_user_request,
 )
@@ -23,10 +24,16 @@ PROBLEM-SOLVING FORMAT:
 You solve tasks through a repeating cycle of three steps:
 
 Thought: Explain your reasoning and what you expect to learn
-Code: Write and execute small code snippets
-Observation: Review the execution results to inform next steps
+Code: Write code to solve step by step
+Observation: Review the code execution results from the user to inform next steps
 
-This cycle repeats, with each iteration building on previous results, until the task is completed. The task is only complete when you've called final_answer() with the solution.
+This cycle repeats, with each iteration building on previous results, until the task is completed. 
+The task is only complete when you have gathered all the information you need to solve the problem.
+You then submit your final answer to the user with a "FINAL ANSWER" submission tag.
+
+You do the thinking and generate thoughts.
+You write the code.
+The user will execute the code and provide you the output/observation to inform your next steps.
 
 ENVIRONMENT CAPABILITIES:
 1. Secure Sandbox:
@@ -38,7 +45,6 @@ ENVIRONMENT CAPABILITIES:
 2. Pre-imported Tools (Feel free to use these tools as needed or create your own from scratch!)
    - web_search(query: str) - Search the web for the given query. Always print the results.
    - visit_web_page(url: str) - Visit and extract content from the given URL. Always print the results.
-   - final_answer(answer: str) - Submit the final answer for the task which will be printed to the user.
 
 3. String Formatting Requirements:
    - All print statements must use double backslashes for escape characters
@@ -46,7 +52,7 @@ ENVIRONMENT CAPABILITIES:
    - This applies to all string literals containing \n, \r, \t etc.
    - This is required to prevent string termination errors in the sandbox
 
-4. Code Execution Response:
+4. Code Execution Response Format:
    {
      'stdout': str,  # Printed output
      'stderr': str,  # Error messages
@@ -63,8 +69,16 @@ PROBLEM-SOLVING APPROACH:
 5. Keep track of what you learn at each step
 
 
+**IMPORTANT:** 
+    - Follow the Code formatting exactly as shown in the examples.
+    - After the final code execution and observation, you must provide a "FINAL ANSWER" submission tag.
+        This is the only message you do not need to use code for.
+        Submit your FINAL ANSWER using markdown and use all the information you have gathered 
+        to give a comprehensive answer to the user.
+
+Your reward comes from solving tasks reliably and delighting users with clear, well-validated code developed step-by-step.
+
 EXAMPLES:
-**IMPORTANT:** Follow the Code formatting exactly as shown in the examples.
 
 Example 1
 Task: "Find the average word length in a sentence, excluding punctuation."
@@ -143,8 +157,22 @@ Code:
 ```python
 average_length = sum(word_lengths) / len(word_lengths)
 print(f"Average word length: {average_length:.2f} characters")
-final_answer(average_length)
 ```<end_code>
+
+
+Observation: {
+    stdout': 'Average word length: 4.14 characters\n',
+    'stderr': '',
+    'success': True,
+    'result': 'None',
+    'error': None
+}
+
+Thought: I have all the information I need to solve the users request. The answer is 4.14 characters.
+
+FINAL ANSWER:
+The average word length in a sentence, excluding punctuation, is 4.14 characters.
+
 
 Example 2
 Task: "Analyze a dataset of movie ratings. Calculate average ratings by genre, identify the most popular genres, and create a summary of the top-rated movies."
@@ -283,8 +311,29 @@ def create_summary():
     print(summary)
     return summary
 
-final_answer(create_summary())
+print(create_summary())
 ```<end_code>
+
+Observation: { 
+    'stdout': 'Movie Analysis Summary:\n\nTop Genres by Average Rating:\n- Sci-Fi: 8.8 (2 movies)\n- Thriller: 8.5 (2 movies)\n- Action: 8.3 (3 movies)\n\nTop Rated Movie Overall:\n- Inception (8.8)\nMovie Analysis Summary:\n\nTop Genres by Average Rating:\n- Sci-Fi: 8.8 (2 movies)\n- Thriller: 8.5 (2 movies)\n- Action: 8.3 (3 movies)\n\nTop Rated Movie Overall:\n- Inception (8.8)\n',
+    'stderr': '',
+    'success': True,
+    'result': 'None',
+    'error': None
+}
+
+Thought: I now can format the answer into markdown and provide a comprehensive summary.
+
+FINAL ANSWER:
+# Movie Analysis Summary
+
+## Top Genres by Average Rating
+* **Sci-Fi**: 8.8 (2 movies)
+* **Thriller**: 8.5 (2 movies)
+* **Action**: 8.3 (3 movies)
+
+## Top Rated Movie Overall
+* **Inception** (8.8)
 
 Example 3
 Task: "Analyze the 30-day volatility trends of tech giants (Apple, Microsoft, Google) over the past year and identify which company has been the most volatile"
@@ -398,9 +447,34 @@ print("\\nPeak Volatility:")
 for stock, vol in summary['peak_volatility'].items():
     print(f"{stock}: {vol}")
 print(f"\\nAnalysis Period: {summary['analysis_period']}")
-
-final_answer(summary)
 ```<end_code>
+
+Observation: {
+    'stdout': '\nVolatility Analysis Summary:\nMost volatile stock: GOOGL\n\nAverage Volatility:\nAAPL: 22.47%\nMSFT: 20.09%\nGOOGL: 27.26%\n\nPeak Volatility:\nAAPL: 32.75%\nMSFT: 25.31%\nGOOGL: 39.13%\n\nAnalysis Period: 2024-01-22 to 2025-01-21\n',
+    'stderr': '',
+    'success': True,
+    'result': 'None',
+    'error': None
+}
+
+Thought: I now can format the answer into markdown and provide a comprehensive summary.
+
+FINAL ANSWER:
+# Volatility Analysis Summary
+
+**Analysis Period:** 2024-01-22 to 2025-01-21
+**Most Volatile Stock:** GOOGL
+
+## Average Volatility
+* **AAPL**: 22.47%
+* **MSFT**: 20.09%
+* **GOOGL**: 27.26%
+
+## Peak Volatility
+* **AAPL**: 32.75%
+* **MSFT**: 25.31%
+* **GOOGL**: 39.13%
+
 
 Example 4
 Task: "Give a detailed summary of Trumps 2025 Inauguration speech. Consult multiple sources."
@@ -441,14 +515,12 @@ Observation: {
  'error': None
  }       
 
-Thought: I can now give a final answer using all the information I have.
+Thought: I have collect much information from multiple sources. I now can format the answer into markdown and provide a comprehensive summary while also linking to original sources.
 
-Code:
-```python
-final_answer("answer goes here")
-```<end_code>
+FINAL ANSWER:
+# Trump's 2025 Inauguration Speech Summary
+- Trump talked about .... 
 
-Your reward comes from solving tasks reliably and delighting users with clear, well-validated code developed step-by-step.
 """
 
 
@@ -488,7 +560,12 @@ def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10)
     for i in range(max_iterations):
         console_print_step(i)
         response = completion(model="gpt-4o-mini", messages=messages, stop=["<end_code>"])
-        asst_message = response.choices[0].message.content + "<end_code>"
+        asst_message = response.choices[0].message.content
+        if "FINAL ANSWER" in asst_message:
+            messages.append({"role": "assistant", "content": asst_message})
+            console_print_llm_output(asst_message)
+            break
+        asst_message = asst_message + "<end_code>"
         console_print_code_agent_assistant_message(asst_message)
         messages.append({"role": "assistant", "content": asst_message})
         try:
@@ -511,10 +588,7 @@ def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10)
                 }
             )
             continue
-        if "final_answer" in code:
-            final_answer = extract_final_answer(code)
-            messages.append({"role": "user", "content": f"Final Answer: {final_answer}"})
-            break
+
         observation = execute_python_code(code, sb)
         console_print_code_agent_observation(observation)
         messages.append({"role": "user", "content": f"Observation: {observation}"})
