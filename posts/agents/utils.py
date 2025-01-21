@@ -263,7 +263,7 @@ def console_print_code_agent_observation(observation: dict):
     # Format stdout if present
     if observation.get("stdout"):
         stdout_content = Syntax(
-            observation["stdout"].rstrip(),
+            observation["stdout"].rstrip()[:500] + " ... <truncated>...",
             lexer="python",
             theme="monokai",
             word_wrap=True,
@@ -273,7 +273,7 @@ def console_print_code_agent_observation(observation: dict):
     # Format stderr if present
     if observation.get("stderr"):
         stderr_content = Syntax(
-            observation["stderr"].rstrip(),
+            observation["stderr"].rstrip()[:500] + " ... <truncated>...",
             lexer="python",
             theme="monokai",
             word_wrap=True,
