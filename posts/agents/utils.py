@@ -287,12 +287,12 @@ def console_print_code_agent_observation(observation: dict):
 
     # Format result if present and not None
     if observation.get("result") is not None:
-        result_content = Text(str(observation["result"]))
+        result_content = Text(str(observation["result"][:500] + " ... <truncated>..."))
         panels.append(Panel(result_content, title="[bold]result", border_style="cyan"))
 
     # Format error if present
     if observation.get("error"):
-        error_content = Text(str(observation["error"]), style="red")
+        error_content = Text(str(observation["error"][:500] + " ... <truncated>..."), style="red")
         panels.append(Panel(error_content, title="[bold red]error", border_style="red"))
 
     # Create group from collected panels
