@@ -11,11 +11,6 @@ from utils import (
     console_print_user_request,
 )
 
-
-def final_answer(answer: str):
-    return answer
-
-
 CODING_AGENT_SYSTEM_PROMPT = """
 You are an expert Python programmer who solves problems incrementally using a secure IPython REPL environment.
 You break down complex tasks into small, verifiable steps, always checking your intermediate results before proceeding.
@@ -533,15 +528,7 @@ def extract_code_blocks(response_text: str) -> list[str]:
     return [block.replace("Code:", "").replace("```", "").strip() for block in matches]
 
 
-def extract_final_answer(text: str) -> str | None:
-    """Extract the argument passed to final_answer() from a code block."""
-    # Look for final_answer("...") or final_answer('...')
-    pattern = r'final_answer\([\'"](.+?)[\'"]\)'
-    match = re.search(pattern, text)
-    return match.group(1) if match else None
-
-
-def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10):
+def code_agent(task: str, model: str = "gpt-4o-mini", max_iterations: int = 20):
     sb = create_sandbox()
 
     # Copy the existing tools.py into the sandbox
@@ -561,7 +548,8 @@ def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10)
         console_print_step(i)
         response = completion(model="gpt-4o-mini", messages=messages, stop=["<end_code>"])
         asst_message = response.choices[0].message.content
-        if "FINAL ANSWER" in asst_message:
+        contains_code = "Code:" in asst_message or "```python" in asst_message or "end_code" in asst_message
+        if "FINAL ANSWER" in asst_message or not contains_code:
             messages.append({"role": "assistant", "content": asst_message})
             console_print_llm_output(asst_message)
             break
@@ -592,4 +580,6 @@ def answer_task(task: str, model: str = "gpt-4o-mini", max_iterations: int = 10)
         observation = execute_python_code(code, sb)
         console_print_code_agent_observation(observation)
         messages.append({"role": "user", "content": f"Observation: {observation}"})
+
+    sb.terminate()
     return messages
