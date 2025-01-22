@@ -540,7 +540,6 @@ def code_agent(task: str, model: str = "gpt-4o-mini", max_iterations: int = 20):
 
     execute_python_code("!pip install requests markdownify duckduckgo-search", sb)
     execute_python_code("import requests; from web_tools import web_search, visit_web_page;", sb)
-    execute_python_code("def final_answer(answer): return answer", sb)
 
     messages = [{"role": "system", "content": CODING_AGENT_SYSTEM_PROMPT}, {"role": "user", "content": task}]
     console_print_user_request(messages, model)
