@@ -2,70 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://DrChrisLevy.github.io/blog.html</loc>
-    <lastmod>2024-12-29T05:27:44.921Z</lastmod>
+    <lastmod>2025-01-24T23:05:04.688Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_lunch_talk/llm_talk_slides.html</loc>
-    <lastmod>2024-12-29T05:27:43.835Z</lastmod>
+    <lastmod>2025-01-24T23:05:03.559Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/anthropic/anthropic.html</loc>
-    <lastmod>2024-12-29T05:27:42.548Z</lastmod>
+    <lastmod>2025-01-24T23:05:02.129Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/llm_inference_class/llm_inference.html</loc>
-    <lastmod>2024-12-29T05:27:40.261Z</lastmod>
+    <lastmod>2025-01-24T23:04:59.755Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/fine_tune_jarvis/fine_tune_jarvis.html</loc>
-    <lastmod>2024-12-29T05:27:38.785Z</lastmod>
+    <lastmod>2025-01-24T23:04:58.320Z</lastmod>
   </url>
   <url>
-    <loc>https://DrChrisLevy.github.io/posts/vllms/vllm.html</loc>
-    <lastmod>2024-12-29T05:27:37.612Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
-    <lastmod>2024-12-29T05:27:35.824Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/modal_fun/modal_blog.html</loc>
-    <lastmod>2024-12-29T05:27:33.708Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
-    <lastmod>2024-12-29T05:27:31.805Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/bits_and_bytes/bits_bytes.html</loc>
-    <lastmod>2024-12-29T05:27:32.495Z</lastmod>
-  </url>
-  <url>
-    <loc>https://DrChrisLevy.github.io/posts/gemini/gemini2.html</loc>
-    <lastmod>2024-12-29T05:27:35.044Z</lastmod>
+    <loc>https://DrChrisLevy.github.io/posts/agents/agents.html</loc>
+    <lastmod>2025-01-24T23:04:55.648Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/intro_modal/intro_modal.html</loc>
-    <lastmod>2024-12-29T05:27:36.292Z</lastmod>
+    <lastmod>2025-01-24T23:04:51.807Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/gemini/gemini2.html</loc>
+    <lastmod>2025-01-24T23:04:50.512Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/bits_and_bytes/bits_bytes.html</loc>
+    <lastmod>2025-01-24T23:04:47.754Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/dspy/dspy.html</loc>
+    <lastmod>2025-01-24T23:04:47.009Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/modal_fun/modal_blog.html</loc>
+    <lastmod>2025-01-24T23:04:49.097Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/intro_fine_tune/intro_fine_tune.html</loc>
+    <lastmod>2025-01-24T23:04:51.319Z</lastmod>
+  </url>
+  <url>
+    <loc>https://DrChrisLevy.github.io/posts/vllms/vllm.html</loc>
+    <lastmod>2025-01-24T23:04:53.177Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/colpali/colpali_blog.html</loc>
-    <lastmod>2024-12-29T05:27:38.305Z</lastmod>
+    <lastmod>2025-01-24T23:04:57.837Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/basic_transformer_notes/transformers.html</loc>
-    <lastmod>2024-12-29T05:27:39.636Z</lastmod>
+    <lastmod>2025-01-24T23:04:59.125Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/modern_bert/modern_bert.html</loc>
-    <lastmod>2024-12-29T05:27:41.021Z</lastmod>
+    <lastmod>2025-01-24T23:05:00.542Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/posts/open_hermes_pro/open_hermes.html</loc>
-    <lastmod>2024-12-29T05:27:43.157Z</lastmod>
+    <lastmod>2025-01-24T23:05:02.792Z</lastmod>
   </url>
   <url>
     <loc>https://DrChrisLevy.github.io/index.html</loc>
-    <lastmod>2024-12-29T05:27:44.127Z</lastmod>
+    <lastmod>2025-01-24T23:05:03.875Z</lastmod>
   </url>
 </urlset>
