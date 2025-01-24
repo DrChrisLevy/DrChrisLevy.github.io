@@ -98,7 +98,7 @@ def console_print_tool_call_outputs(tool_calls, tool_results):
         elif tool_name == "execute_python_code":
             content = format_code_result(tool_result)
         else:
-            content = f"\n[bold]{tool_result[:300]}...<truncated>\n"
+            content = f"\n[bold]{tool_result[:300]}" + ("...<truncated>\n" if len(tool_result) > 300 else "\n")
 
         # Create panel for this tool output
         panel = Panel(
@@ -226,7 +226,7 @@ def console_print_react_tool_action_outputs(tool_name, tool_result):
     elif tool_name == "final_answer":
         content = tool_result
     else:
-        content = f"\n[bold]{tool_result[:300]}...<truncated>\n"
+        content = f"\n[bold]{tool_result[:300]}" + ("...<truncated>\n" if len(tool_result) > 300 else "\n")
 
     console.print(
         Panel(
@@ -263,7 +263,7 @@ def console_print_code_agent_observation(observation: dict):
     # Format stdout if present
     if observation.get("stdout"):
         stdout_content = Syntax(
-            observation["stdout"].rstrip()[:500] + " ... <truncated>...",
+            observation["stdout"].rstrip()[:500] + " ... <truncated>..." if len(observation["stdout"]) > 500 else observation["stdout"].rstrip(),
             lexer="python",
             theme="monokai",
             word_wrap=True,
@@ -273,7 +273,7 @@ def console_print_code_agent_observation(observation: dict):
     # Format stderr if present
     if observation.get("stderr"):
         stderr_content = Syntax(
-            observation["stderr"].rstrip()[:500] + " ... <truncated>...",
+            observation["stderr"].rstrip()[:500] + " ... <truncated>..." if len(observation["stderr"]) > 500 else observation["stderr"].rstrip(),
             lexer="python",
             theme="monokai",
             word_wrap=True,
@@ -287,12 +287,14 @@ def console_print_code_agent_observation(observation: dict):
 
     # Format result if present and not None
     if observation.get("result") is not None:
-        result_content = Text(str(observation["result"][:500] + " ... <truncated>..."))
+        result_content = Text(str(observation["result"][:500] + " ... <truncated>..." if len(observation["result"]) > 500 else observation["result"]))
         panels.append(Panel(result_content, title="[bold]result", border_style="cyan"))
 
     # Format error if present
     if observation.get("error"):
-        error_content = Text(str(observation["error"][:500] + " ... <truncated>..."), style="red")
+        error_content = Text(
+            str(observation["error"][:500] + " ... <truncated>..." if len(observation["error"]) > 500 else observation["error"]), style="red"
+        )
         panels.append(Panel(error_content, title="[bold red]error", border_style="red"))
 
     # Create group from collected panels
