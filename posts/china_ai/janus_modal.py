@@ -1,18 +1,22 @@
 import modal
-from modal import Image, build, enter
+from modal import Image, enter
 
 app = modal.App("deepseek-janus-pro")
 
-image = Image.debian_slim(python_version="3.11").run_commands(
-    "apt-get update && apt-get install -y git",
-    "git clone https://github.com/deepseek-ai/Janus.git",
-    "cd Janus && pip install -e .",
+image = (
+    Image.debian_slim(python_version="3.11")
+    .run_commands(
+        "apt-get update && apt-get install -y git",
+        "git clone https://github.com/deepseek-ai/Janus.git",
+        "cd Janus && pip install -e .",
+    )
+    .env({"HF_HUB_CACHE": "/cache"})
 )
+cache_vol = modal.Volume.from_name("hf-hub-cache", create_if_missing=True)
 
 
-@app.cls(image=image, gpu="A100", cpu=4, timeout=600, container_idle_timeout=300)
+@app.cls(image=image, volumes={"/cache": cache_vol}, gpu="A100", cpu=4, timeout=600, container_idle_timeout=300)
 class Model:
-    @build()
     @enter()
     def setup(self):
         import torch
@@ -21,33 +25,33 @@ class Model:
 
         # specify the path to the model
         model_path = "deepseek-ai/Janus-Pro-7B"
-        vl_chat_processor: VLChatProcessor = VLChatProcessor.from_pretrained(model_path)
-        self.tokenizer = vl_chat_processor.tokenizer
+        self.vl_chat_processor: VLChatProcessor = VLChatProcessor.from_pretrained(model_path)
+        self.tokenizer = self.vl_chat_processor.tokenizer
 
         self.vl_gpt: MultiModalityCausalLM = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True)
         self.vl_gpt = self.vl_gpt.to(torch.bfloat16).cuda().eval()
 
-        def url_to_base64(self, url: str) -> str:
-            import base64
-            from io import BytesIO
+    def url_to_base64(self, url: str) -> str:
+        import base64
+        from io import BytesIO
 
-            import requests
-            from PIL import Image
+        import requests
+        from PIL import Image
 
-            # Download the image from URL
-            response = requests.get(url)
-            # Convert to PIL Image first to ensure it's a valid JPEG
-            img = Image.open(BytesIO(response.content))
-            # Convert to RGB mode if it's not
-            if img.mode != "RGB":
-                img = img.convert("RGB")
-            # Save as JPEG to BytesIO
-            buffered = BytesIO()
-            img.save(buffered, format="JPEG")
-            # Convert to base64
-            img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            # Return in the format expected by Janus
-            return f"data:image/jpeg;base64,{img_base64}"
+        # Download the image from URL
+        response = requests.get(url)
+        # Convert to PIL Image first to ensure it's a valid JPEG
+        img = Image.open(BytesIO(response.content))
+        # Convert to RGB mode if it's not
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        # Save as JPEG to BytesIO
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG")
+        # Convert to base64
+        img_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        # Return in the format expected by Janus
+        return f"data:image/jpeg;base64,{img_base64}"
 
     @modal.web_endpoint(method="POST", docs=True)
     def f(self, data: dict):
@@ -79,10 +83,10 @@ class Model:
             pad_token_id=self.tokenizer.eos_token_id,
             bos_token_id=self.tokenizer.bos_token_id,
             eos_token_id=self.tokenizer.eos_token_id,
-            max_new_tokens=512,
+            max_new_tokens=512 * 8,
             do_sample=False,
             use_cache=True,
         )
 
         answer = self.tokenizer.decode(outputs[0].cpu().tolist(), skip_special_tokens=True)
-        print(f"{prepare_inputs['sft_format'][0]}", answer)
+        return answer
