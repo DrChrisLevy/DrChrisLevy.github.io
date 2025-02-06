@@ -1,4 +1,5 @@
 import json
+import os
 
 import modal
 from dotenv import load_dotenv
@@ -37,9 +38,15 @@ class Model:
 
         self.client = OpenAI()
         self.completion = self.client.chat.completions.create
+        self.cache = True
 
     @modal.web_endpoint(method="POST", docs=True)
     def creator_mention_buckets(self, data: dict):
+        # I want to read the data from the volume if it exists
+        if self.cache and os.path.exists(f"/data/{data['creator_handle']}.json"):
+            with open(f"/data/{data['creator_handle']}.json", "r") as f:
+                return json.load(f)
+
         over_all_summary = "overall summary"
         brands = self.find_brands([p["caption"] for p in data["posts"]])
         buckets = self.bucket_posts([p for p in data["posts"]], brands)
@@ -50,6 +57,10 @@ class Model:
             "buckets": final_buckets,
             "summary": over_all_summary,
         }
+        # I want to write the response to a JSON file in the volume
+        # The name of the file should be the creator_handle
+        with open(f"/data/{data['creator_handle']}.json", "w") as f:
+            json.dump(resp, f)
         return resp
 
     def find_brands(self, captions: list[str]):
