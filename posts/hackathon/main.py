@@ -1,32 +1,30 @@
 import json
-from datetime import datetime
-from typing import List, Literal
 
 import modal
 from dotenv import load_dotenv
 from modal import Image, enter
-from pydantic import BaseModel
 
 load_dotenv()
 
 
-class Post(BaseModel):
-    caption: str
-    thumbnail: str
-    media_url: str
-    type: Literal["IMAGE", "VIDEO"]
-    date: datetime
-    post_id: str
+# class Post(BaseModel):
+#     caption: str
+#     thumbnail: str
+#     media_url: str
+#     type: Literal["IMAGE", "VIDEO"]
+#     date: datetime
+#     post_id: str
 
 
-class CreatorData(BaseModel):
-    creator_handle: str
-    posts: List[Post]
+# class CreatorData(BaseModel):
+#     creator_handle: str
+#     posts: List[Post]
+#     brand_competitors: List[str]
 
 
 app = modal.App("hackathon")
 
-image = Image.debian_slim(python_version="3.11").pip_install("openai", "python-dotenv", "litellm", "fastapi")
+image = Image.debian_slim(python_version="3.11").pip_install("openai", "python-dotenv")
 
 vol = modal.Volume.from_name("hackathon-vol", create_if_missing=True)
 
@@ -35,19 +33,20 @@ vol = modal.Volume.from_name("hackathon-vol", create_if_missing=True)
 class Model:
     @enter()
     def setup(self):
-        from litellm import completion
+        from openai import OpenAI
 
-        self.completion = completion
+        self.client = OpenAI()
+        self.completion = self.client.chat.completions.create
 
     @modal.web_endpoint(method="POST", docs=True)
-    def creator_mention_buckets(self, data: CreatorData):
+    def creator_mention_buckets(self, data: dict):
         over_all_summary = "overall summary"
-        brands = self.find_brands([p.caption for p in data.posts])
-        buckets = self.bucket_posts([p.model_dump() for p in data.posts], brands)
-        final_buckets = self.label_buckets(data.creator_handle, buckets)
+        brands = self.find_brands([p["caption"] for p in data["posts"]])
+        buckets = self.bucket_posts([p for p in data["posts"]], brands)
+        final_buckets = self.label_buckets(data["creator_handle"], buckets)
 
         resp = {
-            "creator_handle": data.creator_handle,
+            "creator_handle": data["creator_handle"],
             "buckets": final_buckets,
             "summary": over_all_summary,
         }
@@ -91,6 +90,7 @@ class Model:
             for brand in brands:
                 if f" {brand.lower()} " in post["caption"].lower():
                     buckets[brand] = buckets.get(brand, []) + [post]
+        buckets = {k: v for k, v in buckets.items() if len(v) >= 2}
         return buckets
 
     def label_bucket(self, creator_handle: str, brand_name: str, captions: list[str]):
@@ -145,17 +145,24 @@ class Model:
         return json.loads(response.choices[0].message.content)
 
     def label_buckets(self, creator_handle: str, buckets: dict[str, list[dict]]):
-        final_buckets = []
-        for brand_name, posts in buckets.items():
+        import time
+
+        ct = time.time()
+        from concurrent import futures
+
+        def process_bucket(brand_data):
+            brand_name, posts = brand_data
             captions = [p["caption"] for p in posts]
             post_ids = [p["post_id"] for p in posts]
             lab = self.label_bucket(creator_handle, brand_name, captions)
-            final_buckets.append(
-                {
-                    "brand": brand_name,
-                    "post_ids": post_ids,
-                    "summary": lab["summary"],
-                    "vibes": lab["vibes"],
-                }
-            )
+            return {
+                "brand": brand_name,
+                "post_ids": post_ids,
+                "summary": lab["summary"],
+                "vibes": lab["vibes"],
+            }
+
+        with futures.ThreadPoolExecutor(max_workers=30) as executor:
+            final_buckets = list(executor.map(process_bucket, buckets.items()))
+        print(f"Time taken: {time.time() - ct}")
         return final_buckets
