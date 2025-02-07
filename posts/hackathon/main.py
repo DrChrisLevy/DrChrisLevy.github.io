@@ -30,7 +30,7 @@ image = Image.debian_slim(python_version="3.11").pip_install("openai", "python-d
 vol = modal.Volume.from_name("hackathon-vol", create_if_missing=True)
 
 
-@app.cls(image=image, volumes={"/data": vol}, cpu=4, timeout=600, container_idle_timeout=300, secrets=[modal.Secret.from_dotenv()])
+@app.cls(image=image, volumes={"/data": vol}, cpu=4, timeout=1000, container_idle_timeout=1000, secrets=[modal.Secret.from_dotenv()])
 class Model:
     @enter()
     def setup(self):
@@ -49,6 +49,17 @@ class Model:
 
         over_all_summary = "overall summary"
         brands = self.find_brands([p["caption"] for p in data["posts"]])
+        print("\n\n-------------- EXTRACTED BRANDS --------------\n\n")
+        print(brands)
+        print("\n\n-------------- END EXTRACTED BRANDS --------------\n\n")
+        brand_competitors = data.get("brand_competitors", [])
+        print("\n\n-------------- PLATFORM BRANDS --------------\n\n")
+        print(brand_competitors)
+        print("\n\n-------------- END PLATFORM BRANDS --------------\n\n")
+        brands = list(set(brands + brand_competitors))
+        print("\n\n-------------- ALL BRANDS --------------\n\n")
+        print(brands)
+        print("\n\n-------------- END ALL BRANDS --------------\n\n")
         buckets = self.bucket_posts([p for p in data["posts"]], brands)
         final_buckets = self.label_buckets(data["creator_handle"], buckets)
 
@@ -59,12 +70,16 @@ class Model:
         }
         # I want to write the response to a JSON file in the volume
         # The name of the file should be the creator_handle
-        with open(f"/data/{data['creator_handle']}.json", "w") as f:
-            json.dump(resp, f)
+        if self.cache:
+            with open(f"/data/{data['creator_handle']}.json", "w") as f:
+                json.dump(resp, f)
         return resp
 
     def find_brands(self, captions: list[str]):
         all_captions = "\n".join(captions)
+        print("\n\n-------------- ALL CAPTIONS --------------\n\n")
+        print(all_captions)
+        print("\n\n-------------- END ALL CAPTIONS --------------\n\n")
         response = self.completion(
             model="gpt-4o-mini",
             messages=[
@@ -93,7 +108,8 @@ class Model:
                 },
             ],
         )
-        return [b.lower().strip() for b in response.choices[0].message.content.split(",")]
+        brands = [b.lower().strip() for b in response.choices[0].message.content.split(",")]
+        return brands
 
     def bucket_posts(self, posts: list[dict], brands: list[str]):
         buckets = {}
@@ -101,7 +117,12 @@ class Model:
             for brand in brands:
                 if f" {brand.lower()} " in post["caption"].lower():
                     buckets[brand] = buckets.get(brand, []) + [post]
-        buckets = {k: v for k, v in buckets.items() if len(v) >= 2}
+        buckets = {k: v for k, v in buckets.items() if len(v) >= 1}
+        from pprint import pprint
+
+        print("\n\n-------------- BUCKETS --------------\n\n")
+        pprint(buckets)
+        print("\n\n-------------- END BUCKETS --------------\n\n")
         return buckets
 
     def label_bucket(self, creator_handle: str, brand_name: str, captions: list[str]):
