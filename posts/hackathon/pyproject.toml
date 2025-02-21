@@ -1,0 +1,13 @@
+[project]
+name = "hackathon"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "litellm>=1.60.5",
+    "modal>=0.73.18",
+    "openai>=1.61.1",
+    "python-dotenv>=1.0.1",
+    "sqlitedict>=2.1.0",
+]
