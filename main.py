@@ -37,7 +37,7 @@ def index():
 
     return Div(
         # Header section with profile
-        Section(DivCentered(Img(src="pic_me.jpeg"), H1("Chris Levy", cls=TextT.center), cls="space-y-4 mt-12"), cls="uk-padding-remove-vertical"),
+        Section(DivCentered(Img(src="posts/static_blog_imgs/pic_me.png", cls="rounded-full w-64 h-64 object-cover"), H1("Chris Levy", cls=TextT.center), cls="space-y-4 mt-12"), cls="uk-padding-remove-vertical"),
         _section(
             render_md(
                 """**Hello!** I'm Chris Levy. I work in ML/AI and backend Python development.
