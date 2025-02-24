@@ -1,7 +1,8 @@
-import modal
-from modal import build, enter
 import os
+
+import modal
 from dotenv import load_dotenv
+from modal import build, enter
 
 load_dotenv()
 app = modal.App("qwen2_vl_78_Instruct")
@@ -35,8 +36,8 @@ class Model:
     @build()
     @enter()
     def setup(self):
-        from transformers import Qwen2VLForConditionalGeneration, AutoProcessor, TextStreamer
         import torch
+        from transformers import AutoProcessor, Qwen2VLForConditionalGeneration, TextStreamer
 
         # We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.
 

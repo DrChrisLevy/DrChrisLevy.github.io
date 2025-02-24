@@ -3,6 +3,7 @@ from concurrent import futures
 from typing import Any, Callable, Dict
 
 from litellm import completion
+
 from utils import (
     console_print_llm_output,
     console_print_step,
