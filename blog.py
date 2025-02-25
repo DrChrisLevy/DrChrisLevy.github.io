@@ -1,3 +1,7 @@
+"""
+Took many code snippets from https://github.com/Isaac-Flath/web/blob/main/app/blog.py.
+See there for more complet nb-dev if that's your thing.
+"""
 import yaml
 from execnb.nbio import read_nb
 from fastcore.ansi import ansi2html
