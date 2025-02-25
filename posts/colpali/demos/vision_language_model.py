@@ -3,6 +3,7 @@ import os
 import modal
 from dotenv import load_dotenv
 from modal import build, enter
+
 from utils import log_to_queue
 
 load_dotenv()

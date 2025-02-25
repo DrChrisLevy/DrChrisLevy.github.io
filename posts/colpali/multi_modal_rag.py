@@ -5,6 +5,7 @@ from io import BytesIO
 from typing import List
 
 import modal
+
 from utils import generate_unique_folder_name, log_to_queue
 
 app = modal.App("multi-modal-rag")
