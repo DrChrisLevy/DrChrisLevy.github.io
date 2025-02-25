@@ -3,7 +3,7 @@ from fasthtml.oauth import *
 from monsterui.all import *
 
 from blog import ar as ar_blog
-from utils import *
+from utils import layout
 
 app, rt = fast_app(
     hdrs=Theme.blue.headers(highlightjs=True),

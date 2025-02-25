@@ -4,7 +4,7 @@ from fastcore.ansi import ansi2html
 from fasthtml.common import *
 from monsterui.all import *
 
-from utils import *
+from utils import layout
 
 
 def extract_directives(cell):
