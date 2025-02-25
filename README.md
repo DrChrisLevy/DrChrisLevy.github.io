@@ -25,7 +25,8 @@ I would like to get my own domain name eventually.
 - `uv run main.py`
 
 ## Redirect GH Pages
-- `gh
+
+- `gh-pages` branch only contains `index.html` and `blog.html`. They contain hardcoded urls with redirects.
 
 ## TOOD:
 
