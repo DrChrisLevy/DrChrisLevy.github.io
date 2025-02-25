@@ -79,7 +79,6 @@ def render_code_output(cell, directives, wrapper=Footer):
         return wrapper(res)
 
 
-# %% ../nbs/Blog.ipynb
 def render_code_input(cell, directives, lang="python"):
     code = f"""```{lang}\n{cell.source}\n```\n"""
     if "include:" in directives and directives["include:"][0] == "false":
@@ -103,7 +102,7 @@ def render_nb(nb):
     "Render a notebook as a list of html elements"
     res = []
     meta = get_meta(nb)
-    res.append(Div(H1(meta["title"]), Subtitle("A Fancy Description"), cls="my-9"))
+    res.append(Div(H1(meta["title"]), Subtitle(meta.get("subtitle", "")), cls="my-9"))
     for cell in nb.cells[1:]:
         if cell["cell_type"] == "code":
             directives = extract_directives(cell)
@@ -147,18 +146,17 @@ def index():
         metas.append(_meta)
     metas.sort(key=lambda x: x["date"], reverse=True)
     return Div(
-        Div(H1("My Blog", cls="mb-2"), Subtitle("Some Cool Stuff", cls=TextT.gray + TextT.lg), cls="text-center py-8"),
+        Div(H1("My Blog", cls="mb-2"), Subtitle("Some Random Things I'm Interested In", cls=TextT.gray + TextT.lg), cls="text-center py-8"),
         Div(Grid(*map(blog_card, metas), cols=1), cls="max-w-4xl mx-auto px-4"),
     )
 
 
-# %% ../nbs/Blog.ipynb
 @ar
 def blog_post(fpath: str):
     return render_nb(read_nb(fpath))
 
 
-# %% ../nbs/Blog.ipynb
+
 def blog_card(meta):
     def Tags(cats):
         return DivLAligned(map(Label, cats))
@@ -168,10 +166,10 @@ def blog_card(meta):
             A(Img(src=meta.get("image", ""), style="width:200px"), href=blog_post.to(fpath=meta["fpath"])),
             Div(cls="space-y-3 w-full")(
                 H4(meta["title"]),
-                P("A Fancy Description"),
+                P(meta.get("description", "")),
                 DivFullySpaced(map(Small, [meta["author"], meta["date"]]), cls=TextT.meta),
                 DivFullySpaced(
-                    Tags(["cool", "fun", "ai"]), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))
+                    Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))
                 ),
             ),
         ),

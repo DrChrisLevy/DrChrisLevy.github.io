@@ -21,7 +21,7 @@ app, rt = fast_app(
 # %% ../nbs/main.ipynb
 @rt
 def index():
-    return DivCentered(PicSumImg(cls="rounded-full w-96 h-96 object-cover mb-6"), H1("Isaac Flath"))
+    return DivCentered(PicSumImg(cls="rounded-full w-96 h-96 object-cover mb-6"), H1("Chris Levy"))
 
 
 # %% ../nbs/main.ipynb
@@ -40,15 +40,11 @@ def index():
         Section(DivCentered(Img(src="posts/static_blog_imgs/pic_me.png", cls="rounded-full w-64 h-64 object-cover"), H1("Chris Levy", cls=TextT.center), cls="space-y-4 mt-12"), cls="uk-padding-remove-vertical"),
         _section(
             render_md(
-                """**Hello!** I'm Chris Levy. I work in ML/AI and backend Python development.
-## About Me
+                """**Hello!** I'm Chris Levy, an AI Engineer. I build practical AI systems using Python and modern ML technologies, and I'm always excited to learn new approaches.
 
-I spent a good amount of time in school where I completed a PhD in applied math back in 2015. After graduating
-I shifted away from academia and started working in industry. I mostly do backend python development these days,
-and build ML/AI applications/services. I work across the entire stack from research, to training and evaluating models,
-to deploying models, and getting in the weeds of the infrastructure and devops pipelines.
+I focus on building AI applications, with my main skill being backend development and Python. With a PhD in applied mathematics (2015) and years of industry experience across the ML stack, I enjoy tackling complex problems and turning them into practical solutions.
 
-Outside of AI/ML stuff, I enjoy spending time with my family and three kids, working out, swimming, cycling, and playing guitar."""
+Outside of day to day work, I enjoy spending time with my family and three kids, working out, swimming, cycling, playing guitar, and coding and writing."""
             )
         ),
     )
@@ -89,25 +85,7 @@ client = GoogleAppClient(os.environ.get("GOOGLE_CLIENT_ID"), os.environ.get("GOO
 oauth = Auth(app, client, skip=skip, redir_path=redir_path)
 
 
-@rt
-def login(req):
-    return Container(
-        Card(
-            H3("Login"),
-            Subtitle("This page is just for Isaac's use!"),
-            P(
-                "If you're interested in what's here, reach out and I'm happy to give you a demo.  It's an app I built that help me with my own productivity."
-            ),
-            A("Log in", href=oauth.login_link(req), cls="uk-button" + ButtonT.primary),
-        )
-    )
-
-
-@rt
-def logout(sess):
-    del sess["user_name"]
-    return oauth.logout(sess)
 
 
 # %% ../nbs/main.ipynb
-serve(port=5005)
+serve()
