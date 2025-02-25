@@ -6,6 +6,7 @@ from monsterui.all import *
 
 from utils import *
 
+
 def extract_directives(cell):
     """Extract Quarto directives (starting with # |) from a notebook cell.
     Returns a dict of directive names and their values."""
@@ -26,7 +27,6 @@ def extract_directives(cell):
                     # TODO
                     pass
     return directives
-
 
 
 ar = APIRouter(prefix="/blog", body_wrap=layout)
@@ -156,7 +156,6 @@ def blog_post(fpath: str):
     return render_nb(read_nb(fpath))
 
 
-
 def blog_card(meta):
     def Tags(cats):
         return DivLAligned(map(Label, cats))
@@ -168,9 +167,7 @@ def blog_card(meta):
                 H4(meta["title"]),
                 P(meta.get("description", "")),
                 DivFullySpaced(map(Small, [meta["author"], meta["date"]]), cls=TextT.meta),
-                DivFullySpaced(
-                    Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))
-                ),
+                DivFullySpaced(Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))),
             ),
         ),
         cls=CardT.hover,
