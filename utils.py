@@ -1,3 +1,4 @@
+# ruff: noqa: F403, F405
 from fasthtml.common import *
 from monsterui.all import *
 

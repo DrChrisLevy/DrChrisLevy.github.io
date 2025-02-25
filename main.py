@@ -1,3 +1,4 @@
+# ruff: noqa: F403, F405
 from fasthtml.common import *
 from fasthtml.oauth import *
 from monsterui.all import *
@@ -11,11 +12,6 @@ app, rt = fast_app(
     body_wrap=layout,
     live=True,
 )
-
-
-@rt
-def index():
-    return DivCentered(PicSumImg(cls="rounded-full w-96 h-96 object-cover mb-6"), H1("Chris Levy"))
 
 
 @rt

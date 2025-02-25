@@ -1,3 +1,4 @@
+# ruff: noqa: F403, F405
 """
 Took many code snippets from https://github.com/Isaac-Flath/web/blob/main/app/blog.py.
 See there for more complet nb-dev if that's your thing.
