@@ -116,4 +116,13 @@ uv run modal deploy deploy_to_modal.py
 
 
 
+## Conclusion
+
+This was fun. It's just the beginning of my journey with fastHTML and MonsterUI.
+I'm also working on some other personal projects with them. I'll write about them
+as I can. I'm going to continue to blog and continue to update the content and styles
+of the blog to make it look better and more personal to me.
+
+
+
 
