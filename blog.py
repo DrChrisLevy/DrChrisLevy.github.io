@@ -1,7 +1,7 @@
 # ruff: noqa: F403, F405
 """
 Took many code snippets from https://github.com/Isaac-Flath/web/blob/main/app/blog.py.
-See there for more complet nb-dev if that's your thing.
+See there for more complete nb-dev usage etc, if your into that.
 """
 import yaml
 from execnb.nbio import read_nb
@@ -37,7 +37,7 @@ def extract_directives(cell):
 ar = APIRouter(prefix="/blog", body_wrap=layout)
 
 
-def get_meta(nb):
+def get_meta_from_nb(nb):
     return yaml.safe_load(nb.cells[0].source.split("---")[1])
 
 
@@ -106,7 +106,7 @@ def remove_directives(cell):
 def render_nb(nb):
     "Render a notebook as a list of html elements"
     res = []
-    meta = get_meta(nb)
+    meta = get_meta_from_nb(nb)
     res.append(Div(H1(meta["title"]), Subtitle(meta.get("subtitle", "")), cls="my-9"))
     for cell in nb.cells[1:]:
         if cell["cell_type"] == "code":
@@ -118,6 +118,20 @@ def render_nb(nb):
         elif cell["cell_type"] == "markdown":
             res.append(render_md(cell.source))
     return res
+
+
+def get_meta_from_md(fpath: str):
+    with open(fpath, "r") as f:
+        content = f.read()
+    # Split on '---' and check if we have frontmatter
+    parts = content.split("---")
+    if len(parts) >= 3:
+        # The frontmatter is the second part (index 1)
+        meta = yaml.safe_load(parts[1])
+        # The markdown content is the third part (index 2)
+        markdown_content = parts[2].strip()
+        return meta, markdown_content
+    return {}, ""
 
 
 @ar
@@ -140,11 +154,15 @@ def index():
         "posts/anthropic/anthropic.ipynb",
         "posts/open_hermes_pro/open_hermes.ipynb",
         "posts/llm_lunch_talk/llm_talk_slides.ipynb",
+        "posts/quarto_to_fasthtml/quarto_to_fasthtml.md",
     ]
     metas = []
     for fpath in fpaths:
         folder = fpath.split("/")[1]
-        _meta = get_meta(read_nb(fpath))
+        if fpath.endswith(".md"):
+            _meta, _ = get_meta_from_md(fpath)
+        else:
+            _meta = get_meta_from_nb(read_nb(fpath))
         _meta["fpath"] = fpath
         _meta["folder"] = folder
         _meta["image"] = f'../posts/static_blog_imgs/{_meta.get("image", "")}'
@@ -158,7 +176,11 @@ def index():
 
 @ar
 def blog_post(fpath: str):
-    return render_nb(read_nb(fpath))
+    if fpath.endswith(".md"):
+        _, markdown_content = get_meta_from_md(fpath)
+        return Container(render_md(markdown_content))
+    else:
+        return render_nb(read_nb(fpath))
 
 
 def blog_card(meta):
