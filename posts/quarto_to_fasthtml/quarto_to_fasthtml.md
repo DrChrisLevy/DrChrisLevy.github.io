@@ -36,13 +36,13 @@ Isaac Flath had a blog created with Quarto [here](https://isaac-flath.github.io/
 
 The team over at Answer.AI are experts with Jupyter notebooks, since they have developed libraries such as 
 [nbdev](https://nbdev.fast.ai/) and [execnb](https://github.com/fastai/execnb). They already know how to convert notebook
-cells to various formats and render them. The main idea for creating the blog is to:
+cells to various formats and render them. The main approach for creating the blog is to:
 
 - store the post source files as Jupyter notebooks in a folder called `posts`
 - loop over the notebooks meta data to create the page which renders the list of blog posts
 - for each blog post, extract the cells and render the input/output based on the cell type
 
-I would look at the code in [Isaac's blog](https://github.com/Isaac-Flath/web/blob/main/app/blog.py) for the details.
+I recommend looking at the code in [Isaac's blog](https://github.com/Isaac-Flath/web/blob/main/app/blog.py) for the details.
 I don't use nbdev (yet) so I just used a bare minimum of functions to get the job done. You could refer to
 my [code](https://github.com/DrChrisLevy/DrChrisLevy.github.io/blob/main/blog.py) for the details as well.
 
@@ -64,7 +64,7 @@ if d := _g("text/plain"):
     return Safe(f"<pre><code>{d}</code></pre>")
 ```
 
-Other things I had to change were
+Other things I had to change along the way in my previous posts were:
 
 - place all the static images into a designated folder called `static_blog_imgs`. I went through all the previous posts and made code changes such as `![](imgs/fasthtml_demo2.png)` to `![](static_blog_imgs/fasthtml_demo2.png)`
 
@@ -74,13 +74,15 @@ Other things I had to change were
 
 - My quarto blog was hosted on GitHub pages. GitHub pages is for hosting static websites. For now I'm going to host the converted blog on [Modal](https://modal.com/). To keep that all working, I added a redirect route on my branch `gh-pages` to redirect to the new blog. This means that anyone who visits [https://drchrislevy.github.io/](https://drchrislevy.github.io/) will be redirected to the new blog. This was as simple as asking a LLM what to do and the result was to create two files `index.html` and `blog.html` in the root directory of the repo on the `gh-pages` branch. See [here](https://github.com/DrChrisLevy/DrChrisLevy.github.io/tree/gh-pages) for the details.
 
-For all the juicy details see the [PR]() which made all the changes.
+For all the juicy details see the [PR](https://github.com/DrChrisLevy/DrChrisLevy.github.io/pull/21) which made all the changes.
 
 ## Deploying to Modal
 
-Down the road I want to get a custom domain for my blog. I don't know where I will end up hosting it in the long run.
-But Modal offers $30/month of compute credits per month for free. And I only pay for when the container is running (when people are visiting the blog). And right now, it's probably very low traffic. So Modal is a great option for now. They do support custom domains,
-but not on the free tier.
+Down the road I want to get a custom domain for my blog.
+Modal offers $30/month of compute credits per month for free, and I only pay for when the container is running (when people are visiting the blog).
+I set a 3 minute timeout on the container for now and the containers spin up in 1-2 seconds anyway. 
+Down the road I can improve this. Modal does support custom domains
+but not on the free tier right now.
 
 Here is the code I use to deploy the blog to Modal.
 
