@@ -1,7 +1,8 @@
-import modal
-from modal import Image, build, enter
 import os
+
+import modal
 from dotenv import load_dotenv
+from modal import Image, build, enter
 
 load_dotenv()
 app = modal.App("black-forest-labs-flux")
@@ -35,10 +36,11 @@ class Model:
 
     @modal.web_endpoint(method="POST", docs=True)
     def f(self, data: dict):
-        import torch
+        import base64
         import random
         from io import BytesIO
-        import base64
+
+        import torch
 
         prompts = data["prompts"]
         fnames = data["fnames"]

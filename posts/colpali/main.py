@@ -1,8 +1,10 @@
+# ruff: noqa: F403, F405, F811
 from asyncio import sleep
 
 import marko
 import modal
 from fasthtml.common import *
+
 from utils import log_to_queue, read_from_queue
 
 picocss = "https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.indigo.min.css"

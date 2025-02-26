@@ -7,6 +7,7 @@ from typing import List, cast
 import modal
 from dotenv import load_dotenv
 from modal import build, enter
+
 from utils import generate_unique_folder_name, log_to_queue
 
 load_dotenv()

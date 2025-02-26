@@ -1,3 +1,4 @@
+# ruff: noqa: F403, F405, F811
 from asyncio import sleep
 
 import marko

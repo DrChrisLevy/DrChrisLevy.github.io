@@ -1,8 +1,8 @@
-import os
 import io
 import json
-import modal
+import os
 
+import modal
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -74,8 +74,9 @@ def dict_to_s3(record, s3_filename, bucket_name):
 )
 def process_video(url):
     import re
-    from pytube import YouTube
+
     import whisper
+    from pytube import YouTube
 
     video_id = re.search(r"v=([a-zA-Z0-9_-]{11})", url).group(1)
     file_name_audio = f"{video_id}.mp4"
@@ -104,8 +105,9 @@ def process_video(url):
 
 @stub.local_entrypoint()
 def main():
-    from pytube import Playlist
     import random
+
+    from pytube import Playlist
 
     all_urls = set()
     for playlist_url in [

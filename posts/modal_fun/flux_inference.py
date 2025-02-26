@@ -1,7 +1,8 @@
 def main():
-    import requests
     import base64
     import os
+
+    import requests
 
     os.makedirs("images", exist_ok=True)
     # Your API endpoint URL
@@ -12,9 +13,7 @@ def main():
         "prompts": [
             "A pristine tropical island paradise with crystal-clear turquoise waters lapping at white sandy shores. Palm trees sway gently in the breeze along the coastline. In the foreground, the words 'Welcome to Modal' are elegantly written in the smooth wet sand, with small seashells decorating the letters. The sun is setting in the background, painting the sky with vibrant hues of orange, pink, and purple. A few scattered clouds reflect the warm sunset colors.",
         ],
-        "fnames": [
-            "modal_island"
-        ],
+        "fnames": ["modal_island"],
         "num_inference_steps": 4,
         "guidance_scale": 5,
     }

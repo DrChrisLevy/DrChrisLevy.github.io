@@ -1,3 +1,4 @@
+# ruff: noqa: F403, F405, F821
 import modal
 from modal import Image, enter
 

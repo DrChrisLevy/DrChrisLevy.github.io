@@ -1,0 +1,13 @@
+[project]
+name = "drchrislevy-github-io"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "execnb>=0.1.11",
+    "fastcore>=1.7.29",
+    "modal>=0.73.71",
+    "monsterui>=1.0.10",
+    "python-fasthtml>=0.12.1",
+]

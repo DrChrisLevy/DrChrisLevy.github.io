@@ -1,7 +1,8 @@
-import modal
-from modal import build, enter
 import os
+
+import modal
 from dotenv import load_dotenv
+from modal import build, enter
 
 load_dotenv()
 app = modal.App("colpali")
@@ -39,7 +40,6 @@ class Model:
         from typing import cast
 
         import torch
-
         from colpali_engine.models import ColPali
         from colpali_engine.models.paligemma.colpali.processing_colpali import ColPaliProcessor
         from colpali_engine.utils.processing_utils import BaseVisualRetrieverProcessor
@@ -62,8 +62,9 @@ class Model:
 
     def pdf_to_images(self, pdf_url):
         # Function to download and convert PDF url to images
-        import requests
         from io import BytesIO
+
+        import requests
         from pdf2image import convert_from_bytes
 
         # Step 1: Download the PDF from the provided URL
@@ -114,10 +115,9 @@ class Model:
         from typing import List
 
         import torch
+        from colpali_engine.utils.torch_utils import ListDataset
         from torch.utils.data import DataLoader
         from tqdm import tqdm
-
-        from colpali_engine.utils.torch_utils import ListDataset
 
         images = self.pdf_to_images(pdf_url)
 
