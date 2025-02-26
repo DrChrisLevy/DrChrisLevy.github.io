@@ -11,8 +11,9 @@ I would like to get my own domain name eventually.
 
 ## Adding A New Blog Post
 
-- Create a new notebook in the `posts` folder (see other examples for how to do this).2. Add the notebook to the `posts` folder.
-    - Store images in the `posts/static_blog_imgs` folder.
+- Create a new notebook in the `posts` folder (see other examples for how to do this).
+- Add the notebook to the `posts` folder.
+- Store images in the `posts/static_blog_imgs` folder.
 - Add the path of the notebook to the `fpaths` list in `blog.py`.
 
 
@@ -30,9 +31,8 @@ I would like to get my own domain name eventually.
 
 ## TOOD:
 
-- more content
+- more content and more to navbar
 - more custom styling
 - ability to write/add posts as notebooks or markdown or fastHTML
 - clean up functions, and improve them, in blog.py for rendering
-
-## 
+- blog more!
