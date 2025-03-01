@@ -1,6 +1,5 @@
 # ruff: noqa: F403, F405
 from fasthtml.common import *
-from fasthtml.oauth import *
 from monsterui.all import *
 
 from blog import ar as ar_blog

@@ -9,5 +9,6 @@ dependencies = [
     "fastcore>=1.7.29",
     "modal>=0.73.71",
     "monsterui>=1.0.10",
+    "notebook>=7.3.2",
     "python-fasthtml>=0.12.1",
 ]
