@@ -30,14 +30,16 @@ def index():
 
 
 async def message_generator():
+    # This sse_message function converts an HTML element into the specific format required for Server-Sent Events (SSE) streaming.
+    # The first argument is an FT component (FastHTML element) that you want to send via SSE.
+    # The second argument is the name of the SSE event (defaults to "message" if not specified).
+    # It must match the sse_swap attribute above i.e. event="EventName"
+    
     for i in range(10):
-        yield sse_message(Div(P(f"message number {i}")), event="EventName")  # must match the sse_swap attribute
+        yield sse_message(Div(P(f"message number {i}")), event="EventName")  
         await sleep(0.5)
 
-    # This function converts an HTML element into the specific format required for Server-Sent Events (SSE) streaming.
-    # The first argument is an FT component (FastHTML element) that you want to send via SSE.
-    # The second argument is the name of the SSE event (defaults to "message" if not specified)
-    yield sse_message(Div(P("DONE")), event="EventName")  # event="EventName" must match the sse_swap attribute above
+    yield sse_message(Div(P("DONE")), event="EventName") 
 
 
 @rt("/sse-stream")
