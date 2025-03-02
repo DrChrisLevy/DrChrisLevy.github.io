@@ -34,12 +34,12 @@ async def message_generator():
     # The first argument is an FT component (FastHTML element) that you want to send via SSE.
     # The second argument is the name of the SSE event (defaults to "message" if not specified).
     # It must match the sse_swap attribute above i.e. event="EventName"
-    
+
     for i in range(10):
-        yield sse_message(Div(P(f"message number {i}")), event="EventName")  
+        yield sse_message(Div(P(f"message number {i}")), event="EventName")
         await sleep(0.5)
 
-    yield sse_message(Div(P("DONE")), event="EventName") 
+    yield sse_message(Div(P("DONE")), event="EventName")
 
 
 @rt("/sse-stream")
