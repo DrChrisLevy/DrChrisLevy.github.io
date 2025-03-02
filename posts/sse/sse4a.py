@@ -16,15 +16,15 @@ app, rt = fast_app(
 @rt("/")
 def index():
     return Container(
-        H3("Multiple events in different elements (from the same source)."),
+        H3("Multiple Events in the Same Element"),
         Div(
-            DivFullySpaced(
-                Div(P("event1"), sse_swap="event1", id="event1-content"),
-                Div(P("event2"), sse_swap="event2", id="event2-content"),
-            ),
+            P("The contents of this <div> will be updated in real time with each SSE message received from both event1 and event2."),
             hx_ext="sse",
+            sse_swap="event1,event2",  # Multiple events can be listened to
             sse_connect="/sse-stream",
             hx_swap="beforeend show:bottom",
+            hx_target="#sse-content",
+            id="sse-content",
             sse_close="close",
         ),
     )

@@ -37,7 +37,6 @@ async def message_generator():
         await sleep(0.5)
 
     yield sse_message(Div(P("DONE")), event="EventName")
-    yield sse_message(Div(), event="close")  # A special event message to close the connection
 
 
 @rt("/start-sse")
@@ -48,7 +47,6 @@ def start_sse():
             hx_ext="sse",
             sse_swap="EventName",
             sse_connect="/sse-stream",
-            sse_close="close",  # When this event is received, the SSE connection will be closed
             hx_swap="beforeend show:bottom",
             hx_target="#sse-content",
             id="sse-content",
