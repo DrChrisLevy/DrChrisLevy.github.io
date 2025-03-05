@@ -20,7 +20,7 @@ def index():
         Div(
             P("The contents of this <div> will be updated in real time with each SSE message received."),
             hx_ext="sse",  # To connect to an SSE server, use the hx_ext="sse" attribute to install the extension on that HTML element
-            sse_swap="EventName",  # This default event name is "message" if we don't specify it otherwise
+            sse_swap="EventName",  # The default event name is "message" if we don't specify it otherwise
             sse_connect="/sse-stream",  # This is the URL of the SSE endpoint we create and connect to
             hx_swap="beforeend show:bottom",  # Determines how the content will be inserted into that target element. Here, each new message is added at the end of the div and the page automatically scrolls to show the new message
             hx_target=None,  # None is the default. By not specifying a target for the swap, it defaults to the element that triggered the request i.e. id="sse-content"

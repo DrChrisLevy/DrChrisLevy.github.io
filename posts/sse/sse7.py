@@ -7,11 +7,13 @@ from monsterui.all import *
 
 app, rt = fast_app(
     hdrs=(
-        Theme.blue.headers(),
+        Theme.blue.headers(highlightjs=True),
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js"),
     ),
     live=True,
 )
+
+final_message = ""
 
 
 @rt("/")
@@ -30,9 +32,15 @@ def index():
             hx_target="#chat-container",
             hx_swap="innerHTML",
         ),
+        # stream response
+        Div(P("Render Final Message"), id="chat-container"),
         # Chat messages container
-        Div(id="chat-container"),
     )
+
+
+@rt("/render-final-message")
+def render_final_message():
+    return Div(render_md(final_message), id="final-message")
 
 
 @rt("/send-message", methods=["POST"])
@@ -55,15 +63,17 @@ async def send_message(req):
 
 
 async def stream_response(message: str):
+    global final_message
     response = f"""Thank you for your message! This is a simple demonstration of streaming text using Server-Sent Events.
     Here is your original message:\n\n{message}"""
-    message = ""
     for chunk in response:
-        message += chunk
-        yield sse_message(render_md(message), event="token")
-        await sleep(0.01)
+        final_message += chunk
+        yield sse_message(render_md(final_message), event="token")
+        await sleep(0.001)
 
     yield sse_message(Div(), event="close")
+    print("FINAL MESSAGE", final_message)
+    final_message = ""
 
 
 @rt("/chat-stream")
