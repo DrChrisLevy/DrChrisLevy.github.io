@@ -1,12 +1,13 @@
 # ruff: noqa: F403, F405
 from asyncio import sleep
+from urllib.parse import quote, unquote
 
 from fasthtml.common import *
 from monsterui.all import *
 
 app, rt = fast_app(
     hdrs=(
-        Theme.blue.headers(),
+        Theme.blue.headers(highlightjs=True),
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js"),
     ),
     live=True,
@@ -20,7 +21,7 @@ def get():
     return Container(
         H1("Streamed Chat"),
         Form(
-            Input(
+            TextArea(
                 type="text",
                 name="msg",
                 id="msg-input",
@@ -39,25 +40,39 @@ def get():
 
 @app.post("/send-message")
 def send_message(msg: str):
-    print(f"SEND MESSAGE: {msg}")
-    assistant_msg = Div(id="chat-content", hx_ext="sse", sse_connect="/get-message", sse_swap="EventName", sse_close="close", hx_swap="beforeend")
+    msg = quote(msg)
+    assistant_msg = Div(
+        id="chat-content", hx_ext="sse", sse_connect="/get-message?msg=" + msg, sse_swap="EventName", sse_close="close", hx_swap="beforeend"
+    )
 
     return assistant_msg
 
 
-async def message_generator():
+async def message_generator(msg: str):
+    import os
+
+    from dotenv import load_dotenv
+    from google import genai
+
     global final_message
-    r = ["# This ", "is ", "a ", "- test\n- test2"]
-    for chunk in r:
+    final_message = ""
+    load_dotenv()
+    msg = unquote(msg)
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+    for chunk in client.models.generate_content_stream(model="gemini-2.0-flash-001", contents=msg):
+        chunk = chunk.text
         final_message += chunk
         yield sse_message(chunk, event="EventName")
-        await sleep(0.5)
+        await sleep(0.01)
+    yield sse_message(H1("RENDERING FINISHED"), event="EventName")
+    yield sse_message(render_md(final_message), event="EventName")
     yield sse_message(Div(), event="close")
 
 
 @app.get("/get-message")
-async def get_message():
-    return EventStream(message_generator())
+async def get_message(msg: str):
+    return EventStream(message_generator(msg))
 
 
 serve(port=5010)
