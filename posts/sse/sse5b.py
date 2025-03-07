@@ -5,7 +5,7 @@ from fasthtml.common import *
 from monsterui.all import *
 
 app, rt = fast_app(
-    hdrs=(Theme.blue.headers(highlightjs=True), Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")),
+    hdrs=(Theme.blue.headers(), Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js")),
     live=True,
 )
 
