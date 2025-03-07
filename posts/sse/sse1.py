@@ -6,7 +6,7 @@ from monsterui.all import *
 
 app, rt = fast_app(
     hdrs=(
-        Theme.blue.headers(highlightjs=True),  # monsterui styling
+        Theme.blue.headers(),  # monsterui styling
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js"),  # Include this to use the SSE extension
     ),
     live=True,
