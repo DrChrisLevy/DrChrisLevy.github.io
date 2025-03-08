@@ -22,7 +22,6 @@ def get():
             TextArea(
                 type="text",
                 name="msg",
-                id="msg-input",
                 placeholder="Type a message",
             ),
             Button("Send"),
@@ -40,7 +39,6 @@ def get():
 def send_message(msg: str):
     msg = quote(msg)
     assistant_msg = Div(
-        id="chat-content",
         hx_ext="sse",
         sse_connect="/get-message?msg=" + msg,
         sse_swap="EventName",
