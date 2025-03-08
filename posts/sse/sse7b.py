@@ -12,7 +12,7 @@ load_dotenv()
 
 app, rt = fast_app(
     hdrs=(
-        Theme.blue.headers(),
+        Theme.blue.headers(highlightjs=True),
         Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js"),
     ),
     live=True,
