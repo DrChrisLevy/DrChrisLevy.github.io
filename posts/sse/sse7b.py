@@ -1,0 +1,75 @@
+# ruff: noqa: F403, F405
+import os
+from asyncio import sleep
+from urllib.parse import quote, unquote
+
+from dotenv import load_dotenv
+from fasthtml.common import *
+from google import genai
+from monsterui.all import *
+
+load_dotenv()
+
+app, rt = fast_app(
+    hdrs=(
+        Theme.blue.headers(),
+        Script(src="https://unpkg.com/htmx-ext-sse@2.2.1/sse.js"),
+    ),
+    live=True,
+)
+
+
+@app.route("/")
+def get():
+    return Container(
+        H1("Streamed Chat"),
+        Form(
+            TextArea(
+                type="text",
+                name="msg",
+                placeholder="Type a message",
+            ),
+            Button("Send"),
+            hx_post="/send-message",
+            hx_target="#chat-response",
+            hx_swap="innerHTML",
+        ),
+        Div(
+            id="chat-response",
+        ),
+    )
+
+
+@app.post("/send-message")
+def send_message(msg: str):
+    msg = quote(msg)
+    assistant_msg = Div(
+        hx_ext="sse",
+        sse_connect="/get-message?msg=" + msg,
+        sse_swap="EventName",
+        sse_close="close",
+        hx_swap="innerHTML",
+    )
+
+    return assistant_msg
+
+
+async def message_generator(msg: str):
+    final_message = ""
+    msg = unquote(msg)
+    client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+    for chunk in client.models.generate_content_stream(model="gemini-2.0-flash-001", contents=msg):
+        chunk = chunk.text
+        final_message += chunk
+        yield sse_message(render_md(final_message), event="EventName")
+        await sleep(0.025)
+    yield sse_message(Div(), event="close")
+
+
+@app.get("/get-message")
+async def get_message(msg: str):
+    return EventStream(message_generator(msg))
+
+
+serve(port=5010)
