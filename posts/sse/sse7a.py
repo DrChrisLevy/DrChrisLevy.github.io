@@ -13,8 +13,6 @@ app, rt = fast_app(
     live=True,
 )
 
-final_message = ""
-
 
 @app.route("/")
 def get():
@@ -42,7 +40,12 @@ def get():
 def send_message(msg: str):
     msg = quote(msg)
     assistant_msg = Div(
-        id="chat-content", hx_ext="sse", sse_connect="/get-message?msg=" + msg, sse_swap="EventName", sse_close="close", hx_swap="beforeend"
+        id="chat-content",
+        hx_ext="sse",
+        sse_connect="/get-message?msg=" + msg,
+        sse_swap="EventName",
+        sse_close="close",
+        hx_swap="beforeend show:bottom",
     )
 
     return assistant_msg
@@ -54,7 +57,6 @@ async def message_generator(msg: str):
     from dotenv import load_dotenv
     from google import genai
 
-    global final_message
     final_message = ""
     load_dotenv()
     msg = unquote(msg)
@@ -64,9 +66,7 @@ async def message_generator(msg: str):
         chunk = chunk.text
         final_message += chunk
         yield sse_message(chunk, event="EventName")
-        await sleep(0.01)
-    yield sse_message(H1("RENDERING FINISHED"), event="EventName")
-    yield sse_message(render_md(final_message), event="EventName")
+        await sleep(0.025)
     yield sse_message(Div(), event="close")
 
 
