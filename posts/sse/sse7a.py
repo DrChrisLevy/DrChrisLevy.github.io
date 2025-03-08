@@ -1,9 +1,14 @@
 # ruff: noqa: F403, F405
+import os
 from asyncio import sleep
 from urllib.parse import quote, unquote
 
+from dotenv import load_dotenv
 from fasthtml.common import *
+from google import genai
 from monsterui.all import *
+
+load_dotenv()
 
 app, rt = fast_app(
     hdrs=(
@@ -50,13 +55,7 @@ def send_message(msg: str):
 
 
 async def message_generator(msg: str):
-    import os
-
-    from dotenv import load_dotenv
-    from google import genai
-
     final_message = ""
-    load_dotenv()
     msg = unquote(msg)
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
