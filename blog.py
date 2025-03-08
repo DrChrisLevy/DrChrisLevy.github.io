@@ -155,6 +155,7 @@ def index():
         "posts/open_hermes_pro/open_hermes.ipynb",
         "posts/llm_lunch_talk/llm_talk_slides.ipynb",
         "posts/quarto_to_fasthtml/quarto_to_fasthtml.md",
+        "posts/sse/sse.ipynb",
     ]
     metas = []
     for fpath in fpaths:
