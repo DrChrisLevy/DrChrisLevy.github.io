@@ -169,7 +169,7 @@ def index():
         _meta["image"] = f'../posts/static_blog_imgs/{_meta.get("image", "")}'
         metas.append(_meta)
     metas.sort(key=lambda x: x["date"], reverse=True)
-    return Div(
+    return Title("Chris Levy Blog"), Div(
         Div(H1("My Blog", cls="mb-2"), Subtitle("Some Random Things I'm Interested In", cls=TextT.gray + TextT.lg), cls="text-center py-8"),
         Div(Grid(*map(blog_card, metas), cols=1), cls="max-w-4xl mx-auto px-4"),
     )
@@ -179,24 +179,29 @@ def index():
 def blog_post(fpath: str):
     if fpath.endswith(".md"):
         _, markdown_content = get_meta_from_md(fpath)
-        return Container(render_md(markdown_content))
+        return Title("Chris Levy Blog Post"), Container(render_md(markdown_content))
     else:
-        return render_nb(read_nb(fpath))
+        return Title("Chris Levy Blog Post"), render_nb(read_nb(fpath))
 
 
 def blog_card(meta):
     def Tags(cats):
         return DivLAligned(map(Label, cats))
 
-    return Card(
-        DivLAligned(
-            A(Img(src=meta.get("image", ""), style="width:200px"), href=blog_post.to(fpath=meta["fpath"])),
-            Div(cls="space-y-3 w-full")(
-                H4(meta["title"]),
-                P(meta.get("description", "")),
-                DivFullySpaced(map(Small, [meta["author"], meta["date"]]), cls=TextT.meta),
-                DivFullySpaced(Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))),
+    return A(
+        Card(
+            DivLAligned(
+                Img(src=meta.get("image", ""), style="width:200px"),
+                Div(cls="space-y-3 w-full")(
+                    H4(meta["title"]),
+                    P(meta.get("description", "")),
+                    DivFullySpaced(map(Small, [meta["author"], meta["date"]]), cls=TextT.meta),
+                    DivFullySpaced(
+                        Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))
+                    ),
+                ),
             ),
+            cls=CardT.hover,
         ),
-        cls=CardT.hover,
+        href=blog_post.to(fpath=meta["fpath"]),
     )

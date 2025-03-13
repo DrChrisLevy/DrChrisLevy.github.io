@@ -18,7 +18,7 @@ def index():
     def _section(*c):
         return Section(Article(*c, cls="prose max-w-5xl mx-auto space-y-5 pt-16"), cls=("uk-padding-remove-vertical",))
 
-    return Div(
+    return Title("Chris Levy"), Div(
         Section(
             DivCentered(
                 Img(src="posts/static_blog_imgs/pic_me.png", cls="rounded-full w-64 h-64 object-cover"),
