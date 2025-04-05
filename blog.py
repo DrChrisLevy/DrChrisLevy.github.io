@@ -114,7 +114,7 @@ def render_nb(nb):
             remove_directives(cell)
             _output = render_code_output(cell, directives)
             res.append(render_code_input(cell, directives))
-            res.append(Card(_output) if _output else "")
+            res.append(Card(_output, cls='mb-8') if _output else "")
         elif cell["cell_type"] == "markdown":
             res.append(render_md(cell.source))
     return res
@@ -156,6 +156,7 @@ def index():
         "posts/llm_lunch_talk/llm_talk_slides.ipynb",
         "posts/quarto_to_fasthtml/quarto_to_fasthtml.md",
         "posts/sse/sse.ipynb",
+        "posts/openai_agent_sdk/openai_agent_sdk.ipynb",
     ]
     metas = []
     for fpath in fpaths:
