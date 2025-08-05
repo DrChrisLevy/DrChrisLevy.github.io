@@ -10,10 +10,10 @@ app = modal.App("drchrislevy")
     .add_local_file("utils.py", remote_path="/root/utils.py")
     .add_local_file("main.py", remote_path="/root/main.py")
     .add_local_file("blog.py", remote_path="/root/blog.py"),
-    allow_concurrent_inputs=100,  # TODO
     container_idle_timeout=3 * 60,
     secrets=[modal.Secret.from_dotenv()],
 )
+@modal.concurrent(max_inputs=100) # TODO:
 @modal.asgi_app()
 def serve():
     from main import app
