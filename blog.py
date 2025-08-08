@@ -159,6 +159,7 @@ def index():
         "posts/openai_agent_sdk/openai_agent_sdk.ipynb",
         "posts/learning_traits/traits.ipynb",
         "posts/mcp/mcp.ipynb",
+        "posts/mcp2/mcp2.ipynb",
     ]
     metas = []
     for fpath in fpaths:
