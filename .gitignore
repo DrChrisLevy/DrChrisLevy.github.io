@@ -167,3 +167,7 @@ cython_debug/
 .sesskey
 
 data/
+
+# Audio/Video files
+*.m4a
+*.mp4
