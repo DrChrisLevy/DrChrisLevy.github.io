@@ -3,13 +3,22 @@
 Took many code snippets from https://github.com/Isaac-Flath/web/blob/main/app/blog.py.
 See there for more complete nb-dev usage etc, if your into that.
 """
+
 import yaml
 from execnb.nbio import read_nb
 from fastcore.ansi import ansi2html
 from fasthtml.common import *
 from monsterui.all import *
 
-from utils import layout
+
+def blog_layout(content, req):
+    """Layout specifically for blog pages - public navigation only"""
+    from main import NavigationBar  # Import here to avoid circular imports
+
+    return Div(
+        NavigationBar(user=None, show_auth_controls=False),  # Public blog - no logout
+        Container(content, cls=ContainerT.lg),
+    )
 
 
 def extract_directives(cell):
@@ -23,9 +32,13 @@ def extract_directives(cell):
                 # Remove '# |' and split into directive and value
                 parts = line[3:].strip().split(":")
                 if len(parts) >= 2:
-                    key = parts[0].strip() + ":"  # Add back the colon to match your format
+                    key = (
+                        parts[0].strip() + ":"
+                    )  # Add back the colon to match your format
                     value = ":".join(parts[1:]).strip()
-                    directives[key] = [value]  # Store value in a list to match nbdev format
+                    directives[key] = [
+                        value
+                    ]  # Store value in a list to match nbdev format
                 else:
                     # Handle boolean directives without values
                     # directives[parts[0].strip() + ':'] = ['true']
@@ -34,7 +47,7 @@ def extract_directives(cell):
     return directives
 
 
-ar = APIRouter(prefix="/blog", body_wrap=layout)
+ar = APIRouter(prefix="/blog", body_wrap=blog_layout)
 
 
 def get_meta_from_nb(nb):
@@ -57,7 +70,9 @@ def render_code_output(cell, directives, wrapper=Footer):
             txt = ansi2html("".join(out["text"]))
             xtra = "" if out["name"] == "stdout" else "class='stderr'"
             is_err = "<span class" in txt
-            return Safe(f"<pre {xtra}><code class='{'nohighlight hljs' if is_err else ''}'>{txt}</code></pre>")
+            return Safe(
+                f"<pre {xtra}><code class='{'nohighlight hljs' if is_err else ''}'>{txt}</code></pre>"
+            )
         elif otype in ("display_data", "execute_result"):
             data = out["data"]
             _g = lambda t: "".join(data[t]) if t in data else None
@@ -114,7 +129,7 @@ def render_nb(nb):
             remove_directives(cell)
             _output = render_code_output(cell, directives)
             res.append(render_code_input(cell, directives))
-            res.append(Card(_output, cls='mb-8') if _output else "")
+            res.append(Card(_output, cls="mb-8") if _output else "")
         elif cell["cell_type"] == "markdown":
             res.append(render_md(cell.source))
     return res
@@ -171,11 +186,15 @@ def index():
             _meta = get_meta_from_nb(read_nb(fpath))
         _meta["fpath"] = fpath
         _meta["folder"] = folder
-        _meta["image"] = f'../posts/static_blog_imgs/{_meta.get("image", "")}'
+        _meta["image"] = f"../posts/static_blog_imgs/{_meta.get('image', '')}"
         metas.append(_meta)
     metas.sort(key=lambda x: x["date"], reverse=True)
     return Title("Chris Levy Blog"), Div(
-        Div(H1("My Blog", cls="mb-2"), Subtitle("Some Random Things I'm Interested In", cls=TextT.gray + TextT.lg), cls="text-center py-8"),
+        Div(
+            H1("My Blog", cls="mb-2"),
+            Subtitle("Some Random Things I'm Interested In", cls=TextT.gray + TextT.lg),
+            cls="text-center py-8",
+        ),
         Div(Grid(*map(blog_card, metas), cols=1), cls="max-w-4xl mx-auto px-4"),
     )
 
@@ -200,9 +219,16 @@ def blog_card(meta):
                 Div(cls="space-y-3 w-full")(
                     H4(meta["title"]),
                     P(meta.get("description", "")),
-                    DivFullySpaced(map(Small, [meta["author"], meta["date"]]), cls=TextT.meta),
                     DivFullySpaced(
-                        Tags(meta.get("tags", [])), A("Read", cls=("uk-btn", ButtonT.primary, "h-6"), href=blog_post.to(fpath=meta["fpath"]))
+                        map(Small, [meta["author"], meta["date"]]), cls=TextT.meta
+                    ),
+                    DivFullySpaced(
+                        Tags(meta.get("tags", [])),
+                        A(
+                            "Read",
+                            cls=("uk-btn", ButtonT.primary, "h-6"),
+                            href=blog_post.to(fpath=meta["fpath"]),
+                        ),
                     ),
                 ),
             ),

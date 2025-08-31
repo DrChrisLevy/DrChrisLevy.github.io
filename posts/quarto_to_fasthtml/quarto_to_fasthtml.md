@@ -3,7 +3,7 @@ title: Migrating My Blog from Quarto to fastHTML and MonsterUI
 author: Chris Levy
 date: '2025-02-25'
 date-modified: '2025-02-25'
-image: quarto2fasthtml.png
+image: quarto2fasthtml.jpg
 toc: true
 description: In this blog post, I walk through the process of migrating my blog from Quarto to fastHTML.
 tags:
@@ -66,7 +66,7 @@ if d := _g("text/plain"):
 
 Other things I had to change along the way in my previous posts were:
 
-- place all the static images into a designated folder called `static_blog_imgs`. I went through all the previous posts and made code changes such as `![](imgs/fasthtml_demo2.png)` to `![](static_blog_imgs/fasthtml_demo2.png)`
+- place all the static images into a designated folder called `static_blog_imgs`. I went through all the previous posts and made code changes such as `![](imgs/fasthtml_demo2.jpg)` to `![](static_blog_imgs/fasthtml_demo2.jpg)`
 
 - fix all the youtube video links i.e. `{{< video https://www.youtube.com/watch?v=YoXkFCA0qC8 >}}` changed to `<iframe src=\"https://www.youtube.com/embed/YoXkFCA0qC8\" width=\"960\" height=\"540\" allowfullscreen uk-responsive></iframe>\`
 
