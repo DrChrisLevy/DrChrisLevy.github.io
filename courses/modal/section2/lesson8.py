@@ -18,7 +18,6 @@ image = (
     .run_commands('pip install -U nemo_toolkit["asr"]')
     .apt_install("ffmpeg")
     .pip_install("cuda-python>=12.3")
-    .add_local_file("audio.wav", "/audio.wav")
     .add_local_file("courses/modal/section7/lesson22_part3.m4a", "/lesson22_part3.m4a")
 )
 
