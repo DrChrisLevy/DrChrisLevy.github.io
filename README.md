@@ -27,3 +27,11 @@ I would like to get my own domain name eventually.
 ## Redirect GH Pages
 
 - `gh-pages` branch only contains `index.html` and `blog.html`. They contain hardcoded urls with redirects.
+
+
+## Transcription of the Course Videos
+
+Manually edit the file to point to the new audio files and run the script.
+```
+uv run modal run scripts/transcribe_audio.py
+```
