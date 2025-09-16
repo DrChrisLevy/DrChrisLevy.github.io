@@ -48,7 +48,6 @@ beforeware = Beforeware(
         r".*\.js",
         "/login",
         "/signup",
-        r"/posts/static_blog_imgs/.*",
         r"/blog/static_blog_imgs/.*",
         r"/blog/?$",
         r"/blog/blog_post.*",
@@ -68,11 +67,8 @@ app, rt = fast_app(
             "/static", StaticFiles(directory="static")
         ),  # Teaching platform static files
         Mount(
-            "/posts/static_blog_imgs", StaticFiles(directory="posts/static_blog_imgs")
-        ),  # Blog thumbnails
-        Mount(
             "/blog/static_blog_imgs", StaticFiles(directory="posts/static_blog_imgs")
-        ),  # Blog post images
+        ),  # Blog images
     ),
     secret_key=os.getenv(
         "FAST_APP_SECRET"

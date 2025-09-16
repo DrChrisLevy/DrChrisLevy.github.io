@@ -186,7 +186,7 @@ def index():
             _meta = get_meta_from_nb(read_nb(fpath))
         _meta["fpath"] = fpath
         _meta["folder"] = folder
-        _meta["image"] = f"../posts/static_blog_imgs/{_meta.get('image', '')}"
+        _meta["image"] = f"/blog/static_blog_imgs/{_meta.get('image', '')}"
         metas.append(_meta)
     metas.sort(key=lambda x: x["date"], reverse=True)
     return Title("Chris Levy Blog"), Div(
