@@ -5,9 +5,9 @@
 This was a project to force myself to build my first FastHTML app.
 It used Modal for the backend and FastHTML for the frontend.
 
-![](imgs/fasthtml_demo1.png)
+![](imgs/fasthtml_demo1.jpg)
 
-![](imgs/fasthtml_demo2.png)
+![](imgs/fasthtml_demo2.jpg)
 
 The main code is the following:
 
