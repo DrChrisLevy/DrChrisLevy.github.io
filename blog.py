@@ -214,21 +214,19 @@ def blog_post(fpath: str):
 
 
 def blog_card(meta):
-    def Tags(cats):
-        return DivLAligned(map(Label, cats))
-
+    from main import BLOG_CARD_STYLING, CARD_IMAGE_STYLING  # Import here to avoid circular imports
+    
     return A(
         Card(
             DivLAligned(
-                Img(src=meta.get("image", ""), style="width:200px"),
+                Img(src=meta.get("image", ""), cls=CARD_IMAGE_STYLING),
                 Div(cls="space-y-3 w-full")(
                     H4(meta["title"]),
                     P(meta.get("description", "")),
                     DivFullySpaced(
                         map(Small, [meta["author"], meta["date"]]), cls=TextT.meta
                     ),
-                    DivFullySpaced(
-                        Tags(meta.get("tags", [])),
+                    DivRAligned(
                         A(
                             "Read",
                             cls=("uk-btn", ButtonT.primary, "h-6"),
@@ -237,7 +235,7 @@ def blog_card(meta):
                     ),
                 ),
             ),
-            cls=CardT.hover,
+            cls=(CardT.hover, BLOG_CARD_STYLING),
         ),
         href=blog_post.to(fpath=meta["fpath"]),
     )

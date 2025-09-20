@@ -79,6 +79,8 @@ app, rt = fast_app(
 
 CHAT_MESSAGE_STYLING = "w-[85%] my-2 border border-gray-200 rounded-xl shadow-sm"
 COURSE_CARD_STYLING = "card bg-base-100 shadow-xs uk-width-small"
+BLOG_CARD_STYLING = "rounded-xl shadow-sm"
+CARD_IMAGE_STYLING = "w-48 h-32 object-cover rounded-lg"
 
 
 def _Section(*c, **kwargs):
@@ -305,53 +307,57 @@ def course_card(course: Course, user_id: int):
     progress = round(completed_lessons / num_lessons * 100 if num_lessons > 0 else 0, 0)
 
     return Card(
-        Img(src=course.thumbnail, cls="h-48 w-full object-cover"),
-        DivFullySpaced(
-            H3(course.title, cls=(TextT.xl, TextT.bold, TextT.primary)),
-            DivRAligned(
-                UkIcon("check-circle", cls=(TextT.success), height=25, width=25),
-                P("Enrolled", cls=(TextT.success, TextT.bold, TextT.lg)),
-            )
-            if is_enrolled
-            else "",
-        ),
-        P(course.description, cls=(TextT.muted, "mb-4")),
-        (
-            progress_bar(0),
-            A(
-                Button(
-                    "Enroll",
-                    cls=(ButtonT.primary, "mt-3 w-full"),
+        DivLAligned(
+            Img(src=course.thumbnail, cls=CARD_IMAGE_STYLING),
+            Div(cls="space-y-3 w-full")(
+                DivFullySpaced(
+                    H3(course.title, cls=(TextT.xl, TextT.bold, TextT.primary)),
+                    DivRAligned(
+                        UkIcon("check-circle", cls=(TextT.success), height=20, width=20),
+                        P("Enrolled", cls=(TextT.success, TextT.bold, TextT.sm)),
+                    )
+                    if is_enrolled
+                    else "",
                 ),
-                href=enroll.to(course_id=course.id),
-            ),
-        )
-        if not is_enrolled
-        else (
-            progress_bar(progress),
-            A(
-                Button(
-                    "Continue Learning",
-                    cls=(ButtonT.primary, "mt-3 w-full"),
+                P(course.description, cls=(TextT.muted, TextT.sm)),
+                (
+                    progress_bar(0),
+                    A(
+                        Button(
+                            "Enroll",
+                            cls=(ButtonT.primary, "mt-2 w-full", TextT.sm),
+                        ),
+                        href=enroll.to(course_id=course.id),
+                    ),
+                )
+                if not is_enrolled
+                else (
+                    progress_bar(progress),
+                    A(
+                        Button(
+                            "Continue Learning",
+                            cls=(ButtonT.primary, "mt-2 w-full", TextT.sm),
+                        ),
+                        href=course_lessons.to(course_id=course.id),
+                    ),
                 ),
-                href=course_lessons.to(course_id=course.id),
+                DivFullySpaced(
+                    DivLAligned(
+                        UkIcon("clock", width=16, height=16),
+                        P(f"{duration}", cls=(TextT.gray, TextT.xs)),
+                    ),
+                    DivLAligned(
+                        UkIcon("file", width=16, height=16),
+                        P(f"{num_lessons} lessons", cls=(TextT.gray, TextT.xs)),
+                    ),
+                    DivLAligned(
+                        UkIcon("users", width=16, height=16),
+                        P(f"{enrolled_count} users", cls=(TextT.gray, TextT.xs)),
+                    ),
+                ),
             ),
         ),
-        DivFullySpaced(
-            DivLAligned(
-                UkIcon("clock"),
-                P(f"Duration: {duration}", cls=(TextT.gray, TextT.medium)),
-            ),
-            DivLAligned(
-                UkIcon("file"),
-                P(f"{num_lessons} lessons", cls=(TextT.gray, TextT.medium)),
-            ),
-            DivLAligned(
-                UkIcon("users"),
-                P(f"{enrolled_count} users", cls=(TextT.gray, TextT.medium)),
-            ),
-        ),
-        cls=(CardT.hover, COURSE_CARD_STYLING),
+        cls=(CardT.hover, COURSE_CARD_STYLING, "rounded-xl"),
     )
 
 
