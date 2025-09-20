@@ -78,7 +78,7 @@ app, rt = fast_app(
 )
 
 CHAT_MESSAGE_STYLING = "w-[85%] my-2 border border-gray-200 rounded-xl shadow-sm"
-COURSE_CARD_STYLING = "card bg-base-100 shadow-xs uk-width-small"
+COURSE_CARD_STYLING = "card bg-base-100 shadow-xs uk-width-small mb-4"
 BLOG_CARD_STYLING = "rounded-xl shadow-sm"
 CARD_IMAGE_STYLING = "w-48 h-32 object-cover rounded-lg"
 
