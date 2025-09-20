@@ -221,26 +221,25 @@ def toggle_lesson_completion(lesson_id: int, req, switch_value: bool = None):
 
 
 def lesson_card(lesson: Lesson, user_id: int):
-    return Card(
-        DivHStacked(
-            DivFullySpaced(
-                DivLAligned(
-                    Div(cls="space-y-3 uk-width-expand")(
-                        A(
-                            H4(lesson.title),
-                            href=view_lesson.to(lesson_id=lesson.id),
-                            cls=AT.primary,
-                        ),
-                        P(lesson.description, cls=TextPresets.muted_sm),
-                        DivLAligned(
-                            UkIcon("clock"), P(lesson.duration, cls=(TextT.muted,))
+    return A(
+        Card(
+            DivHStacked(
+                DivFullySpaced(
+                    DivLAligned(
+                        Div(cls="space-y-3 uk-width-expand")(
+                            H4(lesson.title, cls=AT.primary),
+                            P(lesson.description, cls=TextPresets.muted_sm),
+                            DivLAligned(
+                                UkIcon("clock"), P(lesson.duration, cls=(TextT.muted,))
+                            ),
                         ),
                     ),
+                    lesson_completion_toggle(lesson.id, user_id),
                 ),
-                lesson_completion_toggle(lesson.id, user_id),
             ),
+            cls=(CardT.hover, COURSE_CARD_STYLING),
         ),
-        cls=(CardT.hover, COURSE_CARD_STYLING),
+        href=view_lesson.to(lesson_id=lesson.id),
     )
 
 
