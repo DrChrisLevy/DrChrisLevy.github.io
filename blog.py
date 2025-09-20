@@ -181,8 +181,6 @@ def index():
         "posts/mcp/mcp.ipynb",
         "posts/mcp2/mcp2.ipynb",
         "posts/qwen_image_edit/qwen_image_edit.ipynb",
-        "posts/newpost1/new1.md",
-        "posts/newpost2/new2.ipynb",
     ]
     metas = []
     for fpath in fpaths:
