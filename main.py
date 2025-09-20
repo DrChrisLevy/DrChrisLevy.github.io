@@ -78,7 +78,7 @@ app, rt = fast_app(
 )
 
 CHAT_MESSAGE_STYLING = "w-[85%] my-2 border border-gray-200 rounded-xl shadow-sm"
-COURSE_CARD_STYLING = "card bg-base-100 shadow-xs uk-width-small mb-4"
+CARD_STYLING = "card bg-base-100 shadow-xs uk-width-small mb-4"
 BLOG_CARD_STYLING = "rounded-xl shadow-sm"
 CARD_IMAGE_STYLING = "w-48 h-32 object-cover rounded-lg"
 
@@ -237,7 +237,7 @@ def lesson_card(lesson: Lesson, user_id: int):
                     lesson_completion_toggle(lesson.id, user_id),
                 ),
             ),
-            cls=(CardT.hover, COURSE_CARD_STYLING),
+            cls=(CardT.hover, CARD_STYLING),
         ),
         href=view_lesson.to(lesson_id=lesson.id),
     )
@@ -356,7 +356,7 @@ def course_card(course: Course, user_id: int):
                 ),
             ),
         ),
-        cls=(CardT.hover, COURSE_CARD_STYLING),
+        cls=(CardT.hover, CARD_STYLING),
     )
 
 
