@@ -122,7 +122,7 @@ def render_nb(nb):
     "Render a notebook as a list of html elements"
     res = []
     meta = get_meta_from_nb(nb)
-    res.append(Div(H1(meta["title"]), Subtitle(meta.get("subtitle", "")), cls="my-9"))
+    res.append(render_title(meta))
     for cell in nb.cells[1:]:
         if cell["cell_type"] == "code":
             directives = extract_directives(cell)
@@ -133,6 +133,11 @@ def render_nb(nb):
         elif cell["cell_type"] == "markdown":
             res.append(render_md(cell.source))
     return res
+
+
+def render_title(meta):
+    """Render a consistent title element from metadata"""
+    return Div(H1(meta["title"]), Subtitle(meta.get("subtitle", "")), cls="my-9")
 
 
 def get_meta_from_md(fpath: str):
@@ -176,6 +181,8 @@ def index():
         "posts/mcp/mcp.ipynb",
         "posts/mcp2/mcp2.ipynb",
         "posts/qwen_image_edit/qwen_image_edit.ipynb",
+        "posts/newpost1/new1.md",
+        "posts/newpost2/new2.ipynb",
     ]
     metas = []
     for fpath in fpaths:
@@ -202,8 +209,8 @@ def index():
 @ar
 def blog_post(fpath: str):
     if fpath.endswith(".md"):
-        _, markdown_content = get_meta_from_md(fpath)
-        return Title("Chris Levy Blog Post"), Container(render_md(markdown_content))
+        meta, markdown_content = get_meta_from_md(fpath)
+        return Title("Chris Levy Blog Post"), render_title(meta), render_md(markdown_content)
     else:
         return Title("Chris Levy Blog Post"), render_nb(read_nb(fpath))
 
