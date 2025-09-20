@@ -356,7 +356,7 @@ def course_card(course: Course, user_id: int):
                 ),
             ),
         ),
-        cls=(CardT.hover, COURSE_CARD_STYLING, "rounded-xl"),
+        cls=(CardT.hover, COURSE_CARD_STYLING),
     )
 
 
