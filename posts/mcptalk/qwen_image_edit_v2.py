@@ -1,12 +1,25 @@
 import io
 import os
 import time
-
+from typing import List
 import modal
+from pydantic import BaseModel
 
 # S3 configuration
 S3_BUCKET = "dev-dashhudson-static"
 S3_PREFIX = "research/chris/images"
+
+
+class ImageEditRequest(BaseModel):
+    image_urls: List[str]
+    prompt: str
+    negative_prompt: str = " "
+    true_cfg_scale: float = 4.0
+    seed: int = 0
+    randomize_seed: bool = False
+    num_inference_steps: int = 40
+    guidance_scale: float = 1.0
+    num_images_per_prompt: int = 1
 
 # Image with required dependencies
 image = (
@@ -45,7 +58,7 @@ hf_hub_cache = modal.Volume.from_name("hf_hub_cache", create_if_missing=True)
     volumes={
         "/root/.cache/huggingface/hub/": hf_hub_cache,
     },
-    scaledown_window=10 * 60,
+    scaledown_window=30 * 60,
     max_containers=2,
     # enable_memory_snapshot=True, # in alpha # https://modal.com/blog/gpu-mem-snapshots
     # experimental_options={"enable_gpu_snapshot": True}
@@ -56,11 +69,10 @@ class QwenImageEditor:
     def setup(self):
         """Load Qwen-Image-Edit model once per container"""
         import torch
-        from diffusers import QwenImageEditPipeline
+        from diffusers import QwenImageEditPlusPipeline
 
-        print("Loading Qwen/Qwen-Image-Edit model...")
-        self.pipe = QwenImageEditPipeline.from_pretrained("Qwen/Qwen-Image-Edit")
-        self.pipe.to(torch.bfloat16)
+        print("Loading Qwen/Qwen-Image-Edit-2509 model...")
+        self.pipe = QwenImageEditPlusPipeline.from_pretrained("Qwen/Qwen-Image-Edit-2509", torch_dtype=torch.bfloat16)
         self.pipe.to("cuda")
         self.pipe.set_progress_bar_config(disable=None)
         print("Model loaded successfully!")
@@ -113,13 +125,15 @@ class QwenImageEditor:
 
     def edit_image(
         self,
-        image_url: str,
+        image_urls: List[str],
         prompt: str,
         negative_prompt: str = " ",
         true_cfg_scale: float = 4.0,
         seed: int = 0,
         randomize_seed: bool = False,
-        num_inference_steps: int = 50,
+        num_inference_steps: int = 40,
+        guidance_scale: float = 1.0,
+        num_images_per_prompt: int = 1,
     ):
         import random
         import uuid
@@ -128,22 +142,25 @@ class QwenImageEditor:
         import numpy as np
         import torch
 
-        input_image = self._download_image_from_url(image_url)
+        # Download all input images
+        input_images = [self._download_image_from_url(url) for url in image_urls]
 
         MAX_SEED = np.iinfo(np.int32).max
         if randomize_seed:
             seed = random.randint(0, MAX_SEED)
 
-        print(f"Editing image {image_url} with prompt: {prompt}")
+        print(f"Editing {len(image_urls)} image(s) with prompt: {prompt}")
 
-        # Edit image using Qwen-Image-Edit exactly like the original
+        # Edit image using Qwen-Image-Edit-Plus with new parameters
         inputs = {
-            "image": input_image,
+            "image": input_images,
             "prompt": prompt,
             "generator": torch.manual_seed(seed),
             "true_cfg_scale": true_cfg_scale,
             "negative_prompt": negative_prompt,
             "num_inference_steps": num_inference_steps,
+            "guidance_scale": guidance_scale,
+            "num_images_per_prompt": num_images_per_prompt,
         }
 
         with torch.inference_mode():
@@ -159,37 +176,32 @@ class QwenImageEditor:
         image_url_output = self._upload_image_to_s3(edited_image, filename)
 
         return {
-            "original_image_url": image_url,
+            "original_image_urls": image_urls,
             "image_url": image_url_output,
             "prompt": prompt,
             "negative_prompt": negative_prompt,
             "true_cfg_scale": true_cfg_scale,
             "seed": seed,
             "num_inference_steps": num_inference_steps,
+            "guidance_scale": guidance_scale,
+            "num_images_per_prompt": num_images_per_prompt,
         }
 
     @modal.fastapi_endpoint(
         method="POST",
         docs=True,
     )
-    def edit_image_endpoint(
-        self,
-        image_url: str,
-        prompt: str,
-        negative_prompt: str = " ",
-        true_cfg_scale: float = 4.0,
-        seed: int = 0,
-        randomize_seed: bool = False,
-        num_inference_steps: int = 50,
-    ):
+    def edit_image_endpoint(self, request: ImageEditRequest):
         """Public FastAPI endpoint for image editing"""
         return self.edit_image(
-            image_url=image_url,
-            prompt=prompt,
-            negative_prompt=negative_prompt,
-            true_cfg_scale=true_cfg_scale,
-            seed=seed,
-            randomize_seed=randomize_seed,
-            num_inference_steps=num_inference_steps,
+            image_urls=request.image_urls,
+            prompt=request.prompt,
+            negative_prompt=request.negative_prompt,
+            true_cfg_scale=request.true_cfg_scale,
+            seed=request.seed,
+            randomize_seed=request.randomize_seed,
+            num_inference_steps=request.num_inference_steps,
+            guidance_scale=request.guidance_scale,
+            num_images_per_prompt=request.num_images_per_prompt,
         )
 
