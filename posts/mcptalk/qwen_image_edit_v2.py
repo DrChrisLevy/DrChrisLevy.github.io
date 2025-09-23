@@ -1,7 +1,6 @@
 import io
-import os
-import time
 from typing import List
+
 import modal
 from pydantic import BaseModel
 
@@ -20,6 +19,7 @@ class ImageEditRequest(BaseModel):
     num_inference_steps: int = 40
     guidance_scale: float = 1.0
     num_images_per_prompt: int = 1
+
 
 # Image with required dependencies
 image = (
@@ -76,9 +76,10 @@ class QwenImageEditor:
         self.pipe.to("cuda")
         self.pipe.set_progress_bar_config(disable=None)
         print("Model loaded successfully!")
-        
+
         # Initialize S3 client
         import boto3
+
         self.s3_client = boto3.client("s3")
 
     def _download_image_from_url(self, image_url: str):
@@ -91,34 +92,28 @@ class QwenImageEditor:
 
         image = Image.open(io.BytesIO(response.content)).convert("RGB")
         return image
-    
+
     def _upload_image_to_s3(self, image, filename: str) -> str:
         """Upload PIL Image to S3 and return the S3 URL"""
-        import boto3
         from botocore.exceptions import ClientError
-        
+
         # Convert PIL Image to bytes
         img_buffer = io.BytesIO()
-        image.save(img_buffer, format='PNG')
+        image.save(img_buffer, format="PNG")
         img_buffer.seek(0)
-        
+
         # S3 key (path)
         s3_key = f"{S3_PREFIX}/{filename}"
-        
+
         try:
             # Upload to S3
-            self.s3_client.upload_fileobj(
-                img_buffer,
-                S3_BUCKET,
-                s3_key,
-                ExtraArgs={'ContentType': 'image/png'}
-            )
-            
+            self.s3_client.upload_fileobj(img_buffer, S3_BUCKET, s3_key, ExtraArgs={"ContentType": "image/png"})
+
             # Return S3 URL
             s3_url = f"https://{S3_BUCKET}.s3.amazonaws.com/{s3_key}"
             print(f"Image uploaded successfully to S3: {s3_url}")
             return s3_url
-            
+
         except ClientError as e:
             print(f"Error uploading to S3: {e}")
             raise
@@ -204,4 +199,3 @@ class QwenImageEditor:
             guidance_scale=request.guidance_scale,
             num_images_per_prompt=request.num_images_per_prompt,
         )
-
