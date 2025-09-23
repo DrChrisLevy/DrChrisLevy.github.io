@@ -11,6 +11,11 @@ Note: this could change in the future as modal improves.
     a "code" field and a user-supplied "command_id". The execution output (stdout and stderr)
     is written to '/modal/io/<command_id>.txt'.
 
+    Volume Support:
+    - Optionally attach a Modal Volume for persistent data storage
+    - Volume is mounted at /data by default (configurable)
+    - Provides methods to commit and reload volume data
+
     Based off this GIST from Peyton (Modal Developer)
     https://gist.github.com/pawalt/7cd4dc56de29e9cddba4d97decaab1ad
 """
@@ -98,6 +103,14 @@ class ModalSandbox:
         init_script: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        # Hard-coded volume configuration
+        self.volume_name = "sandbox-data"
+        self.volume_mount_path = "/data"
+
+        # Setup volume
+        self.volume = modal.Volume.from_name(self.volume_name, create_if_missing=True)
+        volumes = {self.volume_mount_path: self.volume}
+
         # check if running Sandbox already exists
         if sandbox_id is not None:
             existing_sb = self._get_running_sandbox_from_id(sandbox_id)
@@ -113,6 +126,7 @@ class ModalSandbox:
             image=self.IMAGE,
             app=app,
             timeout=timeout,
+            volumes=volumes,
             **kwargs,
         )
         if init_script:
