@@ -1,7 +1,5 @@
 import io
 import math
-import os
-import time
 
 import modal
 
@@ -79,9 +77,7 @@ class QwenImageEditor:
             "use_karras_sigmas": False,
         }
         scheduler = FlowMatchEulerDiscreteScheduler.from_config(scheduler_config)
-        self.pipe = QwenImageEditPipeline.from_pretrained(
-            "Qwen/Qwen-Image-Edit", scheduler=scheduler, torch_dtype=dtype
-        ).to(device)
+        self.pipe = QwenImageEditPipeline.from_pretrained("Qwen/Qwen-Image-Edit", scheduler=scheduler, torch_dtype=dtype).to(device)
         self.pipe.load_lora_weights(
             "lightx2v/Qwen-Image-Lightning",
             weight_name="Qwen-Image-Lightning-8steps-V1.1.safetensors",
@@ -89,9 +85,10 @@ class QwenImageEditor:
         self.pipe.fuse_lora()
         self.pipe.set_progress_bar_config(disable=None)
         print("Model loaded successfully with Lightning acceleration!")
-        
+
         # Initialize S3 client
         import boto3
+
         self.s3_client = boto3.client("s3")
 
     def _download_image_from_url(self, image_url: str):
@@ -104,34 +101,28 @@ class QwenImageEditor:
 
         image = Image.open(io.BytesIO(response.content)).convert("RGB")
         return image
-    
+
     def _upload_image_to_s3(self, image, filename: str) -> str:
         """Upload PIL Image to S3 and return the S3 URL"""
-        import boto3
         from botocore.exceptions import ClientError
-        
+
         # Convert PIL Image to bytes
         img_buffer = io.BytesIO()
-        image.save(img_buffer, format='PNG')
+        image.save(img_buffer, format="PNG")
         img_buffer.seek(0)
-        
+
         # S3 key (path)
         s3_key = f"{S3_PREFIX}/{filename}"
-        
+
         try:
             # Upload to S3
-            self.s3_client.upload_fileobj(
-                img_buffer,
-                S3_BUCKET,
-                s3_key,
-                ExtraArgs={'ContentType': 'image/png'}
-            )
-            
+            self.s3_client.upload_fileobj(img_buffer, S3_BUCKET, s3_key, ExtraArgs={"ContentType": "image/png"})
+
             # Return S3 URL
             s3_url = f"https://{S3_BUCKET}.s3.amazonaws.com/{s3_key}"
             print(f"Image uploaded successfully to S3: {s3_url}")
             return s3_url
-            
+
         except ClientError as e:
             print(f"Error uploading to S3: {e}")
             raise
