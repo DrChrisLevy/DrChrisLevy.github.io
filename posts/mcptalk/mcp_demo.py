@@ -7,10 +7,10 @@ image = (
     .add_local_file("posts/mcptalk/python_sandbox.py", remote_path="/root/python_sandbox.py")
 )
 
-app = modal.App("fastmcp-modal-demo", image=image)
+app = modal.App("fastmcp-modal-demo", image=image, secrets=[modal.Secret.from_name("google-api-key")])
 
 
-@app.function(scaledown_window=60 * 60)
+@app.function(scaledown_window=60 * 60, cpu=4, memory=4*1024)
 @modal.concurrent(max_inputs=100)
 @modal.asgi_app()
 def mcp_asgi():
@@ -23,7 +23,16 @@ def mcp_asgi():
 
     mcp = FastMCP(
         name="HelpfulAssistant",
-        instructions="""This server provides some useful tools for the user.""",
+        instructions="""
+        This assistant has several features at its disposal.
+        
+        Python Sandbox Environment tool for executing python code.
+        Image Editing Tools:
+            - slow version of the image editor
+            - fast version of the image editor
+        
+        
+        """,
     )
 
     @mcp.tool
@@ -31,14 +40,16 @@ def mcp_asgi():
         """Run arbitrary python code in a sandboxed environment. It is stateful and persistent between calls.
         Install packages with: os.system("pip install <package_name>")
         When saving files always save them in the directory /data.
-        This is a volume and all data can be accessed by the user using
+        For example to save <filename> write it to /data/<filename>
+        The data/ directory is a volume and all data can be accessed by the user using
         the url format: 
         https://modal.com/api/volumes/drchrislevy/main/sandbox-data/files/content?path=<filename>
+        When giving back information to the user always use the url format.
         """
         return sb.run_code(code)
 
     @mcp.tool
-    def edit_image(
+    def edit_image_fast(
         image_urls: list[str],
         prompt: str,
         negative_prompt: str = " ",
@@ -49,10 +60,50 @@ def mcp_asgi():
     ) -> dict:
         """Edit existing images using AI based on a text prompt.
         Provide a list of image URLs to edit and a description of how you want to modify them.
-        Returns the edited image URL and metadata."""
+        Returns the edited image URL and metadata.
+        This is the faster version of the image editor and num_inference_steps=8 is a good default.
+        Leave negative_prompt blank unless explicitly asked to add one.
+        """
         import requests
 
         endpoint_url = "https://drchrislevy--qwen-image-editor-fast-v2-qwenimageeditor-e-7b29bc.modal.run/"
+
+        payload = {
+            "image_urls": image_urls,
+            "prompt": prompt,
+            "negative_prompt": negative_prompt,
+            "true_cfg_scale": true_cfg_scale,
+            "seed": seed,
+            "randomize_seed": randomize_seed,
+            "num_inference_steps": num_inference_steps,
+        }
+
+        response = requests.post(
+            endpoint_url,
+            json=payload,
+            timeout=120,
+        )
+        return response.json()
+
+    @mcp.tool
+    def edit_image_slow(
+        image_urls: list[str],
+        prompt: str,
+        negative_prompt: str = " ",
+        true_cfg_scale: float = 4.0,
+        seed: int = 0,
+        randomize_seed: bool = False,
+        num_inference_steps: int = 40,
+    ) -> dict:
+        """Edit existing images using AI based on a text prompt.
+        Provide a list of image URLs to edit and a description of how you want to modify them.
+        Returns the edited image URL and metadata.
+        This is the slower version of the image editor and num_inference_steps=40 is a good default.
+        Leave negative_prompt blank unless explicitly asked to add one.
+        """
+        import requests
+
+        endpoint_url = "https://drchrislevy--qwen-image-editor-qwenimageeditor-edit-imag-10fda9.modal.run"
 
         payload = {
             "image_urls": image_urls,

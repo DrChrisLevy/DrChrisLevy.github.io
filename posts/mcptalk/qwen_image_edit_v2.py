@@ -59,7 +59,7 @@ hf_hub_cache = modal.Volume.from_name("hf_hub_cache", create_if_missing=True)
         "/root/.cache/huggingface/hub/": hf_hub_cache,
     },
     scaledown_window=30 * 60,
-    max_containers=2,
+    max_containers=5,
     # enable_memory_snapshot=True, # in alpha # https://modal.com/blog/gpu-mem-snapshots
     # experimental_options={"enable_gpu_snapshot": True}
 )
